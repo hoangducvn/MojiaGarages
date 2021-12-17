@@ -211,7 +211,7 @@ RegisterNetEvent('Garage:storeVehicle', function()
 							OutsideVehicles[plate] = veh
 							TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
 						end
-						QBCore.Functions.Notify('Vehicle parked in '..Garages[currentgarage].label, "primary", 4500)
+						QBCore.Functions.Notify('Vehicle parked in '..Garages[currentgarage].label, "success", 4500)
 					else
 						QBCore.Functions.Notify('Nobody owns this vehicle', "error", 3500)
 					end
