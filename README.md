@@ -16,7 +16,7 @@ function QBCore.Functions.CreateBlip(coords, sprite, scale, color, text)
 	SetBlipColour(blip, color)
 	SetBlipAlpha(Blip, 0.7)
 	BeginTextCommandSetBlipName('STRING')
-	AddTextComponentString("<font face='Oswald'>"..text.."</font>")
+	AddTextComponentString(text)
 	EndTextCommandSetBlipName(blip)
 end
 
