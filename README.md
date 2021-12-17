@@ -43,6 +43,14 @@ function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, max
 	return nearbyEntities
 end
 ```
+### Edit in qb-phone\fxmanifest.lua:
+```
+shared_scripts {
+    'config.lua',
+    '@qb-apartments/config.lua',
+    '@MojiaGarages/config.lua',
+}
+```
 ### Edit in qb-phone\server\main.lua:
 ```
 QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(source, cb)
@@ -165,3 +173,5 @@ For example:
 	end
 },
 ```
+### In progress:
+House and Gang garages
