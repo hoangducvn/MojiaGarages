@@ -198,7 +198,7 @@ RegisterNetEvent('Garage:storeVehicle', function()
 					if owned then					
 						local bodyDamage = math.ceil(GetVehicleBodyHealth(curVeh))
 						local engineDamage = math.ceil(GetVehicleEngineHealth(curVeh))
-						local totalFuel = exports['MojiaFuel']:GetFuel(curVeh)
+						local totalFuel = exports['LegacyFuel']:GetFuel(curVeh)
 						local passenger = GetVehicleMaxNumberOfPassengers(curVeh)
 						if IsPedInAnyVehicle(ped) then
 							CheckPlayers(curVeh)
