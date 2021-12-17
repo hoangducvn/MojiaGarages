@@ -91,9 +91,9 @@ RegisterNetEvent('Garage:openGarage', function()
 						if v.state == 0 then
 							vname1 = v.depotprice
 						elseif v.state == 1 then
-							vname1 = QBCore.Shared.MultilLang('garage_garaged')
+							vname1 = 'garaged'
 						elseif v.state == 2 then
-							vname1 = QBCore.Shared.MultilLang('garage_impound')
+							vname1 = 'impound'
 						end
 						table.insert(MenuGaraOptions, {
 							header = vname.." ["..vname1.."]",
@@ -106,7 +106,7 @@ RegisterNetEvent('Garage:openGarage', function()
 					end
 				end
 				table.insert(MenuGaraOptions, {
-					header = QBCore.Shared.MultilLang('menu_close'),
+					header = 'Close',
 					txt = "",
 					params = {
 						event = "qb-menu:closeMenu",
@@ -153,13 +153,13 @@ RegisterNetEvent('Garage:client:doTakeOutVehicle', function(vehicle)
 					QBCore.Functions.SetVehicleProperties(veh, properties)
 					SetVehicleNumberPlateText(veh, vehicle.plate)
 					SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
-					exports['MojiaFuel']:SetFuel(veh, vehicle.fuel)
+					exports['LegacyFuel']:SetFuel(veh, vehicle.fuel)
 					doCarDamage(veh, vehicle)
 					SetEntityAsMissionEntity(veh, true, true)
 					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
 					QBCore.Functions.Notify(QBCore.Shared.MultilLang('vehicle_off') .. QBCore.Shared.MultilLang('motor_title') .. enginePercent .. "% " .. QBCore.Shared.MultilLang('body_title') .. bodyPercent.. "% " .. QBCore.Shared.MultilLang('fuel_title')..currentFuel.. "%", "primary", 4500)
 					TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-					TriggerEvent('MojiaVehicles:addTempKey', QBCore.Functions.GetPlate(veh))
+					TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
 					SetVehicleEngineOn(veh, true, true)
 				end, vehicle.plate)
 
@@ -211,9 +211,9 @@ RegisterNetEvent('Garage:storeVehicle', function()
 							OutsideVehicles[plate] = veh
 							TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
 						end
-						QBCore.Functions.Notify(string.format(QBCore.Shared.MultilLang('vehicle_parked_in_x'), Garages[currentgarage].label), "primary", 4500)
+						QBCore.Functions.Notify('Vehicle parked in '..Garages[currentgarage].label), "primary", 4500)
 					else
-						QBCore.Functions.Notify(QBCore.Shared.MultilLang('nobody_owns_this_vehicle'), "error", 3500)
+						QBCore.Functions.Notify('Nobody owns this vehicle', "error", 3500)
 					end
 				end, plate)
 			end
