@@ -174,4 +174,4 @@ For example:
 },
 ```
 ### In progress:
-House and Gang garages
+House garages
