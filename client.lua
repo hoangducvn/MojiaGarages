@@ -20,7 +20,7 @@ Citizen.CreateThread(function()
 			name="GarageStation "..k,
 			minZ = 	v.minz,
 			maxZ = v.maxz,
-			debugPoly = true
+			debugPoly = false
 		})
 		Stations[k]:onPlayerInOut(function(isPointInside)
 			if isPointInside then
