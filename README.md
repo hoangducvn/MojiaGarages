@@ -175,3 +175,7 @@ For example:
 ```
 ### In progress:
 House garages
+### Note:
+```
+This script is completely free for qb-core community, it is strictly forbidden to use this script for commercial purposes
+```
