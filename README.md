@@ -113,7 +113,55 @@ end)
 ```
 'Garage:openGarage'
 ```
+For example:
+```
+--Open Garage:
+{
+	id = "opengarage",
+	title = 'Open Garage',
+	icon = '#mj-garage-open',
+	type = 'client',
+	event = 'Garage:openGarage',
+	enableMenu = function()
+		PlayerData = QBCore.Functions.GetPlayerData()
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and exports["MojiaGarages"]:IsInGarage() then 
+			local ped = PlayerPedId()
+			if not IsPedInAnyVehicle(ped, false) then
+				return true
+			end
+		end
+		return false
+	end
+},
+```
 - Store Vehicle:
 ```
 'Garage:storeVehicle'
+```
+For example:
+```
+--Store Vehicle:
+{
+	id = "storeVehicle",
+	title = 'Store Vehicle',
+	icon = '#mj-parking',
+	type = 'client',
+	event = 'Garage:storeVehicle',
+	enableMenu = function()
+		PlayerData = QBCore.Functions.GetPlayerData()
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and exports["MojiaGarages"]:IsInGarage() then 
+			local ped = PlayerPedId()
+			local pos = GetEntityCoords(ped)
+			local ped = PlayerPedId()
+			local veh = QBCore.Functions.GetClosestVehicle(pos)
+			if IsPedInAnyVehicle(ped) then
+				veh = GetVehiclePedIsIn(ped)
+			end
+			if exports["MojiaVehicleKey"]:CheckHasKey(veh) then
+				return true
+			end
+		end
+		return false
+	end
+},
 ```
