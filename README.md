@@ -1,5 +1,10 @@
 ### [Preview - Youtube](https://youtu.be/83jV2z_Ime4)
 
+## Dependencies
+- [qb-core](https://github.com/qbcore-framework/qb-core)
+- [PolyZone](https://github.com/qbcore-framework/PolyZone)
+- [qb-menu](https://github.com/qbcore-framework/qb-menu)
+
 ### Add this function to qb-core/client/functions.lua
 ```
 function QBCore.Functions.CreateBlip(coords, sprite, scale, color, text)
@@ -104,11 +109,11 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(so
 end)
 ```
 ### Add event to F1 menu:
-Open Garage:
+- Open Garage:
 ```
 'Garage:openGarage'
 ```
-Store Vehicle:
+- Store Vehicle:
 ```
 'Garage:storeVehicle'
 ```
