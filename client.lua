@@ -1,0 +1,294 @@
+local QBCore = exports['MojiaCity']:GetCoreObject()
+local inGarageStation = false
+local currentgarage = nil
+local nearspawnpoint = nil
+local OutsideVehicles = {}
+local Stations = {}
+
+CreateThread(function()
+	for k, v in pairs(Config.Garages) do
+		if v.showBlip then
+			QBCore.Functions.CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+		end
+	end
+end)
+
+Citizen.CreateThread(function() 
+    for k, v in pairs(Config.Garages) do
+		Stations[k] = PolyZone:Create(v.zones, {
+			name="GarageStation "..k,
+			minZ = 	v.minz,
+			maxZ = v.maxz,
+			debugPoly = true
+		})
+		Stations[k]:onPlayerInOut(function(isPointInside)
+			if isPointInside then
+				if Config.Garages[k].job ~= nil then
+					PlayerData = QBCore.Functions.GetPlayerData()
+					if PlayerData.job.name == Config.Garages[k].job then
+						inGarageStation = true
+						currentgarage = k
+					else
+						inGarageStation = false
+						currentgarage = nil
+					end
+				else
+					inGarageStation = true
+					currentgarage = k
+				end
+			else
+				inGarageStation = false
+				currentgarage = nil
+			end
+		end)
+    end
+end)
+Citizen.CreateThread(function()
+	while true do
+		Wait(0)
+		if inGarageStation and currentgarage ~= nil then
+			nearspawnpoint = GetNearSpawnPoint()
+		end
+	end
+end)
+
+function IsInGarage()
+	local check = false
+	if inGarageStation and currentgarage ~= nil then
+		check = true
+	end
+	return check
+end
+
+function round(num, numDecimalPlaces)
+    return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
+end
+
+--Mở danh sách xe trong gara:
+RegisterNetEvent('Garage:openGarage', function()
+    if inGarageStation and currentgarage ~= nil then
+		QBCore.Functions.TriggerCallback("MojiaGarages:server:GetUserVehicles", function(result)
+			if result == nil then
+				QBCore.Functions.Notify("There are no vehicles in the garage", "error", 5000)
+			else
+				local MenuGaraOptions = {
+					{
+						header = '🚘| ' .. Config.Garages[currentgarage].label,
+						isMenuHeader = true
+					},
+				}
+				for i, v in pairs(result) do
+					if v.state == Config.Garages[currentgarage].garastate then
+						if Config.Garages[currentgarage].fullfix then
+							v.engine = 1000
+							v.body = 1000
+							v.fuel = 100
+						end
+						enginePercent = round(v.engine / 10, 0)
+						bodyPercent = round(v.body / 10, 0)
+						currentFuel = v.fuel						
+						vname = QBCore.Shared.Vehicles[v.vehicle].name
+						if v.state == 0 then
+							vname1 = v.depotprice
+						elseif v.state == 1 then
+							vname1 = QBCore.Shared.MultilLang('garage_garaged')
+						elseif v.state == 2 then
+							vname1 = QBCore.Shared.MultilLang('garage_impound')
+						end
+						table.insert(MenuGaraOptions, {
+							header = vname.." ["..vname1.."]",
+							txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+							params = {
+								event = "Garage:client:TakeOutVehicle",
+								args = v
+							}
+						})
+					end
+				end
+				table.insert(MenuGaraOptions, {
+					header = QBCore.Shared.MultilLang('menu_close'),
+					txt = "",
+					params = {
+						event = "qb-menu:closeMenu",
+					}
+				})
+				exports['qb-menu']:openMenu(MenuGaraOptions)
+			end
+		end)
+	end
+end)
+
+--Lấy xe khỏi gara:
+RegisterNetEvent('Garage:client:TakeOutVehicle', function(vehicle)
+    if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
+		if vehicle.state == 0 then
+			TriggerServerEvent("MojiaGarages:server:PayDepotPrice", vehicle)
+			Wait(1000)
+		else
+			TriggerEvent("Garage:client:doTakeOutVehicle", vehicle)
+		end
+	end
+end)
+
+RegisterNetEvent('Garage:client:doTakeOutVehicle', function(vehicle)
+    if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
+		local lastnearspawnpoint = nearspawnpoint
+		enginePercent = round(vehicle.engine / 10, 1)
+		bodyPercent = round(vehicle.body / 10, 1)
+		currentFuel = vehicle.fuel
+		
+		if not QBCore.Functions.IsSpawnPointClear(vector3(Config.Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Config.Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Config.Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
+			QBCore.Functions.Notify('The receiving area is obstructed by something...', "error", 2500)
+			return
+		else
+			QBCore.Functions.SpawnVehicle(vehicle.vehicle, function(veh)
+				QBCore.Functions.TriggerCallback('MojiaGarages:server:GetVehicleProperties', function(properties)
+
+					if vehicle.plate ~= nil then
+						OutsideVehicles[vehicle.plate] = veh
+						TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
+					end
+
+					QBCore.Functions.SetVehicleProperties(veh, properties)
+					SetVehicleNumberPlateText(veh, vehicle.plate)
+					SetEntityHeading(veh, Config.Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
+					exports['MojiaFuel']:SetFuel(veh, vehicle.fuel)
+					doCarDamage(veh, vehicle)
+					SetEntityAsMissionEntity(veh, true, true)
+					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
+					QBCore.Functions.Notify(QBCore.Shared.MultilLang('vehicle_off') .. QBCore.Shared.MultilLang('motor_title') .. enginePercent .. "% " .. QBCore.Shared.MultilLang('body_title') .. bodyPercent.. "% " .. QBCore.Shared.MultilLang('fuel_title')..currentFuel.. "%", "primary", 4500)
+					TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+					TriggerEvent('MojiaVehicles:addTempKey', QBCore.Functions.GetPlate(veh))
+					SetVehicleEngineOn(veh, true, true)
+				end, vehicle.plate)
+
+			end, Config.Garages[currentgarage].spawnPoint[lastnearspawnpoint], true)
+		end
+	end
+end)
+
+--Gửi xe vào gara:
+RegisterNetEvent('Garage:storeVehicle', function()
+    if inGarageStation and currentgarage ~= nil then
+		if Config.Garages[currentgarage].garastate == 1 then
+			local ped = PlayerPedId()
+			local pos = GetEntityCoords(ped)
+			local curVeh = QBCore.Functions.GetClosestVehicle(pos)
+			if IsPedInAnyVehicle(ped) then
+				curVeh = GetVehiclePedIsIn(ped)
+			end
+			local plate = QBCore.Functions.GetPlate(curVeh)
+			local vehpos = GetEntityCoords(curVeh)
+			
+			if curVeh and #(pos - vehpos) < 7.5 then
+				QBCore.Functions.TriggerCallback('MojiaVehicles:checkVehicleOwner', function(owned)
+					if owned then					
+						local bodyDamage = math.ceil(GetVehicleBodyHealth(curVeh))
+						local engineDamage = math.ceil(GetVehicleEngineHealth(curVeh))
+						local totalFuel = exports['MojiaFuel']:GetFuel(curVeh)
+						local passenger = GetVehicleMaxNumberOfPassengers(curVeh)
+						if IsPedInAnyVehicle(ped) then
+							CheckPlayers(curVeh)
+						else
+							QBCore.Functions.DeleteVehicle(curVeh)
+						end
+						TriggerServerEvent('MojiaGarages:server:updateVehicleStatus', totalFuel, engineDamage, bodyDamage, plate, currentgarage)
+						TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, currentgarage)
+						if plate ~= nil then
+							OutsideVehicles[plate] = veh
+							TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
+						end
+						QBCore.Functions.Notify(string.format(QBCore.Shared.MultilLang('vehicle_parked_in_x'), Config.Garages[currentgarage].label), "primary", 4500)
+					else
+						QBCore.Functions.Notify(QBCore.Shared.MultilLang('nobody_owns_this_vehicle'), "error", 3500)
+					end
+				end, plate)
+			end
+		end
+	end
+end)
+
+function GetNearSpawnPoint()
+	local near = nil
+	local distance = 10000
+	if inGarageStation and currentgarage ~= nil then
+		for k, v in pairs(Config.Garages[currentgarage].spawnPoint) do
+			if QBCore.Functions.IsSpawnPointClear(vector3(v.x, v.y, v.z), 2.5) then
+				local ped = PlayerPedId()
+				local pos = GetEntityCoords(ped)
+				local cur_distance = #(pos - vector3(v.x, v.y, v.z))
+				if cur_distance < distance then
+					distance = cur_distance
+					near = k
+				end
+			end
+		end
+	end
+	return near
+end
+
+function CheckPlayers(vehicle)
+    for i = -1, 5,1 do                
+        seat = GetPedInVehicleSeat(vehicle,i)
+        if seat ~= 0 then
+            TaskLeaveVehicle(seat,vehicle,0)
+            SetVehicleDoorsLocked(vehicle)
+            Wait(1500)
+            QBCore.Functions.DeleteVehicle(vehicle)
+        end
+   end
+end
+
+function doCarDamage(currentVehicle, veh)
+	smash = false
+	damageOutside = false
+	damageOutside2 = false
+	local engine = veh.engine + 0.0
+	local body = veh.body + 0.0
+	if engine < 200.0 then
+		engine = 200.0
+    end
+
+    if engine > 1000.0 then
+        engine = 1000.0
+    end
+
+	if body < 150.0 then
+		body = 150.0
+	end
+	if body < 900.0 then
+		smash = true
+	end
+
+	if body < 800.0 then
+		damageOutside = true
+	end
+
+	if body < 500.0 then
+		damageOutside2 = true
+	end
+
+    Wait(100)
+    SetVehicleEngineHealth(currentVehicle, engine)
+	if smash then
+		SmashVehicleWindow(currentVehicle, 0)
+		SmashVehicleWindow(currentVehicle, 1)
+		SmashVehicleWindow(currentVehicle, 2)
+		SmashVehicleWindow(currentVehicle, 3)
+		SmashVehicleWindow(currentVehicle, 4)
+	end
+	if damageOutside then
+		SetVehicleDoorBroken(currentVehicle, 1, true)
+		SetVehicleDoorBroken(currentVehicle, 6, true)
+		SetVehicleDoorBroken(currentVehicle, 4, true)
+	end
+	if damageOutside2 then
+		SetVehicleTyreBurst(currentVehicle, 1, false, 990.0)
+		SetVehicleTyreBurst(currentVehicle, 2, false, 990.0)
+		SetVehicleTyreBurst(currentVehicle, 3, false, 990.0)
+		SetVehicleTyreBurst(currentVehicle, 4, false, 990.0)
+	end
+	if body < 1000 then
+		SetVehicleBodyHealth(currentVehicle, 985.1)
+	end
+end
