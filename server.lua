@@ -1,4 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+local OutsideVehicles = {}
 
 QBCore.Functions.CreateCallback('MojiaVehicles:checkVehicleOwner', function(source, cb, plate)
     local src = source
