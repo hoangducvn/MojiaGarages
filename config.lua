@@ -1,7 +1,6 @@
-local QBCore = exports['MojiaCity']:GetCoreObject()
-Config = {}
+local QBCore = exports['qb-core']:GetCoreObject()
 
-Config.Garages = {
+Garages = {
     ["garage1"] = {
         label = 'Garage 1',
         spawnPoint = {
