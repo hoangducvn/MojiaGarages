@@ -1,11 +1,13 @@
-### [Preview - Youtube](https://youtu.be/83jV2z_Ime4)
+# Preview
+- [Preview - Youtube](https://youtu.be/83jV2z_Ime4)
 
-## Dependencies
+# Dependencies
 - [qb-core](https://github.com/qbcore-framework/qb-core)
 - [PolyZone](https://github.com/qbcore-framework/PolyZone)
 - [qb-menu](https://github.com/qbcore-framework/qb-menu)
-
-### Add this function to qb-core/client/functions.lua
+# Recommended:
+- [MojiaRadialMenu](https://github.com/hoangducdt/MojiaRadialMenu)
+# Add this function to qb-core/client/functions.lua
 ```
 function QBCore.Functions.CreateBlip(coords, sprite, scale, color, text)
 	local blip = AddBlipForCoord(coords)
@@ -43,7 +45,7 @@ function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, max
 	return nearbyEntities
 end
 ```
-### Edit in qb-phone\fxmanifest.lua:
+# Edit in qb-phone\fxmanifest.lua:
 ```
 shared_scripts {
     'config.lua',
@@ -51,7 +53,7 @@ shared_scripts {
     '@MojiaGarages/config.lua',
 }
 ```
-### Edit in qb-phone\server\main.lua:
+# Edit in qb-phone\server\main.lua:
 ```
 QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
@@ -116,7 +118,7 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(so
     end
 end)
 ```
-### Add event to F1 menu:
+# Add event to F1 menu:
 - Open Garage:
 ```
 'Garage:openGarage'
@@ -173,9 +175,9 @@ For example:
 	end
 },
 ```
-### In progress:
+# In progress:
 House garages
-### Note:
+# Note:
 
 This script is completely free for qb-core community, it is strictly forbidden to use this script for commercial purposes
 
