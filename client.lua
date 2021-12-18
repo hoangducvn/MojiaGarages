@@ -13,45 +13,37 @@ CreateThread(function()
 	end
 end)
 
-Citizen.CreateThread(function() 
-    for k, v in pairs(Garages) do
-		Stations[k] = PolyZone:Create(v.zones, {
-			name="GarageStation "..k,
-			minZ = 	v.minz,
-			maxZ = v.maxz,
-			debugPoly = false
-		})
-		Stations[k]:onPlayerInOut(function(isPointInside)
-			if isPointInside then
-				if Garages[k].job ~= nil then
-					PlayerData = QBCore.Functions.GetPlayerData()
-					if PlayerData.job.name == Garages[k].job then
-						inGarageStation = true
-						currentgarage = k
-					else
-						inGarageStation = false
-						currentgarage = nil
-					end
-				else
+for k, v in pairs(Garages) do
+	Stations[k] = PolyZone:Create(v.zones, {
+		name="GarageStation "..k,
+		minZ = 	v.minz,
+		maxZ = v.maxz,
+		debugPoly = true
+	})
+	Stations[k]:onPlayerInOut(function(isPointInside)
+		if isPointInside then
+			if Garages[k].job ~= nil then
+				PlayerData = QBCore.Functions.GetPlayerData()
+				if PlayerData.job.name == Garages[k].job then
 					inGarageStation = true
 					currentgarage = k
+					nearspawnpoint = GetNearSpawnPoint()
+				else
+					inGarageStation = false
+					currentgarage = nil
 				end
 			else
-				inGarageStation = false
-				currentgarage = nil
+				inGarageStation = true
+				currentgarage = k
+				nearspawnpoint = GetNearSpawnPoint()
 			end
-		end)
-    end
-end)
-
-Citizen.CreateThread(function()
-	while true do
-		Wait(1000)
-		if inGarageStation and currentgarage ~= nil then
-			nearspawnpoint = GetNearSpawnPoint()
+		else
+			inGarageStation = false
+			currentgarage = nil
 		end
-	end
-end)
+	end)
+end
+
 
 function IsInGarage()
 	local check, garastate = false, nil
