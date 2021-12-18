@@ -1,5 +1,4 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-
 local inGarageStation = false
 local currentgarage = nil
 local nearspawnpoint = nil
@@ -20,7 +19,7 @@ Citizen.CreateThread(function()
 			name="GarageStation "..k,
 			minZ = 	v.minz,
 			maxZ = v.maxz,
-			debugPoly = false
+			debugPoly = true
 		})
 		Stations[k]:onPlayerInOut(function(isPointInside)
 			if isPointInside then
@@ -44,6 +43,7 @@ Citizen.CreateThread(function()
 		end)
     end
 end)
+
 Citizen.CreateThread(function()
 	while true do
 		Wait(0)
@@ -54,11 +54,12 @@ Citizen.CreateThread(function()
 end)
 
 function IsInGarage()
-	local check = false
+	local check, garastate = false, nil
 	if inGarageStation and currentgarage ~= nil then
 		check = true
+		garastate = Garages[currentgarage].garastate
 	end
-	return check
+	return check, garastate
 end
 
 function round(num, numDecimalPlaces)
@@ -91,8 +92,8 @@ RegisterNetEvent('Garage:openGarage', function()
 							currentFuel = v.fuel						
 							vname = QBCore.Shared.Vehicles[v.vehicle].name
 							table.insert(MenuGaraOptions, {
-								header = vname.." ["..v.depotprice.."]",
-								txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+								header = vname,
+								txt = "Price: " .. v.depotprice .. "<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
 								params = {
 									event = "Garage:client:TakeOutVehicle",
 									args = v
@@ -111,15 +112,15 @@ RegisterNetEvent('Garage:openGarage', function()
 							currentFuel = v.fuel						
 							vname = QBCore.Shared.Vehicles[v.vehicle].name
 							table.insert(MenuGaraOptions, {
-								header = vname.." [Impound]",
-								txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+								header = vname,
+								txt = "Status: Impound<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
 								params = {
 									event = "Garage:client:TakeOutVehicle",
 									args = v
 								}
 							})
 						end
-					else
+					elseif Garages[currentgarage].garastate == 1 then
 						if v.garage == currentgarage then
 							if Garages[currentgarage].fullfix then
 								v.engine = 1000
@@ -131,8 +132,8 @@ RegisterNetEvent('Garage:openGarage', function()
 							currentFuel = v.fuel						
 							vname = QBCore.Shared.Vehicles[v.vehicle].name
 							table.insert(MenuGaraOptions, {
-								header = vname.." [Garaged]",
-								txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+								header = vname,
+								txt = "Status: Garaged<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
 								params = {
 									event = "Garage:client:TakeOutVehicle",
 									args = v
@@ -142,7 +143,7 @@ RegisterNetEvent('Garage:openGarage', function()
 					end
 				end
 				table.insert(MenuGaraOptions, {
-					header = 'Close',
+					header = '❌| Close',
 					txt = "",
 					params = {
 						event = "qb-menu:closeMenu",
@@ -193,7 +194,7 @@ RegisterNetEvent('Garage:client:doTakeOutVehicle', function(vehicle)
 					doCarDamage(veh, vehicle)
 					SetEntityAsMissionEntity(veh, true, true)
 					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
-					QBCore.Functions.Notify('Tacke out ' .. QBCore.Shared.Vehicles[vehicle.vehicle].name .. ' | Motor: ' .. enginePercent .. '% Body:' .. bodyPercent.. '% Fuel: '..currentFuel.. '%', "success", 4500)
+					QBCore.Functions.Notify('Take out ' .. QBCore.Shared.Vehicles[vehicle.vehicle].name .. ' | Motor: ' .. enginePercent .. '% Body: ' .. bodyPercent.. '% Fuel: '..currentFuel.. '%', "success", 4500)
 					TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
 					TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
 					SetVehicleEngineOn(veh, true, true)
@@ -247,9 +248,9 @@ RegisterNetEvent('Garage:storeVehicle', function()
 							OutsideVehicles[plate] = veh
 							TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
 						end
-						QBCore.Functions.Notify('Vehicle parked in ' .. Garages[currentgarage].label, "primary", 4500)
+						QBCore.Functions.Notify('Vehicle parked in ' .. Garages[currentgarage].label, "success", 4500)
 					else
-						QBCore.Functions.Notify('Nobody owns this vehicle', "error", 3500)
+						QBCore.Functions.Notify('Nobody owns this vehicle!', "error", 3500)
 					end
 				end, plate)
 			end
