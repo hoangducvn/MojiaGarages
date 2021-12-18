@@ -5,41 +5,55 @@ local nearspawnpoint = nil
 local OutsideVehicles = {}
 local Stations = {}
 
-for k, v in pairs(Garages) do
-	if v.showBlip then
-		QBCore.Functions.CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+CreateThread(function()
+	for k, v in pairs(Garages) do
+		if v.showBlip then
+			QBCore.Functions.CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+		end
 	end
-	Stations[k] = PolyZone:Create(v.zones, {
-		name="GarageStation "..k,
-		minZ = 	v.minz,
-		maxZ = v.maxz,
-		debugPoly = true
-	})
-	Stations[k]:onPlayerInOut(function(isPointInside)
-		if isPointInside then
-			if Garages[k].job ~= nil then
-				PlayerData = QBCore.Functions.GetPlayerData()
-				if PlayerData.job.name == Garages[k].job then
+end)
+
+CreateThread(function() 
+    for k, v in pairs(Garages) do
+		Stations[k] = PolyZone:Create(v.zones, {
+			name="GarageStation "..k,
+			minZ = 	v.minz,
+			maxZ = v.maxz,
+			debugPoly = true
+		})
+		Stations[k]:onPlayerInOut(function(isPointInside)
+			if isPointInside then
+				if Garages[k].job ~= nil then
+					PlayerData = QBCore.Functions.GetPlayerData()
+					if PlayerData.job.name == Garages[k].job then
+						inGarageStation = true
+						currentgarage = k
+						nearspawnpoint = GetNearSpawnPoint()
+					else
+						inGarageStation = false
+						currentgarage = nil
+					end
+				else
 					inGarageStation = true
 					currentgarage = k
 					nearspawnpoint = GetNearSpawnPoint()
-				else
-					inGarageStation = false
-					currentgarage = nil
-					nearspawnpoint = nil
 				end
 			else
-				inGarageStation = true
-				currentgarage = k
-				nearspawnpoint = GetNearSpawnPoint()
+				inGarageStation = false
+				currentgarage = nil
 			end
-		else
-			inGarageStation = false
-			currentgarage = nil
-			nearspawnpoint = nil
+		end)
+    end
+end)
+
+CreateThread(function()
+	while true do
+		Wait(1000)
+		if inGarageStation and currentgarage ~= nil then
+			nearspawnpoint = GetNearSpawnPoint()
 		end
-	end)
-end
+	end
+end)
 
 
 function IsInGarage()
