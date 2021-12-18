@@ -46,7 +46,7 @@ end)
 
 Citizen.CreateThread(function()
 	while true do
-		Wait(0)
+		Wait(1000)
 		if inGarageStation and currentgarage ~= nil then
 			nearspawnpoint = GetNearSpawnPoint()
 		end
