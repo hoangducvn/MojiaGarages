@@ -19,7 +19,7 @@ Citizen.CreateThread(function()
 			name="GarageStation "..k,
 			minZ = 	v.minz,
 			maxZ = v.maxz,
-			debugPoly = false
+			debugPoly = true
 		})
 		Stations[k]:onPlayerInOut(function(isPointInside)
 			if isPointInside then
@@ -62,10 +62,6 @@ function IsInGarage()
 	return check, garastate
 end
 
-function round(num, numDecimalPlaces)
-    return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
-end
-
 --Mở danh sách xe trong gara:
 RegisterNetEvent('Garage:openGarage', function()
     if inGarageStation and currentgarage ~= nil then
@@ -87,8 +83,8 @@ RegisterNetEvent('Garage:openGarage', function()
 								v.body = 1000
 								v.fuel = 100
 							end
-							enginePercent = round(v.engine / 10, 0)
-							bodyPercent = round(v.body / 10, 0)
+							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
+							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
 							currentFuel = v.fuel						
 							vname = QBCore.Shared.Vehicles[v.vehicle].name
 							table.insert(MenuGaraOptions, {
@@ -107,8 +103,8 @@ RegisterNetEvent('Garage:openGarage', function()
 								v.body = 1000
 								v.fuel = 100
 							end
-							enginePercent = round(v.engine / 10, 0)
-							bodyPercent = round(v.body / 10, 0)
+							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
+							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
 							currentFuel = v.fuel						
 							vname = QBCore.Shared.Vehicles[v.vehicle].name
 							table.insert(MenuGaraOptions, {
@@ -127,8 +123,8 @@ RegisterNetEvent('Garage:openGarage', function()
 								v.body = 1000
 								v.fuel = 100
 							end
-							enginePercent = round(v.engine / 10, 0)
-							bodyPercent = round(v.body / 10, 0)
+							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
+							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
 							currentFuel = v.fuel						
 							vname = QBCore.Shared.Vehicles[v.vehicle].name
 							table.insert(MenuGaraOptions, {
@@ -170,8 +166,8 @@ end)
 RegisterNetEvent('Garage:client:doTakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint
-		enginePercent = round(vehicle.engine / 10, 1)
-		bodyPercent = round(vehicle.body / 10, 1)
+		enginePercent = QBCore.Shared.Round(vehicle.engine / 10, 1)
+		bodyPercent = QBCore.Shared.Round(vehicle.body / 10, 1)
 		currentFuel = vehicle.fuel
 		
 		if not QBCore.Functions.IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
