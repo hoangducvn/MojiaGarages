@@ -227,7 +227,7 @@ RegisterNetEvent('MojiaGarages:storeVehicle', function()
 						TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, currentgarage)
 						if plate ~= nil then
 							OutsideVehicles[plate] = veh
-							TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
+							TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
 						end
 						QBCore.Functions.Notify('Vehicle parked in ' .. Garages[currentgarage].label, "success", 4500)
 					else
