@@ -28,7 +28,6 @@ CreateThread(function()
 					if PlayerData.job.name == Garages[k].job then
 						inGarageStation = true
 						currentgarage = k
-						nearspawnpoint = GetNearSpawnPoint()
 					else
 						inGarageStation = false
 						currentgarage = nil
@@ -36,7 +35,6 @@ CreateThread(function()
 				else
 					inGarageStation = true
 					currentgarage = k
-					nearspawnpoint = GetNearSpawnPoint()
 				end
 			else
 				inGarageStation = false
