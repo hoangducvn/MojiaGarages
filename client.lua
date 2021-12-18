@@ -5,15 +5,10 @@ local nearspawnpoint = nil
 local OutsideVehicles = {}
 local Stations = {}
 
-CreateThread(function()
-	for k, v in pairs(Garages) do
-		if v.showBlip then
-			QBCore.Functions.CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
-		end
-	end
-end)
-
 for k, v in pairs(Garages) do
+	if v.showBlip then
+		QBCore.Functions.CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+	end
 	Stations[k] = PolyZone:Create(v.zones, {
 		name="GarageStation "..k,
 		minZ = 	v.minz,
