@@ -48,12 +48,12 @@ RegisterNetEvent('MojiaGarages:server:UpdateOutsideVehicles', function(Vehicles)
     OutsideVehicles[CitizenId] = Vehicles
 end)
 
-RegisterServerEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage)
+RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage)
     exports.oxmysql:execute('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',
         {state, garage, 0, plate})
 end)
 
-RegisterServerEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
+RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
     local src = source
     local pData = QBCore.Functions.GetPlayer(src)
 
@@ -70,7 +70,7 @@ RegisterServerEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, en
         {fuel, engine, body, plate, pData.PlayerData.citizenid, garage})
 end)
 
-RegisterServerEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
+RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local bankBalance = Player.PlayerData.money["bank"]
