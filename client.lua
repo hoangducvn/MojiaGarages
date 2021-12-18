@@ -31,6 +31,7 @@ for k, v in pairs(Garages) do
 				else
 					inGarageStation = false
 					currentgarage = nil
+					nearspawnpoint = nil
 				end
 			else
 				inGarageStation = true
@@ -40,6 +41,7 @@ for k, v in pairs(Garages) do
 		else
 			inGarageStation = false
 			currentgarage = nil
+			nearspawnpoint = nil
 		end
 	end)
 end
