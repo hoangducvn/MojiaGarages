@@ -165,7 +165,7 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
 
 					if vehicle.plate ~= nil then
 						OutsideVehicles[vehicle.plate] = veh
-						TriggerServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', OutsideVehicles)
+						TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
 					end
 
 					QBCore.Functions.SetVehicleProperties(veh, properties)
