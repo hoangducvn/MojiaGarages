@@ -76,9 +76,28 @@ RegisterNetEvent('Garage:openGarage', function()
 					},
 				}
 				for i, v in pairs(result) do
-					--Depot:
-					if Garages[currentgarage].garastate == 0 then
-						if v.state == 0 then --Get a list of all cars that are not in the garage or that have been taken into the depot by the police
+					if v.state == Garages[currentgarage].garastate then
+						if v.state == 1 then
+							if v.garage == currentgarage then
+								if Garages[currentgarage].fullfix then
+									v.engine = 1000
+									v.body = 1000
+									v.fuel = 100
+								end
+								enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
+								bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
+								currentFuel = v.fuel						
+								vname = QBCore.Shared.Vehicles[v.vehicle].name
+								table.insert(MenuGaraOptions, {
+									header = vname,
+									txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+									params = {
+										event = "Garage:client:TakeOutVehicle",
+										args = v
+									}
+								})
+							end
+						else
 							if Garages[currentgarage].fullfix then
 								v.engine = 1000
 								v.body = 1000
@@ -86,53 +105,16 @@ RegisterNetEvent('Garage:openGarage', function()
 							end
 							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
 							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-							currentFuel = v.fuel						
-							vname = QBCore.Shared.Vehicles[v.vehicle].name
-							table.insert(MenuGaraOptions, {
-								header = vname,
-								txt = "Price: " .. v.depotprice .. "<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
-								params = {
-									event = "Garage:client:TakeOutVehicle",
-									args = v
-								}
-							})
-						end
-					--Impound:
-					elseif Garages[currentgarage].garastate == 2 then --Get a list of all vehicles that have been impound by the police
-						if v.state == 2 then
-							if Garages[currentgarage].fullfix then
-								v.engine = 1000
-								v.body = 1000
-								v.fuel = 100
+							currentFuel = v.fuel
+							if v.state == 0 then
+								vname = QBCore.Shared.Vehicles[v.vehicle].name .. " ["..v.depotprice.."]"
+							else
+								vname = QBCore.Shared.Vehicles[v.vehicle].name
 							end
-							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
-							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-							currentFuel = v.fuel						
-							vname = QBCore.Shared.Vehicles[v.vehicle].name
+							
 							table.insert(MenuGaraOptions, {
 								header = vname,
-								txt = "Status: Impound<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
-								params = {
-									event = "Garage:client:TakeOutVehicle",
-									args = v
-								}
-							})
-						end
-					--Public/Job/Gang/House:
-					elseif Garages[currentgarage].garastate == 1 then --Get the list of cars parked in the garages
-						if v.garage == currentgarage then --Only get the list of cars parked in the current garage
-							if Garages[currentgarage].fullfix then
-								v.engine = 1000
-								v.body = 1000
-								v.fuel = 100
-							end
-							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
-							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-							currentFuel = v.fuel						
-							vname = QBCore.Shared.Vehicles[v.vehicle].name
-							table.insert(MenuGaraOptions, {
-								header = vname,
-								txt = "Status: Garaged<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+								txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
 								params = {
 									event = "Garage:client:TakeOutVehicle",
 									args = v
