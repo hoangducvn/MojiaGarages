@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+
 local inGarageStation = false
 local currentgarage = nil
 local nearspawnpoint = nil
@@ -63,7 +63,7 @@ function IsInGarage()
 end
 
 --Mở danh sách xe trong gara:
-RegisterNetEvent('Garage:openGarage', function()
+RegisterNetEvent('MojiaGarages:openGarage', function()
     if inGarageStation and currentgarage ~= nil then
 		QBCore.Functions.TriggerCallback("MojiaGarages:server:GetUserVehicles", function(result)
 			if result == nil then
@@ -116,7 +116,7 @@ RegisterNetEvent('Garage:openGarage', function()
 								header = vname,
 								txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
 								params = {
-									event = "Garage:client:TakeOutVehicle",
+									event = "MojiaGarages:client:TakeOutVehicle",
 									args = v
 								}
 							})
@@ -137,18 +137,18 @@ RegisterNetEvent('Garage:openGarage', function()
 end)
 
 --Lấy xe khỏi gara:
-RegisterNetEvent('Garage:client:TakeOutVehicle', function(vehicle)
+RegisterNetEvent('MojiaGarages:client:TakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		if vehicle.state == 0 then
 			TriggerServerEvent("MojiaGarages:server:PayDepotPrice", vehicle)
 			Wait(1000)
 		else
-			TriggerEvent("Garage:client:doTakeOutVehicle", vehicle)
+			TriggerEvent("MojiaGarages:client:doTakeOutVehicle", vehicle)
 		end
 	end
 end)
 
-RegisterNetEvent('Garage:client:doTakeOutVehicle', function(vehicle)
+RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint
 		enginePercent = QBCore.Shared.Round(vehicle.engine / 10, 1)
@@ -199,7 +199,7 @@ function Deleteveh(plate)
 end
 
 --Gửi xe vào gara:
-RegisterNetEvent('Garage:storeVehicle', function()
+RegisterNetEvent('MojiaGarages:storeVehicle', function()
     if inGarageStation and currentgarage ~= nil then
 		if Garages[currentgarage].garastate == 1 then
 			local ped = PlayerPedId()
