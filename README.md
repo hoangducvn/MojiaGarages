@@ -131,7 +131,7 @@ For example:
 	title = 'Open Garage',
 	icon = '#garage-open',
 	type = 'client',
-	event = 'Garage:openGarage',
+	event = 'MojiaGarages:openGarage',
 	enableMenu = function()
 		PlayerData = QBCore.Functions.GetPlayerData()
 		local isingarage, garastate = exports["MojiaGarages"]:IsInGarage()
@@ -157,7 +157,7 @@ For example:
 	title = 'Store Vehicle',
 	icon = '#parking',
 	type = 'client',
-	event = 'Garage:storeVehicle',
+	event = 'MojiaGarages:storeVehicle',
 	enableMenu = function()
 		PlayerData = QBCore.Functions.GetPlayerData()
 		local isingarage, garastate = exports["MojiaGarages"]:IsInGarage()
