@@ -40,7 +40,7 @@ QBCore.Functions.CreateCallback("MojiaGarages:server:GetVehicleProperties", func
     cb(properties)
 end)
 
-RegisterServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', function(Vehicles)
+RegisterNetEvent('MojiaGarages:server:UpdateOutsideVehicles', function(Vehicles)
     local src = source
     local Ply = QBCore.Functions.GetPlayer(src)
     local CitizenId = Ply.PlayerData.citizenid
