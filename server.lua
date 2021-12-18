@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+
 local OutsideVehicles = {}
 
 QBCore.Functions.CreateCallback('MojiaVehicles:checkVehicleOwner', function(source, cb, plate)
@@ -40,8 +40,7 @@ QBCore.Functions.CreateCallback("MojiaGarages:server:GetVehicleProperties", func
     cb(properties)
 end)
 
-RegisterServerEvent('MojiaGaragess:server:UpdateOutsideVehicles')
-AddEventHandler('MojiaGaragess:server:UpdateOutsideVehicles', function(Vehicles)
+RegisterServerEvent('MojiaGaragess:server:UpdateOutsideVehicles', function(Vehicles)
     local src = source
     local Ply = QBCore.Functions.GetPlayer(src)
     local CitizenId = Ply.PlayerData.citizenid
@@ -49,14 +48,12 @@ AddEventHandler('MojiaGaragess:server:UpdateOutsideVehicles', function(Vehicles)
     OutsideVehicles[CitizenId] = Vehicles
 end)
 
-RegisterServerEvent('MojiaGarages:server:updateVehicleState')
-AddEventHandler('MojiaGarages:server:updateVehicleState', function(state, plate, garage)
+RegisterServerEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage)
     exports.oxmysql:execute('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',
         {state, garage, 0, plate})
 end)
 
-RegisterServerEvent('MojiaGarages:server:updateVehicleStatus')
-AddEventHandler('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
+RegisterServerEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
     local src = source
     local pData = QBCore.Functions.GetPlayer(src)
 
@@ -73,8 +70,7 @@ AddEventHandler('MojiaGarages:server:updateVehicleStatus', function(fuel, engine
         {fuel, engine, body, plate, pData.PlayerData.citizenid, garage})
 end)
 
-RegisterServerEvent('MojiaGarages:server:PayDepotPrice')
-AddEventHandler('MojiaGarages:server:PayDepotPrice', function(vehicle)
+RegisterServerEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local bankBalance = Player.PlayerData.money["bank"]
