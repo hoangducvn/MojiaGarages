@@ -2,7 +2,7 @@ QBCore = exports['qb-core']:GetCoreObject()
 
 Garages = {
     --Public Garage:
-	["garage1"] = {
+	['garage1'] = {
         label = 'Garage 1',
         spawnPoint = {
 			vector4(206.23, -801.1, 30.59, 247.96),
@@ -85,7 +85,7 @@ Garages = {
         minz = 29.02,
         maxz = 39.92,
     },
-	["garage2"] = {
+	['garage2'] = {
         label = 'Garage 2',
         spawnPoint = {
 			vector4(-285.63, -887.42, 30.58, 167.42),
@@ -228,7 +228,7 @@ Garages = {
         minz = 30.02,
         maxz = 39.92,
     },
-	["garage3"] = {
+	['garage3'] = {
         label = 'Garage 3',
         spawnPoint = {
 			vector4(-20.04, 6322.43, 30.81, 214.79),
@@ -308,7 +308,7 @@ Garages = {
         minz = 30.02,
         maxz = 39.92,
     },
-	["garage4"] = {
+	['garage4'] = {
         label = 'Garage 4',
         spawnPoint = {
 			vector4(-2051.56, -449.07, 10.7, 138.06),
@@ -362,7 +362,7 @@ Garages = {
         minz = 10.67,
         maxz = 16.92,
     },
-	["garage5"] = {
+	['garage5'] = {
         label = 'Garage 5',
         spawnPoint = {
 			vector4(379.34, 264.98, 102.26, 338.33),
@@ -473,7 +473,7 @@ Garages = {
   		minZ = 45.671352386475 - 1,
   		maxZ = 45.789905548096 + 1
     },
-	["depot"] = {
+	['depot'] = {
         label = 'Depot',
         spawnPoint = {
 			vector4(396.3, -1644.46, 28.79, 318.91),
@@ -513,7 +513,7 @@ Garages = {
         maxz = 39.92,
     },
 	--Job Garage:
-	["police1"] = {
+	['police1'] = {
         label = 'Police Garage',
         spawnPoint = {
 			vector4(445.92, -996.92, 24.96, 270.5),
@@ -552,7 +552,7 @@ Garages = {
         minz = 24.66,
         maxz = 28.66,
     },
-	["hospital"] = {
+	['hospital'] = {
         label = 'Hospital Garage',
         spawnPoint = {
 			vector4(398.58, -1429.2, 29.03, 229.01),
@@ -599,7 +599,7 @@ Garages = {
         minz = 28.36,
         maxz = 33.66,
     },
-	["impound"] = {
+	['impound'] = {
         label = 'Impound Depot',
         spawnPoint = {
 			vector4(476.12, -1026.06, 27.36, 328.53),
@@ -626,7 +626,7 @@ Garages = {
         maxz = 31.06,
     },
 	--Gang Garage:
-	["ballas"] = {
+	['ballas'] = {
         label = 'Ballas',
         spawnPoint = {
 			vector4(101.17, -1947.86, 20.35, 52.47),
@@ -657,7 +657,7 @@ Garages = {
         minz = 19.36,
         maxz = 26.66,
     },
-	["families"] = {
+	['families'] = {
         label = 'La Familia',
         spawnPoint = {
 			vector4(-811.55, 187.23, 72.06, 111.12),
@@ -679,7 +679,7 @@ Garages = {
         minz = 71.36,
         maxz = 75.66,
     },
-	["lostmc"] = {
+	['lostmc'] = {
         label = 'Lost MC',
         spawnPoint = {
 			vector4(965.33, -118.87, 73.94, 129.19),
@@ -706,7 +706,7 @@ Garages = {
         minz = 72.36,
         maxz = 77.66,
     },	
-	["cartel"] = {
+	['cartel'] = {
         label = 'Cartel',
         spawnPoint = {
 			vector4(1412.47, 1120.6, 114.42, 270.38),
