@@ -140,7 +140,7 @@ end)
 --Lấy xe khỏi gara:
 RegisterNetEvent('MojiaGarages:client:TakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
-		f vehicle.state == 0 and vehicle.depotprice > 0 then
+		if vehicle.state == 0 and vehicle.depotprice > 0 then
 			TriggerServerEvent("MojiaGarages:server:PayDepotPrice", vehicle)
 			Wait(1000)
 		else
