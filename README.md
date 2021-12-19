@@ -1,4 +1,4 @@
-# Preview
+# Preview & Set up
 - [Preview and set up new garage - Youtube](https://youtu.be/l4JlHx7J1O0)
 
 # Dependencies
