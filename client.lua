@@ -88,12 +88,11 @@ RegisterNetEvent('MojiaGarages:openGarage', function()
 								enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
 								bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
 								currentFuel = v.fuel						
-								vname = QBCore.Shared.Vehicles[v.vehicle].name
 								table.insert(MenuGaraOptions, {
-									header = vname,
-									txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+									header = QBCore.Shared.Vehicles[v.vehicle].name,
+									txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.."%<br>Engine: "..enginePercent.."%<br>Body: "..bodyPercent.."%",
 									params = {
-										event = "Garage:client:TakeOutVehicle",
+										event = "MojiaGarages:client:TakeOutVehicle",
 										args = v
 									}
 								})
@@ -107,15 +106,16 @@ RegisterNetEvent('MojiaGarages:openGarage', function()
 							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
 							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
 							currentFuel = v.fuel
-							if v.state == 0 then
-								vname = QBCore.Shared.Vehicles[v.vehicle].name .. " ["..v.depotprice.."]"
+							
+							if v.state == 0 and v.depotprice > 0 then
+								vname = "Price: $"..v.depotprice.."<br>Plate: "..v.plate.."<br>Fuel: "..currentFuel.."%<br>Engine: "..enginePercent.."%<br>Body: "..bodyPercent.."%"
 							else
-								vname = QBCore.Shared.Vehicles[v.vehicle].name
+								vname = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.."%<br>Engine: "..enginePercent.."%<br>Body: "..bodyPercent.."%"
 							end
 							
 							table.insert(MenuGaraOptions, {
-								header = vname,
-								txt = "Plate: "..v.plate.."<br>Fuel: "..currentFuel.." | Engine: "..enginePercent.." | Body: "..bodyPercent,
+								header = QBCore.Shared.Vehicles[v.vehicle].name,
+								txt = vname,
 								params = {
 									event = "MojiaGarages:client:TakeOutVehicle",
 									args = v
