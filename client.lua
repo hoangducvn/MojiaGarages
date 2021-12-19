@@ -152,9 +152,7 @@ end)
 RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint
-		enginePercent = QBCore.Shared.Round(vehicle.engine / 10, 1)
-		bodyPercent = QBCore.Shared.Round(vehicle.body / 10, 1)
-		currentFuel = vehicle.fuel
+		
 		
 		if not QBCore.Functions.IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
 			QBCore.Functions.Notify('The receiving area is obstructed by something...', "error", 2500)
@@ -163,13 +161,14 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
 			Deleteveh(vehicle.plate)
 			QBCore.Functions.SpawnVehicle(vehicle.vehicle, function(veh)
 				QBCore.Functions.TriggerCallback('MojiaGarages:server:GetVehicleProperties', function(properties)
-
+					QBCore.Functions.SetVehicleProperties(veh, properties)
+					enginePercent = QBCore.Shared.Round(vehicle.engine / 10, 1)
+					bodyPercent = QBCore.Shared.Round(vehicle.body / 10, 1)
+					currentFuel = vehicle.fuel
 					if vehicle.plate ~= nil then
 						OutsideVehicles[vehicle.plate] = veh
 						TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
 					end
-
-					QBCore.Functions.SetVehicleProperties(veh, properties)
 					SetVehicleNumberPlateText(veh, vehicle.plate)
 					SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
 					exports['LegacyFuel']:SetFuel(veh, vehicle.fuel)
