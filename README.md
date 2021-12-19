@@ -1,5 +1,5 @@
 # Preview & Set up
-- [Preview and set up new garage - Youtube](https://youtu.be/l4JlHx7J1O0)
+- [Preview and set up new garage - Youtube](https://youtu.be/soYaVYM2ORc)
 
 # Dependencies
 - [qb-core](https://github.com/qbcore-framework/qb-core)
