@@ -121,7 +121,7 @@ end)
 # Add event to F1 menu:
 - Open Garage:
 ```
-'Garage:openGarage'
+'MojiaGarages:openGarage'
 ```
 For example:
 ```
@@ -147,7 +147,7 @@ For example:
 ```
 - Store Vehicle:
 ```
-'Garage:storeVehicle'
+'MojiaGarages:storeVehicle'
 ```
 For example:
 ```
