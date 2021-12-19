@@ -140,7 +140,7 @@ end)
 --Lấy xe khỏi gara:
 RegisterNetEvent('MojiaGarages:client:TakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
-		if vehicle.state == 0 then
+		f vehicle.state == 0 and vehicle.depotprice > 0 then
 			TriggerServerEvent("MojiaGarages:server:PayDepotPrice", vehicle)
 			Wait(1000)
 		else
@@ -152,8 +152,6 @@ end)
 RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint
-		
-		
 		if not QBCore.Functions.IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
 			QBCore.Functions.Notify('The receiving area is obstructed by something...', "error", 2500)
 			return
