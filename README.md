@@ -5,8 +5,7 @@
 - [qb-core](https://github.com/qbcore-framework/qb-core)
 - [PolyZone](https://github.com/qbcore-framework/PolyZone)
 - [qb-menu](https://github.com/qbcore-framework/qb-menu)
-# Recommended:
-- [MojiaRadialMenu](https://github.com/hoangducdt/MojiaRadialMenu)
+
 # Add this function to qb-core/client/functions.lua
 ```
 function QBCore.Functions.CreateBlip(coords, sprite, scale, color, text)
