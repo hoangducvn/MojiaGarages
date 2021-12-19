@@ -408,6 +408,71 @@ Garages = {
         minz = 101.67,
         maxz = 106.92,
     },
+	['garage6'] = {
+        label = 'Garage 6',
+        spawnPoint = {
+			vector4(1098.3, 2662.84, 37.55, 359.33),
+			vector4(1101.79, 2663.13, 37.55, 1.09),
+			vector4(1105.48, 2663.18, 37.55, 359.96),
+			vector4(1111.74, 2657.78, 37.57, 268.43),
+			vector4(1111.39, 2654.39, 37.57, 271.09),
+			vector4(1116.72, 2647.13, 37.57, 2.3),
+			vector4(1120.57, 2647.21, 37.57, 359.62),
+			vector4(1124.08, 2647.93, 37.57, 2.78),
+			vector4(1127.44, 2647.92, 37.57, 359.19),
+			vector4(1131.48, 2647.34, 37.57, 358.56),
+		},
+		blippoint = vector3(1123.56, 2656.63, 38.0),
+        showBlip = true,
+		blipsprite = 357,
+		blipscale = 0.65,
+		blipcolour = 3,
+		job = nil, -- [nil: public garage] ['police: police garage'] ...
+		fullfix = false, -- [true: full fix when take out vehicle]
+		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		zones = {
+			vector2(1091.8948974609, 2676.7536621094),
+			vector2(1139.7840576172, 2675.5483398438),
+			vector2(1140.6735839844, 2643.6525878906),
+			vector2(1108.7120361328, 2644.1350097656),
+			vector2(1108.6146240234, 2659.7451171875),
+			vector2(1091.6341552734, 2659.46484375),
+        },
+  		minZ = 37.788307189941 - 1,
+  		maxZ = 38.694061279297 + 1
+    },
+	['garage7'] = {
+        label = 'Garage 7',
+        spawnPoint = {
+			vector4(1854.95, 2541.94, 45.25, 270.2),
+			vector4(1854.51, 2545.66, 45.25, 270.9),
+			vector4(1854.8, 2549.21, 45.25, 271.28),
+			vector4(1855.22, 2553.11, 45.25, 272.68),
+			vector4(1854.51, 2556.73, 45.25, 271.15),
+			vector4(1854.83, 2560.3, 45.25, 267.25),
+			vector4(1854.97, 2564.11, 45.25, 270.15),
+			vector4(1854.78, 2567.48, 45.25, 271.98),
+			vector4(1855.19, 2571.62, 45.25, 270.27),
+			vector4(1854.84, 2575.07, 45.25, 268.1),
+			vector4(1855.43, 2578.81, 45.25, 272.74),
+		},
+		blippoint = vector3(1862.46, 2565.43, 45.67),
+        showBlip = true,
+		blipsprite = 357,
+		blipscale = 0.65,
+		blipcolour = 3,
+		job = nil, -- [nil: public garage] ['police: police garage'] ...
+		fullfix = false, -- [true: full fix when take out vehicle]
+		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		zones = {
+			vector2(1852.3106689453, 2582.8100585938),
+			vector2(1887.5792236328, 2582.9799804688),
+			vector2(1887.5270996094, 2524.509765625),
+			vector2(1852.1411132812, 2525.1655273438),
+        },
+  		minZ = 45.671352386475 - 1,
+  		maxZ = 45.789905548096 + 1
+    },
 	["depot"] = {
         label = 'Depot',
         spawnPoint = {
