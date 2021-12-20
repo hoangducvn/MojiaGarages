@@ -1,5 +1,7 @@
 QBCore = exports['qb-core']:GetCoreObject()
 
+AutoRespawn = true
+
 Garages = {
     --Public Garage:
 	['garage1'] = {
