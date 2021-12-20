@@ -7,7 +7,7 @@ QBCore.Functions.CreateCallback('MojiaVehicles:checkVehicleOwner', function(sour
     exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',
 	{plate, pData.PlayerData.citizenid}, function(result)
 		if result[1] ~= nil then
-			cb(true)
+			 cb(true, result[1].balance)
 		else
 			cb(false)
 		end
