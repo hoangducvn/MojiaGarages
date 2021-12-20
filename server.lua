@@ -83,6 +83,7 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local bankBalance = Player.PlayerData.money["bank"]
+    local cashBalance = Player.PlayerData.money["cash"]
     exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ?',
 		{
 			vehicle.plate
@@ -90,6 +91,9 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
         if result[1] ~= nil then
             if bankBalance >= result[1].depotprice then
                 Player.Functions.RemoveMoney("bank", result[1].depotprice, "paid-depot")
+                TriggerClientEvent("Garage:client:doTakeOutVehicle", src, vehicle)
+            elseif cashBalance >= result[1].depotprice then
+                Player.Functions.RemoveMoney("cash", result[1].depotprice, "paid-depot")
                 TriggerClientEvent("Garage:client:doTakeOutVehicle", src, vehicle)
             else
                 TriggerClientEvent('QBCore:Notify', src, 'you dont have enough money', 'error')
