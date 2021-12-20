@@ -53,6 +53,15 @@ RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate
         {state, garage, 0, plate})
 end)
 
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        Wait(100)
+        if AutoRespawn then
+            exports.oxmysql:execute('UPDATE player_vehicles SET state = 1 WHERE state = 0', {})
+        end
+    end
+end)
+
 RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
     local src = source
     local pData = QBCore.Functions.GetPlayer(src)
