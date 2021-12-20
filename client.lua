@@ -1,14 +1,55 @@
-
 local inGarageStation = false
 local currentgarage = nil
 local nearspawnpoint = nil
 local OutsideVehicles = {}
 local Stations = {}
 
+local function CreateBlip(coords, sprite, scale, color, text)
+	local blip = AddBlipForCoord(coords)
+	SetBlipSprite(blip, sprite)
+	SetBlipDisplay(blip, 4)
+	SetBlipScale(blip, scale)
+	SetBlipAsShortRange(blip, true)
+	SetBlipColour(blip, color)
+	SetBlipAlpha(Blip, 0.7)
+	BeginTextCommandSetBlipName('STRING')
+	AddTextComponentString(text)
+	EndTextCommandSetBlipName(blip)
+end
+
+local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, maxDistance)
+	local nearbyEntities = {}
+
+	if coords then
+		coords = vector3(coords.x, coords.y, coords.z)
+	else
+		local playerPed = PlayerPedId()
+		coords = GetEntityCoords(playerPed)
+	end
+
+	for k,entity in pairs(entities) do
+		local distance = #(coords - GetEntityCoords(entity))
+
+		if distance <= maxDistance then
+			table.insert(nearbyEntities, isPlayerEntities and k or entity)
+		end
+	end
+
+	return nearbyEntities
+end
+
+local function GetVehiclesInArea(coords, maxDistance)
+	return EnumerateEntitiesWithinDistance(QBCore.Functions.GetVehicles(), false, coords, maxDistance) 
+end
+
+local function IsSpawnPointClear(coords, maxDistance) 
+	return #GetVehiclesInArea(coords, maxDistance) == 0 
+end
+
 CreateThread(function()
 	for k, v in pairs(Garages) do
 		if v.showBlip then
-			QBCore.Functions.CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+			CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
 		end
 	end
 end)
@@ -152,7 +193,7 @@ end)
 RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint
-		if not QBCore.Functions.IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
+		if not IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
 			QBCore.Functions.Notify('The receiving area is obstructed by something...', "error", 2500)
 			return
 		else
@@ -242,7 +283,7 @@ function GetNearSpawnPoint()
 	local distance = 10000
 	if inGarageStation and currentgarage ~= nil then
 		for k, v in pairs(Garages[currentgarage].spawnPoint) do
-			if QBCore.Functions.IsSpawnPointClear(vector3(v.x, v.y, v.z), 2.5) then
+			if IsSpawnPointClear(vector3(v.x, v.y, v.z), 2.5) then
 				local ped = PlayerPedId()
 				local pos = GetEntityCoords(ped)
 				local cur_distance = #(pos - vector3(v.x, v.y, v.z))
