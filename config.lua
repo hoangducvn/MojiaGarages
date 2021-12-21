@@ -1,5 +1,5 @@
 QBCore = exports['MojiaCity']:GetCoreObject()
-
+AutoRespawn = true
 Garages = {
     --Public Garage:
 	['garage1'] = {
