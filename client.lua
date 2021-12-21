@@ -66,7 +66,7 @@ CreateThread(function()
 			if isPointInside then
 				if Garages[k].job ~= nil then
 					PlayerData = QBCore.Functions.GetPlayerData()
-					if PlayerData.job.name == Garages[k].job then
+					if PlayerData.job.name == Garages[k].job or PlayerData.gang.name == Garages[k].job then
 						inGarageStation = true
 						currentgarage = k
 					else
