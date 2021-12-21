@@ -46,11 +46,12 @@ local function IsSpawnPointClear(coords, maxDistance)
 	return #GetVehiclesInArea(coords, maxDistance) == 0 
 end
 
-CreateThread(function()
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerData = QBCore.Functions.GetPlayerData()
 	for k, v in pairs(Garages) do
 		if v.showBlip then
 			PlayerData = QBCore.Functions.GetPlayerData()
-			if v.job ~= nil and (PlayerData.job.name == v.job or PlayerData.gang.name == v.job) then
+			if v.job ~= nil and PlayerData and (PlayerData.job.name == v.job or PlayerData.gang.name == v.job) then
 				CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
 			else
 				CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
