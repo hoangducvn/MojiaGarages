@@ -1,6 +1,4 @@
-QBCore = exports['qb-core']:GetCoreObject()
-
-AutoRespawn = true
+QBCore = exports['MojiaCity']:GetCoreObject()
 
 Garages = {
     --Public Garage:
@@ -538,7 +536,7 @@ Garages = {
 			vector4(426.03, -976.17, 24.96, 270.27),
 		},
 		blippoint = vector3(441.64, -984.96, 25.7),
-        showBlip = false,
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
@@ -577,7 +575,7 @@ Garages = {
 			vector4(367.45, -1453.93, 28.99, 229.09),
 		},
 		blippoint = vector3(396.51, -1436.13, 29.45),
-        showBlip = false,
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
@@ -601,6 +599,31 @@ Garages = {
         minz = 28.36,
         maxz = 33.66,
     },
+	['mechanic'] = {
+        label = 'Mechanic Garage',
+        spawnPoint = {
+			vector4(-379.21, -143.75, 38.27, 299.61),
+			vector4(-377.58, -146.86, 38.27, 297.24),
+		},
+		blippoint = vector3(-371.28, -133.6, 38.69),
+        showBlip = true,
+		blipsprite = 357,
+		blipscale = 0.65,
+		blipcolour = 3,
+		job = 'mechanic', -- [nil: public garage] ['police: police garage'] ...
+		fullfix = true, -- [true: full fix when take out vehicle]
+		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		zones = {
+            vector2(-402.01, -108.09),
+			vector2(-384.19, -98.44),
+			vector2(-348.34, -111.58),
+			vector2(-358.37, -138.34),
+			vector2(-352.37, -148.8),
+			vector2(-372.34, -160.89),
+        },
+        minz = 37.27,
+        maxz = 43.27,
+    },
 	['impound'] = {
         label = 'Impound Depot',
         spawnPoint = {
@@ -609,7 +632,7 @@ Garages = {
 			vector4(483.31, -1025.57, 27.27, 330.9),
 		},
 		blippoint = vector3(479.35, -1022.41, 28.01),
-        showBlip = false,
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
@@ -629,14 +652,14 @@ Garages = {
     },
 	--Gang Garage:
 	['ballas'] = {
-        label = 'Ballas',
+        label = 'Ballas Garage',
         spawnPoint = {
 			vector4(101.17, -1947.86, 20.35, 52.47),
 			vector4(104.58, -1939.74, 20.39, 51.97),
 			vector4(109.98, -1932.75, 20.32, 73.93),
 		},
-		blippoint = vector3(396.51, -1436.13, 29.45),
-        showBlip = false,
+		blippoint = vector3(102.69, -1938.39, 20.8),
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
@@ -660,12 +683,12 @@ Garages = {
         maxz = 26.66,
     },
 	['families'] = {
-        label = 'La Familia',
+        label = 'La Familia Garage',
         spawnPoint = {
 			vector4(-811.55, 187.23, 72.06, 111.12),
 		},
-		blippoint = vector3(396.51, -1436.13, 29.45),
-        showBlip = false,
+		blippoint = vector3(-811.55, 187.23, 72.06),
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
@@ -682,15 +705,15 @@ Garages = {
         maxz = 75.66,
     },
 	['lostmc'] = {
-        label = 'Lost MC',
+        label = 'Lost MC Garage',
         spawnPoint = {
 			vector4(965.33, -118.87, 73.94, 129.19),
 			vector4(970.25, -113.7, 73.94, 131.01),
 			vector4(968.77, -142.73, 73.98, 56.76),
 			vector4(953.66, -133.4, 74.04, 239.18),
 		},
-		blippoint = vector3(396.51, -1436.13, 29.45),
-        showBlip = false,
+		blippoint = vector3(965.33, -118.87, 73.94),
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
@@ -709,15 +732,15 @@ Garages = {
         maxz = 77.66,
     },	
 	['cartel'] = {
-        label = 'Cartel',
+        label = 'Cartel Garage',
         spawnPoint = {
 			vector4(1412.47, 1120.6, 114.42, 270.38),
 			vector4(1412.65, 1116.0, 114.42, 269.08),
 			vector4(1402.42, 1116.16, 114.42, 269.08),
 			vector4(1402.39, 1120.55, 114.42, 269.8),
 		},
-		blippoint = vector3(1408.48, 1119.56, 114.84),
-        showBlip = false,
+		blippoint = vector3(1412.47, 1120.6, 114.42),
+        showBlip = true,
 		blipsprite = 68,
 		blipscale = 0.7,
 		blipcolour = 5,
