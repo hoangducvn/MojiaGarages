@@ -3,6 +3,7 @@ local currentgarage = nil
 local nearspawnpoint = nil
 local OutsideVehicles = {}
 local Stations = {}
+local PlayerData = {}
 
 local function CreateBlip(coords, sprite, scale, color, text)
 	local blip = AddBlipForCoord(coords)
@@ -50,9 +51,52 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
 	for k, v in pairs(Garages) do
 		if v.showBlip then
-			PlayerData = QBCore.Functions.GetPlayerData()
-			if v.job ~= nil and PlayerData and (PlayerData.job.name == v.job or PlayerData.gang.name == v.job) then
+			if v.job ~= nil then
+				if PlayerData.job and PlayerData.job.name == v.job or PlayerData.gang and PlayerData.gang.name == v.job then
+					CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+				end
+			else
 				CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+			end
+		end
+	end
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    inGarageStation = false
+	currentgarage = nil
+	nearspawnpoint = nil
+	OutsideVehicles = {}
+	Stations = {}
+	PlayerData = {}
+end)
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        Wait(100)
+        PlayerData = QBCore.Functions.GetPlayerData()
+		for k, v in pairs(Garages) do
+			if v.showBlip then
+				if v.job ~= nil then
+					if PlayerData.job and PlayerData.job.name == v.job or PlayerData.gang and PlayerData.gang.name == v.job then
+						CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+					end
+				else
+					CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+				end
+			end
+		end
+    end
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    PlayerData = QBCore.Functions.GetPlayerData()
+	for k, v in pairs(Garages) do
+		if v.showBlip then
+			if v.job ~= nil then
+				if PlayerData.job and PlayerData.job.name == v.job or PlayerData.gang and PlayerData.gang.name == v.job then
+					CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
+				end
 			else
 				CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
 			end
@@ -66,13 +110,12 @@ CreateThread(function()
 			name="GarageStation "..k,
 			minZ = 	v.minz,
 			maxZ = v.maxz,
-			debugPoly = true
+			debugPoly = false
 		})
 		Stations[k]:onPlayerInOut(function(isPointInside)
 			if isPointInside then
 				if Garages[k].job ~= nil then
-					PlayerData = QBCore.Functions.GetPlayerData()
-					if PlayerData.job.name == Garages[k].job or PlayerData.gang.name == Garages[k].job then
+					if PlayerData.job and PlayerData.job.name == Garages[k].job or PlayerData.gang and PlayerData.gang.name == Garages[k].job then
 						inGarageStation = true
 						currentgarage = k
 					else
