@@ -50,7 +50,7 @@ CreateThread(function()
 	for k, v in pairs(Garages) do
 		if v.showBlip then
 			PlayerData = QBCore.Functions.GetPlayerData()
-			if Garages[k].job ~= nil and (PlayerData.job.name == Garages[k].job or PlayerData.gang.name == Garages[k].job) then
+			if v.job ~= nil and (PlayerData.job.name == v.job or PlayerData.gang.name == v.job) then
 				CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
 			else
 				CreateBlip(v.blippoint, v.blipsprite, v.blipscale, v.blipcolour, v.label)
