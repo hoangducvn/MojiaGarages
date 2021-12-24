@@ -758,3 +758,80 @@ Garages = {
     },
 	--House Garage:
 }
+
+--Job Vehicle:
+JobVeh = {
+	['police'] = {
+		['police1'] = {
+			vehicle = {
+				[0] = { --recruit
+					['police'] = 'Police Car 1',
+					['police2'] = 'Police Car 2',
+					['police3'] = 'Police Car 3',
+					['police4'] = 'Police Car 4',
+					['policeb'] = 'Police Car 5',
+					['policet'] = 'Police Car 6',
+					['sheriff'] = 'Sheriff Car 1',
+					['sheriff2'] = 'Sheriff Car 2',
+				},
+				[1] = { --officer
+					['police'] = 'Police Car 1',
+					['police2'] = 'Police Car 2',
+					['police3'] = 'Police Car 3',
+					['police4'] = 'Police Car 4',
+					['policeb'] = 'Police Car 5',
+					['policet'] = 'Police Car 6',
+					['sheriff'] = 'Sheriff Car 1',
+					['sheriff2'] = 'Sheriff Car 2',
+				},
+				[2] = { --sergeant
+					['police'] = 'Police Car 1',
+					['police2'] = 'Police Car 2',
+					['police3'] = 'Police Car 3',
+					['police4'] = 'Police Car 4',
+					['policeb'] = 'Police Car 5',
+					['policet'] = 'Police Car 6',
+					['sheriff'] = 'Sheriff Car 1',
+					['sheriff2'] = 'Sheriff Car 2',
+				},
+				[3] = { --lieutenant
+					['police'] = 'Police Car 1',
+					['police2'] = 'Police Car 2',
+					['police3'] = 'Police Car 3',
+					['police4'] = 'Police Car 4',
+					['policeb'] = 'Police Car 5',
+					['policet'] = 'Police Car 6',
+					['sheriff'] = 'Sheriff Car 1',
+					['sheriff2'] = 'Sheriff Car 2',
+				},
+				[4] = { --chief
+					['police'] = 'Police Car 1',
+					['police2'] = 'Police Car 2',
+					['police3'] = 'Police Car 3',
+					['police4'] = 'Police Car 4',
+					['policeb'] = 'Police Car 5',
+					['policet'] = 'Police Car 6',
+					['sheriff'] = 'Sheriff Car 1',
+					['sheriff2'] = 'Sheriff Car 2',
+				},
+			},
+			useJobspawnPoint = false, --[true: use the spawn point installed below] [false: use job garages spawn point]
+			spawnPoint = {
+				
+			},
+			plate = 'CSTP' -- the first four letters of the license plate
+		},
+		--[[
+		['police2'] = {
+			vehicle = {
+				
+			},
+			useJobspawnPoint = false, --[true: use the spawn point installed below] [false: use job garages spawn point]
+			spawnPoint = {
+				
+			},
+			plate = 'CSTP'
+		},
+		]]--
+	},
+}
