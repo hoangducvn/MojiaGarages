@@ -4,6 +4,23 @@ local nearspawnpoint = nil
 local OutsideVehicles = {}
 local Stations = {}
 local PlayerData = {}
+local inStation = {}
+
+local function IsInGarage()
+	local check, garastate = false, nil
+	if inGarageStation and currentgarage ~= nil then
+		check = true
+		garastate = Garages[currentgarage].garastate
+	end
+	return check, garastate
+end
+
+local function isInStation(job)
+	return inStation[job]
+end
+
+exports('IsInGarage', IsInGarage)
+exports('isInStation', isInStation)
 
 local function CreateBlip(coords, sprite, scale, color, text)
 	local blip = AddBlipForCoord(coords)
@@ -118,17 +135,29 @@ CreateThread(function()
 					if PlayerData.job and PlayerData.job.name == Garages[k].job or PlayerData.gang and PlayerData.gang.name == Garages[k].job then
 						inGarageStation = true
 						currentgarage = k
+						if PlayerData.job and not inStation[PlayerData.job.name] and k ~= 'impound' then
+							inStation[PlayerData.job.name] = true
+						end
 					else
 						inGarageStation = false
 						currentgarage = nil
+						if PlayerData.job and inStation[PlayerData.job.name] then
+							inStation[PlayerData.job.name] = false
+						end
 					end
 				else
 					inGarageStation = true
 					currentgarage = k
+					if PlayerData.job and inStation[PlayerData.job.name] then
+						inStation[PlayerData.job.name] = false
+					end
 				end
 			else
 				inGarageStation = false
 				currentgarage = nil
+				if PlayerData.job and inStation[PlayerData.job.name] then
+					inStation[PlayerData.job.name] = false
+				end
 			end
 		end)
     end
@@ -143,15 +172,90 @@ CreateThread(function()
 	end
 end)
 
+RegisterNetEvent('MojiaGarages:openJobVehList', function()
+	PlayerData = QBCore.Functions.GetPlayerData()
+	local vehicleMenu = {
+        {
+            header = PlayerData.job.grade.name .. "'s Vehicle List",
+            isMenuHeader = true
+        }
+    }
+    for k,v in pairs(JobVeh[PlayerData.job.name][currentgarage].vehicle[PlayerData.job.grade.level]) do
+        local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
+		table.insert(vehicleMenu, {
+			header = v,
+			txt = "Plate: " .. plate .. "<br>Fuel: 100%<br>Engine: 100%<br>Body: 100%",
+			params = {
+				event = "MojiaGarages:client:SpawnJobVeh",
+				args = {
+					model = k,
+					plate = plate
+				}
+			}
+		})                             
+    end
+    table.insert(vehicleMenu, {
+		header = '❌| Close',
+		txt = "",
+		params = {
+			event = "qb-menu:closeMenu",
+		}
+	})
+    exports['qb-menu']:openMenu(vehicleMenu)
+end)
 
-function IsInGarage()
-	local check, garastate = false, nil
-	if inGarageStation and currentgarage ~= nil then
-		check = true
-		garastate = Garages[currentgarage].garastate
+function GetNearJobSpawnPoint()
+	local near = nil
+	local distance = 10000
+	PlayerData = QBCore.Functions.GetPlayerData()
+	if inGarageStation and inStation[PlayerData.job.name] then
+		for k, v in pairs(JobVeh[PlayerData.job.name][currentgarage].spawnPoint) do
+			if QBCore.Functions.IsSpawnPointClear(vector3(v.x, v.y, v.z), 2.5) then
+				local ped = PlayerPedId()
+				local pos = GetEntityCoords(ped)
+				local cur_distance = #(pos - vector3(v.x, v.y, v.z))
+				if cur_distance < distance then
+					distance = cur_distance
+					near = k
+				end
+			end
+		end
 	end
-	return check, garastate
+	return near
 end
+
+RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data)
+	local pos = nil
+	local header = nil
+	local lastnearspawnpoint = nearspawnpoint
+	local lastnearjobspawnpoint = GetNearJobSpawnPoint()
+	if JobVeh[PlayerData.job.name][currentgarage].useJobspawnPoint then
+		pos = JobVeh[PlayerData.job.name][currentgarage].spawnPoint[lastnearjobspawnpoint]
+		header = JobVeh[PlayerData.job.name][currentgarage].spawnPoint[lastnearjobspawnpoint].w
+	else
+		pos = Garages[currentgarage].spawnPoint[lastnearspawnpoint]
+		header = Garages[currentgarage].spawnPoint[lastnearspawnpoint].w
+	end
+	QBCore.Functions.SpawnVehicle(data.model, function(veh)
+        SetVehicleNumberPlateText(veh, data.plate)
+        SetEntityHeading(veh, header)
+        exports['LegacyFuel']:SetFuel(veh, 100.0)
+        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
+    end, pos, true)
+end)
+
+RegisterNetEvent('MojiaGarages:client:HideJobVeh', function()
+	vehicle = GetVehiclePedIsIn(PlayerPedId())
+	for i = -1, 5, 1 do                
+        seat = GetPedInVehicleSeat(vehicle, i)
+        if seat ~= 0 then
+            TaskLeaveVehicle(seat, vehicle, 0)
+            SetVehicleDoorsLocked(vehicle)
+            Wait(3000)
+            QBCore.Functions.DeleteVehicle(vehicle)
+        end
+   end
+end)
 
 --Mở danh sách xe trong gara:
 RegisterNetEvent('MojiaGarages:openGarage', function()
