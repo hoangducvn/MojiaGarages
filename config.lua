@@ -762,7 +762,7 @@ Garages = {
 --Job Vehicle:
 JobVeh = {
 	['police'] = {
-		['police1'] = {
+		['police1'] = { --make sure the name is the same as the job garage name configured above(see line 516)
 			vehicle = {
 				[0] = { --recruit
 					['police'] = 'Police Car 1',
