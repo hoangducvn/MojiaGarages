@@ -112,7 +112,7 @@ For example:
 ```
 For example:
 ```
---Store Vehicle:
+-- Store Vehicle:
 {
 	id = "storeVehicle",
 	title = 'Store Vehicle',
@@ -139,6 +139,56 @@ For example:
 	end
 },
 ```
+- Open Job Vehicles List:
+```
+'MojiaGarages:openJobVehList'
+```
+For example:
+```
+{
+	id = "policeveh",
+	title = 'Job Veh',
+	icon = '#mj-garage-open',
+	type = 'client',
+	event = 'MojiaGarages:openJobVehList',
+	enableMenu = function()
+		PlayerData = QBCore.Functions.GetPlayerData()
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and PlayerData.job.onduty and exports["MojiaGarages"]:isInStation('police') then  
+			if not IsPedInAnyVehicle(PlayerPedId()) then
+				return true
+			end
+		end
+		return false
+	end
+},
+```
+- Hide Job Vehicle:
+```
+'MojiaGarages:client:HideJobVeh'
+```
+For example:
+
+```
+{
+	id = "hidejobveh",
+	title = 'Hide Job Veh',
+	icon = '#mj-parking',
+	type = 'client',
+	event = 'MojiaGarages:client:HideJobVeh',
+	enableMenu = function()
+		PlayerData = QBCore.Functions.GetPlayerData()
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and PlayerData.job.onduty and exports["MojiaGarages"]:isInStation('police') then  
+			local ped = PlayerPedId()						
+			if IsPedInAnyVehicle(ped) then 
+				return true
+			end
+		end
+		return false
+	end
+},
+```
+
+
 # In progress:
 House garages
 # Note:
