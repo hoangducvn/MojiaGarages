@@ -613,30 +613,31 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function()
 			end
 			local plate = QBCore.Functions.GetPlate(curVeh)
 			local vehpos = GetEntityCoords(curVeh)
-			
-			if curVeh and #(pos - vehpos) < 7.5 then
-				QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
-					if owned then					
-						local bodyDamage = math.ceil(GetVehicleBodyHealth(curVeh))
-						local engineDamage = math.ceil(GetVehicleEngineHealth(curVeh))
-						local totalFuel = exports['LegacyFuel']:GetFuel(curVeh)
-						local passenger = GetVehicleMaxNumberOfPassengers(curVeh)
-						if IsPedInAnyVehicle(ped) then
-							CheckPlayers(curVeh)
+			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
+				if curVeh and #(pos - vehpos) < 7.5 then
+					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
+						if owned then					
+							local bodyDamage = math.ceil(GetVehicleBodyHealth(curVeh))
+							local engineDamage = math.ceil(GetVehicleEngineHealth(curVeh))
+							local totalFuel = exports['LegacyFuel']:GetFuel(curVeh)
+							local passenger = GetVehicleMaxNumberOfPassengers(curVeh)
+							if IsPedInAnyVehicle(ped) then
+								CheckPlayers(curVeh)
+							else
+								QBCore.Functions.DeleteVehicle(curVeh)
+							end
+							TriggerServerEvent('MojiaGarages:server:updateVehicleStatus', totalFuel, engineDamage, bodyDamage, plate, currentgarage)
+							TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, currentgarage)
+							if plate ~= nil then
+								OutsideVehicles[plate] = veh
+								TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
+							end
+							QBCore.Functions.Notify('Vehicle parked in '..Garages[currentgarage].label, 'success', 4500)
 						else
-							QBCore.Functions.DeleteVehicle(curVeh)
+							QBCore.Functions.Notify('Nobody owns this vehicle', 'error', 3500)
 						end
-						TriggerServerEvent('MojiaGarages:server:updateVehicleStatus', totalFuel, engineDamage, bodyDamage, plate, currentgarage)
-						TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, currentgarage)
-						if plate ~= nil then
-							OutsideVehicles[plate] = veh
-							TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
-						end
-						QBCore.Functions.Notify('Vehicle parked in '..Garages[currentgarage].label, 'success', 4500)
-					else
-						QBCore.Functions.Notify('Nobody owns this vehicle', 'error', 3500)
-					end
-				end, plate)
+					end, plate)
+				end
 			end
 		end
 	end
@@ -647,37 +648,41 @@ end)
 --Job Vehicles Menu:
 RegisterNetEvent('MojiaGarages:client:openJobVehList', function()
 	PlayerData = QBCore.Functions.GetPlayerData()
-	local vehicleMenu = {
-        {
-            header = PlayerData.job.grade.name .. '\'s Vehicle List',
-            isMenuHeader = true
-        }
-    }
-    for k, v in pairs(JobVeh[PlayerData.job.name][currentgarage].vehicle[PlayerData.job.grade.level]) do
-        local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
-		table.insert(vehicleMenu, {
-			header = v.name,
-			txt = 'Plate: ' .. plate .. '<br>Fuel: 100%<br>Engine: 100%<br>Body: 100%',
-			params = {
-				event = 'MojiaGarages:client:SpawnJobVeh',
-				args = {
-					model = k,
-					plate = plate,
-					livery = v.livery,
-					modType = v.modType,
-					modIndex = v.modIndex,
-				}
+	if lastjobveh ~= nil then
+		QBCore.Functions.Notify('You need to return the car you received before so you can get a new one', 'error', 3500)
+	else
+		local vehicleMenu = {
+			{
+				header = PlayerData.job.grade.name .. '\'s Vehicle List',
+				isMenuHeader = true
 			}
-		})                             
-    end
-    table.insert(vehicleMenu, {
-		header = '❌| Close',
-		txt = '',
-		params = {
-			event = 'qb-menu:closeMenu',
 		}
-	})
-    exports['qb-menu']:openMenu(vehicleMenu)
+		for k, v in pairs(JobVeh[PlayerData.job.name][currentgarage].vehicle[PlayerData.job.grade.level]) do
+			local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
+			table.insert(vehicleMenu, {
+				header = v.name,
+				txt = 'Plate: ' .. plate .. '<br>Fuel: 100%<br>Engine: 100%<br>Body: 100%',
+				params = {
+					event = 'MojiaGarages:client:SpawnJobVeh',
+					args = {
+						model = k,
+						plate = plate,
+						livery = v.livery,
+						modType = v.modType,
+						modIndex = v.modIndex,
+					}
+				}
+			})                             
+		end
+		table.insert(vehicleMenu, {
+			header = '❌| Close',
+			txt = '',
+			params = {
+				event = 'qb-menu:closeMenu',
+			}
+		})
+		exports['qb-menu']:openMenu(vehicleMenu)
+	end
 end)
 -----------------------------------------------
 
@@ -722,7 +727,8 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function()
 	if IsPedInAnyVehicle(ped) then
 		curVeh = GetVehiclePedIsIn(ped)
 	end
-	if curVeh == lastjobveh then
+	local plate = QBCore.Functions.GetPlate(curVeh)
+	if exports["qb-vehiclekeys"]:HasVehicleKey(plate) and curVeh == lastjobveh then
 		if IsPedInAnyVehicle(ped) then
 			CheckPlayers(curVeh)
 		else
