@@ -1,5 +1,5 @@
------------------------------------------------
---Variables:
+-- Variables:
+local QBCore = exports['qb-core']:GetCoreObject()
 local GarageLocation = {}
 local inGarageStation = false
 local currentgarage = nil
