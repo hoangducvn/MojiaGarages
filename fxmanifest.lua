@@ -3,7 +3,7 @@ game 'gta5'
 
 author 'Hoàng Đức'
 version '1.0.0'
-description 'QB-NewGarages'
+description 'MojiaGarages - Best advanced garages for QB-Core Framework'
 
 shared_script 'config.lua'
 client_scripts {
