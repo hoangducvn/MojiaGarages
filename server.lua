@@ -1,11 +1,137 @@
-
+-----------------------------------------------
+--Variables:
 local OutsideVehicles = {}
+local houseowneridentifier = {}
+local houseownercid = {}
+local housekeyholders = {}
+local housesLoaded = false
+local AllGarages = {}
+-----------------------------------------------
 
-QBCore.Functions.CreateCallback('MojiaVehicles:checkVehicleOwner', function(source, cb, plate)
+-----------------------------------------------
+--Update houses:
+CreateThread(function()
+    while true do
+        if not housesLoaded then
+            exports.oxmysql:execute('SELECT * FROM player_houses', {}, function(houses)
+                if houses then
+                    for _, house in pairs(houses) do
+                        houseowneridentifier[house.house] = house.identifier
+                        houseownercid[house.house] = house.citizenid
+                        housekeyholders[house.house] = json.decode(house.keyholders)
+                    end
+                end
+            end)
+            housesLoaded = true
+			TriggerEvent('MojiaGarages:server:garageConfig')
+			TriggerEvent('MojiaGarages:server:updateHouseKeys')
+        end
+        Wait(7)
+    end
+end)
+-----------------------------------------------
+
+-----------------------------------------------
+--Update Garages:
+RegisterNetEvent('MojiaGarages:server:garageConfig', function()    
+    local result = exports.oxmysql:executeSync('SELECT * FROM houselocations', {})
+    if result[1] then        
+		AllGarages = Garages
+		for k, v in pairs(result) do
+            local garage = json.decode(v.garage) or {}            
+            
+				AllGarages[v.name] = {
+					label = v.label,
+					spawnPoint = {
+						vector4(garage.x, garage.y, garage.z, garage.h),
+					},
+					blippoint = vector3(garage.x, garage.y, garage.z),
+					showBlip = true,
+					blipsprite = 357,
+					blipscale = 0.65,
+					blipcolour = 3,
+					job = nil, -- [nil: public garage] ['police: police garage'] ...
+					fullfix = false, -- [true: full fix when take out vehicle]
+					garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+					isHouseGarage = true,
+					canStoreVehicle = true,
+					zones = {
+						vector2(garage.x1, garage.y1),
+						vector2(garage.x2, garage.y2),
+						vector2(garage.x3, garage.y3),
+						vector2(garage.x4, garage.y4),					
+					},
+					minz = garage.z - 1,
+					maxz = garage.z + 3,
+				}
+			
+			
+        end
+		TriggerClientEvent('MojiaGarages:client:GarageConfig', -1, AllGarages)
+	else
+		TriggerClientEvent('MojiaGarages:client:GarageConfig', -1, Garages)
+    end
+end)
+-----------------------------------------------
+
+-----------------------------------------------
+--Check house keys:
+local function hasHouseKey(house)
     local src = source
-    local pData = QBCore.Functions.GetPlayer(src)
+	local Player = QBCore.Functions.GetPlayer(src)
+    local hasKey = false
+	if Player then
+		local identifier = Player.PlayerData.license
+        local cid = Player.PlayerData.citizenid
+		if Player.PlayerData.job.name == 'realestate' then
+			hasKey = true
+		else
+			if houseowneridentifier[house] and houseownercid[house] then
+				if houseowneridentifier[house] == identifier and houseownercid[house] == cid then
+					hasKey = true
+				else
+					if housekeyholders[house] then
+						for i = 1, #housekeyholders[house], 1 do
+							if housekeyholders[house][i] == cid then
+								hasKey = true
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+    return hasKey
+end
+-----------------------------------------------
+
+-----------------------------------------------
+--Update House Keys:
+RegisterNetEvent('MojiaGarages:server:updateHouseKeys', function()    
+    local HouseKeys = {}
+	if AllGarages then
+		for k, v in pairs(AllGarages) do
+			if v.isHouseGarage then
+				HouseKeys[k] = hasHouseKey(k)
+			else
+				HouseKeys[k] = false
+			end
+		end
+		TriggerClientEvent('MojiaGarages:client:updateHouseKeys', source, HouseKeys)
+	end
+end)
+-----------------------------------------------
+
+-----------------------------------------------
+--Check Vehicle Owner:
+QBCore.Functions.CreateCallback('MojiaGarages:server:checkVehicleOwner', function(source, cb, plate)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
     exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',
-	{plate, pData.PlayerData.citizenid}, function(result)
+		{
+			plate,
+			Player.PlayerData.citizenid
+		}, function(result)
 		if result[1] ~= nil then
 			 cb(true, result[1].balance)
 		else
@@ -13,9 +139,11 @@ QBCore.Functions.CreateCallback('MojiaVehicles:checkVehicleOwner', function(sour
 		end
 	end)
 end)
+-----------------------------------------------
 
---Lấy danh sách xe trong gara:
-QBCore.Functions.CreateCallback("MojiaGarages:server:GetUserVehicles", function(source, cb)
+-----------------------------------------------
+--Get a list of vehicles in the garage:
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetUserVehicles', function(source, cb)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE citizenid = ?',
@@ -29,30 +157,50 @@ QBCore.Functions.CreateCallback("MojiaGarages:server:GetUserVehicles", function(
 		end
 	end)
 end)
---Lấy thông tin xe:
-QBCore.Functions.CreateCallback("MojiaGarages:server:GetVehicleProperties", function(source, cb, plate)
+-----------------------------------------------
+
+-----------------------------------------------
+--Get vehicle information:
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate)
     local src = source
     local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT mods FROM player_vehicles WHERE plate = ?', {plate})
+    local result = exports.oxmysql:fetchSync('SELECT mods FROM player_vehicles WHERE plate = ?',
+		{
+			plate
+		}
+	)
     if result[1] ~= nil then
         properties = json.decode(result[1].mods)
     end
     cb(properties)
 end)
+-----------------------------------------------
 
+-----------------------------------------------
+--Update car is outside:
 RegisterNetEvent('MojiaGarages:server:UpdateOutsideVehicles', function(Vehicles)
     local src = source
-    local Ply = QBCore.Functions.GetPlayer(src)
-    local CitizenId = Ply.PlayerData.citizenid
-
+    local Player = QBCore.Functions.GetPlayer(src)
+    local CitizenId = Player.PlayerData.citizenid
     OutsideVehicles[CitizenId] = Vehicles
 end)
+-----------------------------------------------
 
+-----------------------------------------------
+--Vehicle status update:
 RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage)
     exports.oxmysql:execute('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',
-        {state, garage, 0, plate})
+        {
+			state,
+			garage,
+			0,
+			plate
+		}
+	)
 end)
+-----------------------------------------------
 
+-----------------------------------------------
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Wait(100)
@@ -61,10 +209,13 @@ AddEventHandler('onResourceStart', function(resource)
         end
     end
 end)
+-----------------------------------------------
 
+-----------------------------------------------
+--Vehicle status update:
 RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
     local src = source
-    local pData = QBCore.Functions.GetPlayer(src)
+    local Player = QBCore.Functions.GetPlayer(src)
 
     if engine > 1000 then
         engine = engine / 1000
@@ -74,30 +225,41 @@ RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engin
         body = body / 1000
     end
 
-    exports.oxmysql:execute(
-        'UPDATE player_vehicles SET fuel = ?, engine = ?, body = ? WHERE plate = ? AND citizenid = ? AND garage = ?',
-        {fuel, engine, body, plate, pData.PlayerData.citizenid, garage})
+    exports.oxmysql:execute('UPDATE player_vehicles SET fuel = ?, engine = ?, body = ? WHERE plate = ? AND citizenid = ? AND garage = ?',
+        {
+			fuel,
+			engine,
+			body,
+			plate,
+			Player.PlayerData.citizenid,
+			garage
+		}
+	)
 end)
+-----------------------------------------------
 
+-----------------------------------------------
+--Payment of vehicle fines:
 RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    local bankBalance = Player.PlayerData.money["bank"]
-    local cashBalance = Player.PlayerData.money["cash"]
+    local bankBalance = Player.PlayerData.money['bank']
+    local cashBalance = Player.PlayerData.money['cash']
     exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ?',
 		{
 			vehicle.plate
 		}, function(result)
         if result[1] ~= nil then
             if bankBalance >= result[1].depotprice then
-                Player.Functions.RemoveMoney("bank", result[1].depotprice, "paid-depot")
-                TriggerClientEvent("Garage:client:doTakeOutVehicle", src, vehicle)
+                Player.Functions.RemoveMoney('bank', result[1].depotprice, 'Paying fines for vehicle in the depot')
+                TriggerClientEvent('MojiaGarages:client:doTakeOutVehicle', src, vehicle)
             elseif cashBalance >= result[1].depotprice then
-                Player.Functions.RemoveMoney("cash", result[1].depotprice, "paid-depot")
-                TriggerClientEvent("Garage:client:doTakeOutVehicle", src, vehicle)
+                Player.Functions.RemoveMoney('cash', result[1].depotprice, 'Paying fines for vehicle in the depot')
+                TriggerClientEvent('MojiaGarages:client:doTakeOutVehicle', src, vehicle)
             else
                 TriggerClientEvent('QBCore:Notify', src, 'you dont have enough money', 'error')
             end
         end
     end)
 end)
+-----------------------------------------------
