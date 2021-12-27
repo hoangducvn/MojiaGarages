@@ -295,7 +295,26 @@ RegisterNetEvent('qb-houses:server:addGarage', function(house, coords)
     TriggerClientEvent('QBCore:Notify', src, "You have added a garage: " .. Config.Houses[house].adress)
 end)
 ```
+- On qb-vehiclekeys\client\main.lua(If you use it):
 
+Add exports:
+```
+exports('HasVehicleKey', HasVehicleKey)
+```
+Right below:
+```
+local function HasVehicleKey(plate)
+	QBCore.Functions.TriggerCallback('vehiclekeys:server:CheckHasKey', function(result)
+		if result then
+			HasVehicleKey = true
+		else
+			HasVehicleKey = false
+		end
+	end, plate)
+	return HasVehicleKey
+end
+exports('HasVehicleKey', HasVehicleKey)
+```
 ### Event for F1 menu:
 #### Open Garage:
 - Event:
@@ -384,7 +403,8 @@ if havekey(plate) then
 			if IsPedInAnyVehicle(ped) then
 				veh = GetVehiclePedIsIn(ped)
 			end
-			if exports["MojiaVehicleKey"]:CheckHasKey(veh) then
+			local plate = QBCore.Functions.GetPlate(veh)
+			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
 				return true
 			end
 		end
