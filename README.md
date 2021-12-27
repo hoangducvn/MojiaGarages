@@ -385,8 +385,7 @@ Check if you are in the vehicle or not → you can use:
 ```
 if not IsPedInAnyVehicle(PlayerPedId()) then
 ```
-- For example(this is an example not the way to use every radial menu):
-```
+
 #### Hide vehicle for work:
 - Event:
 ```
