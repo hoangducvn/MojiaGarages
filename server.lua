@@ -1,5 +1,4 @@
------------------------------------------------
---Variables:
+-- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 local OutsideVehicles = {}
 local houseowneridentifier = {}
@@ -7,34 +6,87 @@ local houseownercid = {}
 local housekeyholders = {}
 local housesLoaded = false
 local AllGarages = {}
------------------------------------------------
 
------------------------------------------------
---Update houses:
-CreateThread(function()
-    while true do
-        if not housesLoaded then
-            exports.oxmysql:execute('SELECT * FROM player_houses', {}, function(houses)
-                if houses then
-                    for _, house in pairs(houses) do
-                        houseowneridentifier[house.house] = house.identifier
-                        houseownercid[house.house] = house.citizenid
-                        housekeyholders[house.house] = json.decode(house.keyholders)
-                    end
-                end
-            end)
-            housesLoaded = true
-			TriggerEvent('MojiaGarages:server:garageConfig')
-			TriggerEvent('MojiaGarages:server:updateHouseKeys')
-        end
-        Wait(7)
-    end
+-- Functions
+
+local function hasHouseKey(house) -- Check house keys
+    local src = source
+	local Player = QBCore.Functions.GetPlayer(src)
+    local hasKey = false
+	if Player then
+		local identifier = Player.PlayerData.license
+        local cid = Player.PlayerData.citizenid
+		if Player.PlayerData.job.name == 'realestate' then
+			hasKey = true
+		else
+			if houseowneridentifier[house] and houseownercid[house] then
+				if houseowneridentifier[house] == identifier and houseownercid[house] == cid then
+					hasKey = true
+				else
+					if housekeyholders[house] then
+						for i = 1, #housekeyholders[house], 1 do
+							if housekeyholders[house][i] == cid then
+								hasKey = true
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+    return hasKey
+end
+
+-- Callbacks
+
+QBCore.Functions.CreateCallback('MojiaGarages:server:checkVehicleOwner', function(source, cb, plate) -- Check Vehicle Owner:
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',
+		{
+			plate,
+			Player.PlayerData.citizenid
+		}, function(result)
+		if result[1] ~= nil then
+			 cb(true, result[1].balance)
+		else
+			cb(false)
+		end
+	end)
 end)
------------------------------------------------
 
------------------------------------------------
---Update Garages:
-RegisterNetEvent('MojiaGarages:server:garageConfig', function()    
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetUserVehicles', function(source, cb) -- Get a list of vehicles in the garage
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE citizenid = ?',
+		{
+			Player.PlayerData.citizenid
+		}, function(result)
+		if result[1] ~= nil then
+			cb(result)
+		else
+			cb(nil)
+		end
+	end)
+end)
+
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate) -- Get vehicle information
+    local src = source
+    local properties = {}
+    local result = exports.oxmysql:fetchSync('SELECT mods FROM player_vehicles WHERE plate = ?',
+		{
+			plate
+		}
+	)
+    if result[1] ~= nil then
+        properties = json.decode(result[1].mods)
+    end
+    cb(properties)
+end)
+
+-- Events
+
+RegisterNetEvent('MojiaGarages:server:garageConfig', function() -- Update Garages
     local result = exports.oxmysql:executeSync('SELECT * FROM houselocations', {})
     if result[1] then        
 		AllGarages = Garages
@@ -73,42 +125,8 @@ RegisterNetEvent('MojiaGarages:server:garageConfig', function()
 		TriggerClientEvent('MojiaGarages:client:GarageConfig', -1, Garages)
     end
 end)
------------------------------------------------
 
------------------------------------------------
---Check house keys:
-local function hasHouseKey(house)
-    local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-    local hasKey = false
-	if Player then
-		local identifier = Player.PlayerData.license
-        local cid = Player.PlayerData.citizenid
-		if Player.PlayerData.job.name == 'realestate' then
-			hasKey = true
-		else
-			if houseowneridentifier[house] and houseownercid[house] then
-				if houseowneridentifier[house] == identifier and houseownercid[house] == cid then
-					hasKey = true
-				else
-					if housekeyholders[house] then
-						for i = 1, #housekeyholders[house], 1 do
-							if housekeyholders[house][i] == cid then
-								hasKey = true
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-    return hasKey
-end
------------------------------------------------
-
------------------------------------------------
---Update House Keys:
-RegisterNetEvent('MojiaGarages:server:updateHouseKeys', function()    
+RegisterNetEvent('MojiaGarages:server:updateHouseKeys', function() --Update House Keys
     local HouseKeys = {}
 	if AllGarages then
 		for k, v in pairs(AllGarages) do
@@ -121,75 +139,15 @@ RegisterNetEvent('MojiaGarages:server:updateHouseKeys', function()
 		TriggerClientEvent('MojiaGarages:client:updateHouseKeys', source, HouseKeys)
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Check Vehicle Owner:
-QBCore.Functions.CreateCallback('MojiaGarages:server:checkVehicleOwner', function(source, cb, plate)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',
-		{
-			plate,
-			Player.PlayerData.citizenid
-		}, function(result)
-		if result[1] ~= nil then
-			 cb(true, result[1].balance)
-		else
-			cb(false)
-		end
-	end)
-end)
------------------------------------------------
-
------------------------------------------------
---Get a list of vehicles in the garage:
-QBCore.Functions.CreateCallback('MojiaGarages:server:GetUserVehicles', function(source, cb)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE citizenid = ?',
-		{
-			Player.PlayerData.citizenid
-		}, function(result)
-		if result[1] ~= nil then
-			cb(result)
-		else
-			cb(nil)
-		end
-	end)
-end)
------------------------------------------------
-
------------------------------------------------
---Get vehicle information:
-QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate)
-    local src = source
-    local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT mods FROM player_vehicles WHERE plate = ?',
-		{
-			plate
-		}
-	)
-    if result[1] ~= nil then
-        properties = json.decode(result[1].mods)
-    end
-    cb(properties)
-end)
------------------------------------------------
-
------------------------------------------------
---Update car is outside:
-RegisterNetEvent('MojiaGarages:server:UpdateOutsideVehicles', function(Vehicles)
+RegisterNetEvent('MojiaGarages:server:UpdateOutsideVehicles', function(Vehicles) -- Update car is outside
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local CitizenId = Player.PlayerData.citizenid
     OutsideVehicles[CitizenId] = Vehicles
 end)
------------------------------------------------
 
------------------------------------------------
---Vehicle status update:
-RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage)
+RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage) -- Vehicle status update
     exports.oxmysql:execute('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',
         {
 			state,
@@ -199,22 +157,8 @@ RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate
 		}
 	)
 end)
------------------------------------------------
 
------------------------------------------------
-AddEventHandler('onResourceStart', function(resource)
-    if resource == GetCurrentResourceName() then
-        Wait(100)
-        if AutoRespawn then
-            exports.oxmysql:execute('UPDATE player_vehicles SET state = 1 WHERE state = 0 AND depotprice = 0', {})
-        end
-    end
-end)
------------------------------------------------
-
------------------------------------------------
---Vehicle status update:
-RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage)
+RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage) -- Vehicle status update
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
 
@@ -237,11 +181,8 @@ RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engin
 		}
 	)
 end)
------------------------------------------------
 
------------------------------------------------
---Payment of vehicle fines:
-RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
+RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payment of vehicle fines
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local bankBalance = Player.PlayerData.money['bank']
@@ -263,4 +204,32 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle)
         end
     end)
 end)
------------------------------------------------
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        Wait(100)
+        if AutoRespawn then
+            exports.oxmysql:execute('UPDATE player_vehicles SET state = 1 WHERE state = 0 AND depotprice = 0', {})
+        end
+    end
+end)
+
+CreateThread(function() -- Update houses
+    while true do
+        if not housesLoaded then
+            exports.oxmysql:execute('SELECT * FROM player_houses', {}, function(houses)
+                if houses then
+                    for _, house in pairs(houses) do
+                        houseowneridentifier[house.house] = house.identifier
+                        houseownercid[house.house] = house.citizenid
+                        housekeyholders[house.house] = json.decode(house.keyholders)
+                    end
+                end
+            end)
+            housesLoaded = true
+			TriggerEvent('MojiaGarages:server:garageConfig')
+			TriggerEvent('MojiaGarages:server:updateHouseKeys')
+        end
+        Wait(7)
+    end
+end)
