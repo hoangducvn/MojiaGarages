@@ -1,5 +1,6 @@
 -----------------------------------------------
 --Variables:
+local QBCore = exports['qb-core']:GetCoreObject()
 local OutsideVehicles = {}
 local houseowneridentifier = {}
 local houseownercid = {}
