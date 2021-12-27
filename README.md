@@ -498,7 +498,8 @@ if havekey(plate) then
 			if IsPedInAnyVehicle(ped) then
 				curVeh = GetVehiclePedIsIn(ped)
 			end
-			if exports["MojiaVehicleKey"]:CheckHasKey(curVeh) and curVeh == lastJobVehicle then
+			local plate = QBCore.Functions.GetPlate(curVeh)
+			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) and curVeh == lastJobVehicle then
 				return true
 			end
 		end
