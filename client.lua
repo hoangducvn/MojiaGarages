@@ -1,4 +1,5 @@
--- Variables:
+-- Variables
+
 local QBCore = exports['qb-core']:GetCoreObject()
 local GarageLocation = {}
 local inGarageStation = false
@@ -11,11 +12,10 @@ local inJobStation = {}
 local hasHouseKey = false
 local HouseKeys = {}
 local Blips = {}
------------------------------------------------
 
------------------------------------------------
---Create gagages blip:
-local function CreateBlip()
+-- Functions
+
+local function CreateBlip() -- Create Garages blip
 	if Garages then
 		for k, v in pairs(Garages) do
 			if v.showBlip then
@@ -81,90 +81,8 @@ local function CreateBlip()
 		end
 	end
 end
------------------------------------------------
 
------------------------------------------------
---Event when player has successfully loaded:
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    GarageLocation = {}
-	Wait(100)
-	--Reload player information:
-	PlayerData = QBCore.Functions.GetPlayerData()
-	Wait(100)
-	--Reload garage information:
-	TriggerServerEvent('MojiaGarages:server:garageConfig')
-	Wait(100)
-	--Reload house key information:
-	TriggerServerEvent('MojiaGarages:server:updateHouseKeys')
-	Wait(100)
-	--Reload blips
-	CreateBlip()
-end)
------------------------------------------------
-
------------------------------------------------
---Event when the player has left:
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-	--Reset all variables:
-	GarageLocation = {}
-	inGarageStation = false
-	currentgarage = nil
-	nearspawnpoint = nil
-	lastjobveh = nil
-	OutsideVehicles = {}
-	PlayerData = {}
-	inJobStation = {}
-	hasHouseKey = false
-	HouseKeys = {}
-	Blips = {}
-end)
------------------------------------------------
-
------------------------------------------------
---Event when resource is reloaded:
-AddEventHandler('onResourceStart', function(resource)
-    if resource == GetCurrentResourceName() then
-        GarageLocation = {}
-		Wait(100)
-		--Reload player information:
-		PlayerData = QBCore.Functions.GetPlayerData()
-		Wait(100)
-		--Reload garage information:
-		TriggerServerEvent('MojiaGarages:server:garageConfig')
-		Wait(100)
-		--Reload house key information:
-		TriggerServerEvent('MojiaGarages:server:updateHouseKeys')
-		Wait(100)
-		--Reload blips
-		CreateBlip()
-    end
-end)
------------------------------------------------
-
------------------------------------------------
---Events when players change jobs:
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-	Wait(100)
-	--Reload player information:
-	PlayerData = QBCore.Functions.GetPlayerData()
-	Wait(100)
-	--Reload blips
-	CreateBlip()
-end)
-
-RegisterNetEvent('QBCore:Client:OnGangUpdate', function(GangInfo)
-	Wait(100)
-	--Reload player information:
-	PlayerData = QBCore.Functions.GetPlayerData()
-	Wait(100)
-	--Reload blips
-	CreateBlip()
-end)
------------------------------------------------
-
------------------------------------------------
---Check if the player is in the garage area and if the garage is open for parking:
-local function IsInGarage()
+local function IsInGarage() -- Check if the player is in the garage area and if the garage is open for parking
 	local checkIsingarage, checkCanStoreVehicle = false, false
 	if inGarageStation and currentgarage ~= nil then
 		checkIsingarage = true
@@ -172,17 +90,11 @@ local function IsInGarage()
 	end
 	return checkIsingarage, checkCanStoreVehicle
 end
------------------------------------------------
 
------------------------------------------------
---Check player is in job gagage location or not:
-local function isInJobStation(job)
+local function isInJobStation(job) -- Check player is in job gagage location or not
 	return inJobStation[job], lastjobveh
 end
------------------------------------------------
 
------------------------------------------------
---
 local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, maxDistance)
 	local nearbyEntities = {}
 	if coords then
@@ -199,25 +111,16 @@ local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coord
 	end
 	return nearbyEntities
 end
------------------------------------------------
 
------------------------------------------------
---Vehicle inspection in designated area:
-local function GetVehiclesInArea(coords, maxDistance)
+local function GetVehiclesInArea(coords, maxDistance) -- Vehicle inspection in designated area
 	return EnumerateEntitiesWithinDistance(QBCore.Functions.GetVehicles(), false, coords, maxDistance) 
 end
------------------------------------------------
 
------------------------------------------------
---Check the spawn point to see if it's empty or not:
-local function IsSpawnPointClear(coords, maxDistance) 
+local function IsSpawnPointClear(coords, maxDistance) -- Check the spawn point to see if it's empty or not:
 	return #GetVehiclesInArea(coords, maxDistance) == 0 
 end
------------------------------------------------
 
------------------------------------------------
---Get nearest spawn point:
-local function GetNearSpawnPoint()
+local function GetNearSpawnPoint() -- Get nearest spawn point
 	local near = nil
 	local distance = 10000
 	if inGarageStation and currentgarage ~= nil then
@@ -235,11 +138,8 @@ local function GetNearSpawnPoint()
 	end
 	return near
 end
------------------------------------------------
 
------------------------------------------------
---Get nearest spawn point for job garage:
-local function GetNearJobSpawnPoint()
+local function GetNearJobSpawnPoint() -- Get nearest spawn point for job garage
 	local near = nil
 	local distance = 10000
 	PlayerData = QBCore.Functions.GetPlayerData()
@@ -258,11 +158,8 @@ local function GetNearJobSpawnPoint()
 	end
 	return near
 end
------------------------------------------------
 
------------------------------------------------
---Set trunk item for job vehicle:
-local function SetJobVehItems(job)
+local function SetJobVehItems(job) -- Set trunk item for job vehicle
 	local items = {}
 	for k, item in pairs(VehJobItems[job]) do
 		local itemInfo = QBCore.Shared.Items[item.name:lower()]
@@ -282,11 +179,8 @@ local function SetJobVehItems(job)
 	end
 	VehJobItems[job] = items
 end
------------------------------------------------
 
------------------------------------------------
---Delete the vehicle if it is somewhere outside:
-local function Deleteveh(plate)
+local function Deleteveh(plate) -- Delete the vehicle if it is somewhere outside
 	local gameVehicles = QBCore.Functions.GetVehicles()
     for i = 1, #gameVehicles do
         local vehicle = gameVehicles[i]
@@ -297,11 +191,8 @@ local function Deleteveh(plate)
         end
     end
 end
------------------------------------------------
 
------------------------------------------------
---Check if there is someone in the car, if so, get that person out of the car:
-local function CheckPlayers(vehicle)
+local function CheckPlayers(vehicle) -- Check if there is someone in the car, if so, get that person out of the car
     for i = -1, 5,1 do                
         seat = GetPedInVehicleSeat(vehicle,i)
         if seat ~= 0 then
@@ -312,11 +203,8 @@ local function CheckPlayers(vehicle)
         end
    end
 end
------------------------------------------------
 
------------------------------------------------
---Set the damage degree of the vehicle:
-local function doCarDamage(currentVehicle, veh)
+local function doCarDamage(currentVehicle, veh) -- Set the damage degree of the vehicle
 	smash = false
 	damageOutside = false
 	damageOutside2 = false
@@ -369,16 +257,64 @@ local function doCarDamage(currentVehicle, veh)
 		SetVehicleBodyHealth(currentVehicle, 985.1)
 	end
 end
------------------------------------------------
 
------------------------------------------------
-exports('IsInGarage', IsInGarage)
-exports('isInJobStation', isInJobStation)
------------------------------------------------
+-- Events
 
------------------------------------------------
---Update Garages and Poly Box:
-RegisterNetEvent('MojiaGarages:client:GarageConfig', function(garageConfig)
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function() -- Event when player has successfully loaded
+    GarageLocation = {}
+	Wait(100)
+	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:garageConfig') -- Reload garage information
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information
+	Wait(100)
+	CreateBlip() Reload blips
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function() -- Event when the player has left --Reset all variables
+	GarageLocation = {} 
+	inGarageStation = false
+	currentgarage = nil
+	nearspawnpoint = nil
+	lastjobveh = nil
+	OutsideVehicles = {}
+	PlayerData = {}
+	inJobStation = {}
+	hasHouseKey = false
+	HouseKeys = {}
+	Blips = {}
+end)
+
+AddEventHandler('onResourceStart', function(resource) -- Event when resource is reloaded
+    if resource == GetCurrentResourceName() then -- Reload player information
+        GarageLocation = {}
+		Wait(100)
+		PlayerData = QBCore.Functions.GetPlayerData()
+		Wait(100)
+		TriggerServerEvent('MojiaGarages:server:garageConfig') --Reload garage information
+		Wait(100)
+		TriggerServerEvent('MojiaGarages:server:updateHouseKeys') -- Reload house key information
+		Wait(100)
+		CreateBlip() -- Reload blips
+    end
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo) --Events when players change jobs
+	Wait(100)
+	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
+	Wait(100)
+	CreateBlip() -- Reload blips
+end)
+
+RegisterNetEvent('QBCore:Client:OnGangUpdate', function(GangInfo) -- Reload player information
+	Wait(100)
+	PlayerData = QBCore.Functions.GetPlayerData()
+	Wait(100)
+	CreateBlip() -- Reload blips
+end)
+
+RegisterNetEvent('MojiaGarages:client:GarageConfig', function(garageConfig) -- Update Garages and Poly Box
 	if garageConfig then		
 		Garages = garageConfig
 		for k, v in pairs(Garages) do
@@ -438,20 +374,14 @@ RegisterNetEvent('MojiaGarages:client:GarageConfig', function(garageConfig)
 		end
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Update House Keys
-RegisterNetEvent('MojiaGarages:client:updateHouseKeys', function(keylist)
+RegisterNetEvent('MojiaGarages:client:updateHouseKeys', function(keylist) --Update House Keys
 	if keylist then
 		HouseKeys = keylist
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Update Garages:
-RegisterNetEvent('MojiaGarages:client:updateGarage', function()
+RegisterNetEvent('MojiaGarages:client:updateGarage', function() -- Update Garages
 	Wait(100)
 	PlayerData = QBCore.Functions.GetPlayerData()
 	Wait(100)
@@ -461,23 +391,8 @@ RegisterNetEvent('MojiaGarages:client:updateGarage', function()
 	Wait(100)
 	CreateBlip()
 end)
------------------------------------------------
 
------------------------------------------------
---Get nearest spawn point:
-CreateThread(function()
-	while true do
-		Wait(1000)
-		if inGarageStation and currentgarage ~= nil then
-			nearspawnpoint = GetNearSpawnPoint()
-		end
-	end
-end)
------------------------------------------------
-
------------------------------------------------
---Garages Menu:
-RegisterNetEvent('MojiaGarages:client:openGarage', function()
+RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
     if inGarageStation and currentgarage ~= nil then
 		QBCore.Functions.TriggerCallback('MojiaGarages:server:GetUserVehicles', function(result)
 			if result then
@@ -549,11 +464,8 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function()
 		end)
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Option to take the vehicle out:
-RegisterNetEvent('MojiaGarages:client:TakeOutVehicle', function(vehicle)
+RegisterNetEvent('MojiaGarages:client:TakeOutVehicle', function(vehicle) -- Option to take the vehicle out
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		if vehicle.state == 0 and vehicle.depotprice > 0 then
 			TriggerServerEvent('MojiaGarages:server:PayDepotPrice', vehicle)
@@ -563,11 +475,8 @@ RegisterNetEvent('MojiaGarages:client:TakeOutVehicle', function(vehicle)
 		end
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Take the vehicle out:
-RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
+RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Take the vehicle out
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint		
 		if not IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
@@ -598,11 +507,8 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle)
 		end
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Store Vehicle:
-RegisterNetEvent('MojiaGarages:client:storeVehicle', function()
+RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
     if inGarageStation and currentgarage ~= nil then
 		if Garages[currentgarage].garastate == 1 then
 			local ped = PlayerPedId()
@@ -642,11 +548,8 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function()
 		end
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Job Vehicles Menu:
-RegisterNetEvent('MojiaGarages:client:openJobVehList', function()
+RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles Menu
 	PlayerData = QBCore.Functions.GetPlayerData()
 	if lastjobveh ~= nil then
 		QBCore.Functions.Notify('You need to return the car you received before so you can get a new one', 'error', 3500)
@@ -684,11 +587,8 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function()
 		exports['qb-menu']:openMenu(vehicleMenu)
 	end
 end)
------------------------------------------------
 
------------------------------------------------
---Take vehicle for job:
-RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data)
+RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data) -- Take vehicle for job
 	local pos = nil
 	local header = nil
 	local lastnearspawnpoint = nearspawnpoint
@@ -716,11 +616,8 @@ RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data)
 		lastjobveh = veh
     end, pos, true)
 end)
------------------------------------------------
 
------------------------------------------------
---Hide vehicle for job:
-RegisterNetEvent('MojiaGarages:client:HideJobVeh', function()
+RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle for job
 	local ped = PlayerPedId()
 	local pos = GetEntityCoords(ped)
 	local curVeh = QBCore.Functions.GetClosestVehicle(pos)
@@ -737,4 +634,17 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function()
 		lastjobveh = nil
 	end
 end)
------------------------------------------------
+
+CreateThread(function() -- Get nearest spawn point
+	while true do
+		Wait(1000)
+		if inGarageStation and currentgarage ~= nil then
+			nearspawnpoint = GetNearSpawnPoint()
+		end
+	end
+end)
+
+-- export
+
+exports('IsInGarage', IsInGarage)
+exports('isInJobStation', isInJobStation)
