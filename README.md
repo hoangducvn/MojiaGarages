@@ -3,9 +3,10 @@
 
 ## Dependencies:
 - [qb-core](https://github.com/qbcore-framework/qb-core) -Main framework
-- [PolyZone](https://github.com/qbcore-framework/PolyZone) -Need for garages zone
-- [qb-menu](https://github.com/qbcore-framework/qb-menu) -Need for garages menu
-- [qb-houses](https://github.com/qbcore-framework/qb-houses) -Need for apartment garages
+- [PolyZone](https://github.com/qbcore-framework/PolyZone) -Needed for garages zone
+- [qb-menu](https://github.com/qbcore-framework/qb-menu) -Needed for garages menu
+- [qb-houses](https://github.com/qbcore-framework/qb-houses) -Needed for apartment garages
+- [qb-vehiclekeys](https://github.com/qbcore-framework/qb-vehiclekeys) -Needed for vehicle owner check
 
 ## Preview & tutorials:
 [Previews and tutorials - Youtube](https://youtu.be/1ECZIyZEmhY)
@@ -325,7 +326,7 @@ exports["qb-vehiclekeys"]:HasVehicleKey(plate)
 ```
 'MojiaGarages:client:openGarage'
 ```
-- Enable Menu:
+- Enable Menu(If your radial menu can enable/hide button):
 ```
 local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
 ```
@@ -344,7 +345,7 @@ if not IsPedInAnyVehicle(PlayerPedId()) then
 ```
 'MojiaGarages:client:storeVehicle'
 ```
-- Enable Menu:
+- Enable Menu(If your radial menu can enable/hide button):
 ```
 local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
 ```
@@ -358,18 +359,14 @@ if canStoreVehicle then
 ```
 You should have more vehicle key check function here:
 ```
-if havekey(vehicle) then
-
-or
-
-if havekey(plate) then
+if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
 ```
 #### Open vehicle list for work:
 - Event:
 ```
 'MojiaGarages:client:openJobVehList'
 ```
-- Enable Menu:
+- Enable Menu(If your radial menu can enable/hide button):
 ```
 isInJobGarage, lastJobVehicle = exports["MojiaGarages"]:isInJobStation('your job')
 ```
@@ -391,7 +388,7 @@ if not IsPedInAnyVehicle(PlayerPedId()) then
 ```
 'MojiaGarages:client:HideJobVeh'
 ```
-- Enable Menu:
+- Enable Menu(If your radial menu can enable/hide button):
 ```
 isInJobGarage, lastJobVehicle = exports["MojiaGarages"]:isInJobStation('your job')
 ```
@@ -405,11 +402,7 @@ if lastJobVehicle ~= nil then
 ```
 You should have more vehicle key check function here:
 ```
-if havekey(vehicle) then
-
-or
-
-if havekey(plate) then
+if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
 ```
 ### In progress:
 - Parking system for boats
