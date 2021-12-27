@@ -106,7 +106,7 @@ local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coord
 	for k, entity in pairs(entities) do
 		local distance = #(coords - GetEntityCoords(entity))
 		if distance <= maxDistance then
-			table.insert(nearbyEntities, isPlayerEntities and k or entity)
+			nearbyEntities[#nearbyEntities+1] = isPlayerEntities and k or entity
 		end
 	end
 	return nearbyEntities
@@ -413,15 +413,15 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 								end
 								enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
 								bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-								currentFuel = v.fuel						
-								table.insert(MenuGaraOptions, {
+								currentFuel = v.fuel
+								MenuGaraOptions[#MenuGaraOptions + 1] = {
 									header = QBCore.Shared.Vehicles[v.vehicle].name,
 									txt = 'Plate: '..v.plate..'<br>Fuel: '..currentFuel..'%<br>Engine: '..enginePercent..'%<br>Body: '..bodyPercent..'%',
 									params = {
 										event = 'MojiaGarages:client:TakeOutVehicle',
 										args = v
 									}
-								})
+								}
 							end
 						else
 							if Garages[currentgarage].fullfix then
@@ -439,24 +439,24 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 								vname = 'Plate: '..v.plate..'<br>Fuel: '..currentFuel..'%<br>Engine: '..enginePercent..'%<br>Body: '..bodyPercent..'%'
 							end
 							
-							table.insert(MenuGaraOptions, {
+							MenuGaraOptions[#MenuGaraOptions + 1] = {
 								header = QBCore.Shared.Vehicles[v.vehicle].name,
 								txt = vname,
 								params = {
 									event = 'MojiaGarages:client:TakeOutVehicle',
 									args = v
 								}
-							})
+							}
 						end
 					end
 				end
-				table.insert(MenuGaraOptions, {
+				MenuGaraOptions[#MenuGaraOptions + 1] = {
 					header = '❌| Close',
 					txt = '',
 					params = {
 						event = 'qb-menu:closeMenu',
 					}
-				})
+				}
 				exports['qb-menu']:openMenu(MenuGaraOptions)
 			else
 				QBCore.Functions.Notify('There are no vehicles in the garage', 'error', 5000)
@@ -562,7 +562,7 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles
 		}
 		for k, v in pairs(JobVeh[PlayerData.job.name][currentgarage].vehicle[PlayerData.job.grade.level]) do
 			local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
-			table.insert(vehicleMenu, {
+			vehicleMenu[#vehicleMenu + 1] = {
 				header = v.name,
 				txt = 'Plate: ' .. plate .. '<br>Fuel: 100%<br>Engine: 100%<br>Body: 100%',
 				params = {
@@ -575,15 +575,15 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles
 						modIndex = v.modIndex,
 					}
 				}
-			})                             
+			}
 		end
-		table.insert(vehicleMenu, {
+		vehicleMenu[#vehicleMenu + 1] = {
 			header = '❌| Close',
 			txt = '',
 			params = {
 				event = 'qb-menu:closeMenu',
 			}
-		})
+		}
 		exports['qb-menu']:openMenu(vehicleMenu)
 	end
 end)
