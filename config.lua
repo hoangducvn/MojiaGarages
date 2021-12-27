@@ -1,5 +1,5 @@
 QBCore = exports['qb-core']:GetCoreObject()
-AutoRespawn = true
+
 Garages = {
     --Public Garage:
 	['garage1'] = {
@@ -76,6 +76,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(239.94, -820.54),
             vector2(200.06, -805.75),
@@ -207,6 +209,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(-277.81, -886.02),
 			vector2(-350.82, -870.54),
@@ -298,6 +302,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(-25.48, 6326.9),
 			vector2(66.53, 6418.76),
@@ -353,6 +359,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(-2006.61, -506.38),
 			vector2(-1989.45, -482.25),
@@ -397,6 +405,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(388.57, 257.13),
 			vector2(349.74, 271.67),
@@ -430,6 +440,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
 			vector2(1091.8948974609, 2676.7536621094),
 			vector2(1139.7840576172, 2675.5483398438),
@@ -464,6 +476,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
 			vector2(1852.3106689453, 2582.8100585938),
 			vector2(1887.5792236328, 2582.9799804688),
@@ -498,6 +512,8 @@ Garages = {
 		job = nil, -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 0, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = false,
 		zones = {
             vector2(410.33, -1660.35),
 			vector2(423.39, -1645.19),
@@ -513,7 +529,7 @@ Garages = {
         maxz = 39.92,
     },
 	--Job Garage:
-	['police1'] = {
+	['mspdgarage'] = {
         label = 'Police Garage',
         spawnPoint = {
 			vector4(445.92, -996.92, 24.96, 270.5),
@@ -536,13 +552,15 @@ Garages = {
 			vector4(426.03, -976.17, 24.96, 270.27),
 		},
 		blippoint = vector3(441.64, -984.96, 25.7),
-        showBlip = true,
+        showBlip = false,
 		blipsprite = 357,
 		blipscale = 0.65,
 		blipcolour = 3,
 		job = 'police', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = true, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(423.16, -1000.29),
 			vector2(463.7, -1000.29),
@@ -551,6 +569,30 @@ Garages = {
         },
         minz = 24.66,
         maxz = 28.66,
+    },
+	['mspdheligarage'] = {
+        label = 'Police Helicopter Garage',
+        spawnPoint = {
+			vector4(449.19, -981.28, 44.08, 91.06),
+		},
+		blippoint = vector3(441.64, -984.96, 25.7),
+        showBlip = false,
+		blipsprite = 357,
+		blipscale = 0.65,
+		blipcolour = 3,
+		job = 'police', -- [nil: public garage] ['police: police garage'] ...
+		fullfix = true, -- [true: full fix when take out vehicle]
+		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = false,
+		zones = {
+            vector2(439.34, -971.23),
+			vector2(439.34, -1001.21),
+			vector2(463.93, -1001.21),
+			vector2(463.93, -971.23),			
+        },
+        minz = 42.68,
+        maxz = 47.08,
     },
 	['hospital'] = {
         label = 'Hospital Garage',
@@ -582,6 +624,8 @@ Garages = {
 		job = 'ambulance', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = true, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(408.4, -1411.68),
 			vector2(373.72, -1451.94),
@@ -604,6 +648,17 @@ Garages = {
         spawnPoint = {
 			vector4(-379.21, -143.75, 38.27, 299.61),
 			vector4(-377.58, -146.86, 38.27, 297.24),
+			vector4(-380.96, -140.66, 38.27, 300.34),
+			vector4(-382.47, -137.46, 38.27, 298.3),
+			vector4(-384.41, -134.34, 38.27, 299.15),
+			vector4(-386.23, -131.56, 38.27, 299.57),
+			vector4(-387.9, -128.23, 38.27, 297.8),
+			vector4(-389.36, -125.03, 38.27, 298.85),
+			vector4(-390.91, -122.09, 38.26, 299.1),
+			vector4(-392.75, -119.05, 38.18, 298.25),
+			vector4(-357.66, -120.68, 38.28, 70.53),
+			vector4(-358.84, -123.97, 38.28, 71.17),
+			vector4(-360.09, -127.23, 38.28, 70.25),
 		},
 		blippoint = vector3(-371.28, -133.6, 38.69),
         showBlip = true,
@@ -613,6 +668,8 @@ Garages = {
 		job = 'mechanic', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = true, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(-402.01, -108.09),
 			vector2(-384.19, -98.44),
@@ -639,6 +696,8 @@ Garages = {
 		job = 'police', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 2, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = false,
 		zones = {
             vector2(467.61, -1030.42),
 			vector2(467.17, -1020.57),
@@ -666,6 +725,8 @@ Garages = {
 		job = 'ballas', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(84.18, -1938.56),
 			vector2(88.06, -1947.25),
@@ -695,6 +756,8 @@ Garages = {
 		job = 'families', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(-808.43, 192.3),
 			vector2(-806.38, 186.41),
@@ -720,6 +783,8 @@ Garages = {
 		job = 'lostmc', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(970.94, -146.83),
 			vector2(979.22, -138.93),
@@ -747,6 +812,8 @@ Garages = {
 		job = 'cartel', -- [nil: public garage] ['police: police garage'] ...
 		fullfix = false, -- [true: full fix when take out vehicle]
 		garastate = 1, -- [0: Depot] [1: Garage] [2: Impound]
+		isHouseGarage = false,
+		canStoreVehicle = true,
 		zones = {
             vector2(1417.07, 1123.27),
 			vector2(1398.0, 1123.4),
@@ -755,64 +822,332 @@ Garages = {
         },
         minz = 113.36,
         maxz = 119.66,
-    },
-	--House Garage:
+    },	
 }
 
 --Job Vehicle:
 JobVeh = {
-	['police'] = {
-		['police1'] = { --make sure the name is the same as the job garage name configured above(see line 516)
+	['mechanic'] = {
+		['mechanic'] = { --make sure the name is the same as the job garage name configured above(see line 646)
 			vehicle = {
 				[0] = { --recruit
-					['police'] = 'Police Car 1',
-					['police2'] = 'Police Car 2',
-					['police3'] = 'Police Car 3',
-					['police4'] = 'Police Car 4',
-					['policeb'] = 'Police Car 5',
-					['policet'] = 'Police Car 6',
-					['sheriff'] = 'Sheriff Car 1',
-					['sheriff2'] = 'Sheriff Car 2',
+					['lgc19flatbed'] = {
+						name = 'Peterbilt 337',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['isgtow'] = {
+						name = 'Towtruck T440',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[1] = { --novice
+					['lgc19flatbed'] = {
+						name = 'Peterbilt 337',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['isgtow'] = {
+						name = 'Towtruck T440',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[2] = { --experienced
+					['lgc19flatbed'] = {
+						name = 'Peterbilt 337',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['isgtow'] = {
+						name = 'Towtruck T440',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[3] = { --advanced
+					['lgc19flatbed'] = {
+						name = 'Peterbilt 337',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['isgtow'] = {
+						name = 'Towtruck T440',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[4] = { --manager
+					['lgc19flatbed'] = {
+						name = 'Peterbilt 337',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['isgtow'] = {
+						name = 'Towtruck T440',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+			},
+			useJobspawnPoint = true, --[true: use the spawn point installed below] [false: use job garages spawn point]
+			spawnPoint = {
+				vector4(-375.65, -145.82, 38.73, 119.01),
+				vector4(-377.4, -142.75, 38.73, 118.49),
+				vector4(-378.82, -139.47, 38.73, 118.36),
+				vector4(-380.89, -136.58, 38.73, 119.45),
+				vector4(-382.68, -133.6, 38.73, 119.12),
+				vector4(-384.38, -130.43, 38.73, 119.69),
+				vector4(-385.92, -127.34, 38.73, 119.33),
+				vector4(-387.55, -124.21, 38.73, 118.94),
+				vector4(-389.5, -121.26, 38.73, 118.83),
+				vector4(-391.21, -118.24, 38.71, 118.74),
+				vector4(-361.64, -126.62, 38.74, 250.92),
+				vector4(-360.4, -123.28, 38.74, 249.82),
+				vector4(-359.33, -119.99, 38.74, 249.89),
+			},
+			plate = 'CHGT' -- the first four letters of the license plate
+		},
+	},
+	['police'] = {
+		['mspdgarage'] = { --make sure the name is the same as the job garage name configured above(see line 516)
+			vehicle = {
+				[0] = { --recruit
+					['police'] = {
+						name = 'Police Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police2'] = {
+						name = 'Police Car 2',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police3'] = {
+						name = 'Police Car 3',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police4'] = {
+						name = 'Police Car 4',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policeb'] = {
+						name = 'Police Car 5',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policet'] = {
+						name = 'Police Car 6',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff2'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
 				},
 				[1] = { --officer
-					['police'] = 'Police Car 1',
-					['police2'] = 'Police Car 2',
-					['police3'] = 'Police Car 3',
-					['police4'] = 'Police Car 4',
-					['policeb'] = 'Police Car 5',
-					['policet'] = 'Police Car 6',
-					['sheriff'] = 'Sheriff Car 1',
-					['sheriff2'] = 'Sheriff Car 2',
+					['police'] = {
+						name = 'Police Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police2'] = {
+						name = 'Police Car 2',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police3'] = {
+						name = 'Police Car 3',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police4'] = {
+						name = 'Police Car 4',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policeb'] = {
+						name = 'Police Car 5',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policet'] = {
+						name = 'Police Car 6',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff2'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
 				},
 				[2] = { --sergeant
-					['police'] = 'Police Car 1',
-					['police2'] = 'Police Car 2',
-					['police3'] = 'Police Car 3',
-					['police4'] = 'Police Car 4',
-					['policeb'] = 'Police Car 5',
-					['policet'] = 'Police Car 6',
-					['sheriff'] = 'Sheriff Car 1',
-					['sheriff2'] = 'Sheriff Car 2',
+					['police'] = {
+						name = 'Police Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police2'] = {
+						name = 'Police Car 2',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police3'] = {
+						name = 'Police Car 3',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police4'] = {
+						name = 'Police Car 4',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policeb'] = {
+						name = 'Police Car 5',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policet'] = {
+						name = 'Police Car 6',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff2'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
 				},
 				[3] = { --lieutenant
-					['police'] = 'Police Car 1',
-					['police2'] = 'Police Car 2',
-					['police3'] = 'Police Car 3',
-					['police4'] = 'Police Car 4',
-					['policeb'] = 'Police Car 5',
-					['policet'] = 'Police Car 6',
-					['sheriff'] = 'Sheriff Car 1',
-					['sheriff2'] = 'Sheriff Car 2',
+					['police'] = {
+						name = 'Police Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police2'] = {
+						name = 'Police Car 2',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police3'] = {
+						name = 'Police Car 3',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['police4'] = {
+						name = 'Police Car 4',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policeb'] = {
+						name = 'Police Car 5',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['policet'] = {
+						name = 'Police Car 6',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['sheriff2'] = {
+						name = 'Sheriff Car 1',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
 				},
 				[4] = { --chief
-					['police'] = 'Police Car 1',
-					['police2'] = 'Police Car 2',
-					['police3'] = 'Police Car 3',
-					['police4'] = 'Police Car 4',
-					['policeb'] = 'Police Car 5',
-					['policet'] = 'Police Car 6',
-					['sheriff'] = 'Sheriff Car 1',
-					['sheriff2'] = 'Sheriff Car 2',
+					['pol458'] = {
+						name = 'Ferrari 458 | Italia Hot Pursuit Police',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['polgt17'] = {
+						name = 'Ford GT | Hot Pursuit Police',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['polaventa'] = {
+						name = 'Lamborghini Aventador | Hot Pursuit Police',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+					['polamggtr'] = {
+						name = 'Mercedes AMG GTR 2017 | Hot Pursuit Police',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
 				},
 			},
 			useJobspawnPoint = false, --[true: use the spawn point installed below] [false: use job garages spawn point]
@@ -821,10 +1156,48 @@ JobVeh = {
 			},
 			plate = 'CSTP' -- the first four letters of the license plate
 		},
-		--[[
-		['police2'] = {
+		['mspdheligarage'] = {
 			vehicle = {
-				
+				[0] = { --recruit
+					['POLMAV'] = {
+						name = 'Police Helicopter',
+						livery = 0,
+						modType = 0,
+						modIndex = 48,
+					},
+				},
+				[1] = { --officer
+					['POLMAV'] = {
+						name = 'Police Helicopter',
+						livery = 0,
+						modType = 0,
+						modIndex = 48,
+					},
+				},
+				[2] = { --sergeant
+					['POLMAV'] = {
+						name = 'Police Helicopter',
+						livery = 0,
+						modType = 0,
+						modIndex = 48,
+					},
+				},
+				[3] = { --lieutenant
+					['POLMAV'] = {
+						name = 'Police Helicopter',
+						livery = 0,
+						modType = 0,
+						modIndex = 48,
+					},
+				},
+				[4] = { --chief
+					['POLMAV'] = {
+						name = 'Police Helicopter',
+						livery = 0,
+						modType = 0,
+						modIndex = 48,
+					},
+				},
 			},
 			useJobspawnPoint = false, --[true: use the spawn point installed below] [false: use job garages spawn point]
 			spawnPoint = {
@@ -832,6 +1205,157 @@ JobVeh = {
 			},
 			plate = 'CSTP'
 		},
-		]]--
+	},
+	['ambulance'] = {
+		['hospital'] = { --make sure the name is the same as the job garage name configured above(see line: 597)
+			vehicle = {
+				[0] = { --recruit
+					['ambulance'] = {
+						name = 'Ambulance',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[1] = { --paramedic
+					['ambulance'] = {
+						name = 'Ambulance',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[2] = { --doctor
+					['ambulance'] = {
+						name = 'Ambulance',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[3] = { --surgeon
+					['ambulance'] = {
+						name = 'Ambulance',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+				[4] = { --chief
+					['ambulance'] = {
+						name = 'Ambulance',
+						livery = nil,
+						modType = nil,
+						modIndex = nil,
+					},
+				},
+			},
+			useJobspawnPoint = false, --[true: use the spawn point installed below] [false: use job garages spawn point]
+			spawnPoint = {
+				
+			},
+			plate = 'CCCD' -- the first four letters of the license plate
+		},
+	},
+	--[[
+	['taxi'] = {
+		['taxi'] = {
+			vehicle = {
+				[0] = { --recruit
+					['taxi'] = 'Standard Cab',
+				},
+				[1] = { --driver
+					['taxi'] = 'Standard Cab',
+				},
+				[2] = { --event_driver
+					['taxi'] = 'Standard Cab',
+				},
+				[3] = { --sales
+					['taxi'] = 'Standard Cab',
+				},
+				[4] = { --manager
+					['taxi'] = 'Standard Cab',
+				},
+			},
+			useJobspawnPoint = false, --[true: use the spawn point installed below] [false: use job garages spawn point]
+			spawnPoint = {
+				
+			},
+			plate = 'TAXI' -- the first four letters of the license plate
+		},
+	},
+	]]--
+}
+
+--Items are available in the trunk of the vehicle for industries in the vehicle system for work:
+VehJobItems = {
+    ['police'] = {
+		[1] = {
+			name = 'heavyarmor',
+			amount = 2,
+			info = {},
+			type = 'item',
+			slot = 1,
+		},
+		[2] = {
+			name = 'empty_evidence_bag',
+			amount = 10,
+			info = {},
+			type = 'item',
+			slot = 2,
+		},
+		[3] = {
+			name = 'police_stormram',
+			amount = 1,
+			info = {},
+			type = 'item',
+			slot = 3,
+		},
+	},
+	['mechanic'] = {
+		[1] = {
+			name = 'repairkit',
+			amount = 10,
+			info = {},
+			type = 'item',
+			slot = 1,
+		},
+		[2] = {
+			name = 'advancedrepairkit',
+			amount = 2,
+			info = {},
+			type = 'item',
+			slot = 2,
+		},
+		[3] = {
+			name = 'cleaningkit',
+			amount = 10,
+			info = {},
+			type = 'item',
+			slot = 3,
+		},
+	},
+	['ambulance'] = {
+		[1] = {
+			name = 'bandage',
+			amount = 10,
+			info = {},
+			type = 'item',
+			slot = 1,
+		},
+		[2] = {
+			name = 'firstaid',
+			amount = 2,
+			info = {},
+			type = 'item',
+			slot = 2,
+		},
+		[3] = {
+			name = 'painkillers',
+			amount = 10,
+			info = {},
+			type = 'item',
+			slot = 3,
+		},
 	},
 }
