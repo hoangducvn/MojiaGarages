@@ -300,7 +300,7 @@ end)
 #### Open Garage:
 - Event:
 ```
-'MojiaGarages:openGarage'
+'MojiaGarages:client:openGarage'
 ```
 - Enable Menu:
 ```
@@ -342,7 +342,7 @@ if not IsPedInAnyVehicle(PlayerPedId()) then
 #### Store Vehicle:
 - Event:
 ```
-'MojiaGarages:storeVehicle'
+'MojiaGarages:client:storeVehicle'
 ```
 - Enable Menu:
 ```
@@ -395,7 +395,7 @@ if havekey(plate) then
 #### Open vehicle list for work:
 - Event:
 ```
-'MojiaGarages:openJobVehList'
+'MojiaGarages:client:openJobVehList'
 ```
 - Enable Menu:
 ```
