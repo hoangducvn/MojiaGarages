@@ -302,7 +302,22 @@ end)
 ```
 'MojiaGarages:openGarage'
 ```
-- For example:
+- Enable Menu:
+```
+local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
+```
+isingarage → check if you are in the garage area → True|False → you can use:
+```
+if isingarage then
+```
+canStoreVehicle → check if the garage allows parking → True|False →  don't need it.
+
+Check if you are in the vehicle or not → you can use:
+```
+if not IsPedInAnyVehicle(PlayerPedId()) then
+```
+
+- For example(this is an example not the way to use every radial menu):
 ```
 --Open Garage:
 {
@@ -329,7 +344,27 @@ end)
 ```
 'MojiaGarages:storeVehicle'
 ```
-- For example:
+- Enable Menu:
+```
+local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
+```
+isingarage → check if you are in the garage area → True|False → you can use:
+```
+if isingarage then
+```
+canStoreVehicle → check if the garage allows parking → True|False →  you can use:
+```
+if canStoreVehicle then
+```
+You should have more vehicle key check function here:
+```
+if havekey(vehicle) then
+
+or
+
+if havekey(plate) then
+```
+- For example(this is an example not the way to use every radial menu):
 ```
 --Store Vehicle:
 {
@@ -364,21 +399,21 @@ end)
 ```
 - Enable Menu:
 ```
-PlayerData = QBCore.Functions.GetPlayerData()
 isInJobGarage, lastJobVehicle = exports["MojiaGarages"]:isInJobStation('your job')
-if not PlayerData.metadata['ishandcuffed'] and
-not PlayerData.metadata['inlaststand'] and
-not PlayerData.metadata['isdead'] and
-not IsPauseMenuActive() and
-PlayerData.job.name == 'your job' and
-isInJobGarage and
-lastJobVehicle == nil
-not IsPedInAnyVehicle(PlayerPedId())
-then
-return true
-end
 ```
-- For example:
+isInJobGarage → check if you are in the garage area → True|False → you can use:
+```
+if isInJobGarage then
+```
+lastJobVehicle → return vehicle or nil →  you can use:
+```
+if lastJobVehicle == nil then
+```
+Check if you are in the vehicle or not → you can use:
+```
+if not IsPedInAnyVehicle(PlayerPedId()) then
+```
+- For example(this is an example not the way to use every radial menu):
 ```
 --Job Veh
 {
@@ -406,28 +441,26 @@ end
 ```
 - Enable Menu:
 ```
-PlayerData = QBCore.Functions.GetPlayerData()
 isInJobGarage, lastJobVehicle = exports["MojiaGarages"]:isInJobStation('your job')
-if not PlayerData.metadata['ishandcuffed'] and
-not PlayerData.metadata['inlaststand'] and
-not PlayerData.metadata['isdead'] and
-not IsPauseMenuActive() and
-PlayerData.job.name == 'your job' and
-isInJobGarage and lastJobVehicle ~= nil
-then
-local ped = PlayerPedId()
-local pos = GetEntityCoords(ped)
-local curVeh = QBCore.Functions.GetClosestVehicle(pos)
-if IsPedInAnyVehicle(ped) then
-	curVeh = GetVehiclePedIsIn(ped)
-end
-if event check vehicle key[Boolean] and
-curVeh == lastJobVehicle then
-	return true
-end
-end
 ```
-- For example:
+isInJobGarage → check if you are in the garage area → True|False → you can use:
+```
+if isInJobGarage then
+```
+lastJobVehicle → return vehicle or nil →  you can use:
+```
+if lastJobVehicle ~= nil then
+```
+You should have more vehicle key check function here:
+```
+if havekey(vehicle) then
+
+or
+
+if havekey(plate) then
+```
+
+- For example(this is an example not the way to use every radial menu):
 ```
 {
 	id = "hidepolicejobveh",
