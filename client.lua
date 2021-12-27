@@ -269,7 +269,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function() -- Event when player
 	Wait(100)
 	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information
 	Wait(100)
-	CreateBlip() Reload blips
+	CreateBlip() --Reload blips
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function() -- Event when the player has left --Reset all variables
