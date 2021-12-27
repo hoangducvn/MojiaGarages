@@ -296,7 +296,7 @@ RegisterNetEvent('qb-houses:server:addGarage', function(house, coords)
     TriggerClientEvent('QBCore:Notify', src, "You have added a garage: " .. Config.Houses[house].adress)
 end)
 ```
-- On qb-vehiclekeys\client\main.lua(If you use it):
+- On qb-vehiclekeys\client\main.lua:
 
 Add exports:
 ```
