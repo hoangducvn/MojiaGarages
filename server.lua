@@ -91,7 +91,8 @@ RegisterNetEvent('MojiaGarages:server:garageConfig', function() -- Update Garage
     if result[1] then        
 		AllGarages = Garages
 		for k, v in pairs(result) do
-            local garage = json.decode(v.garage) or {}            
+            local garage = json.decode(v.garage) or {} 
+			if v.garage ~= nil then
             
 				AllGarages[v.name] = {
 					label = v.label,
@@ -117,7 +118,7 @@ RegisterNetEvent('MojiaGarages:server:garageConfig', function() -- Update Garage
 					minz = garage.z - 1,
 					maxz = garage.z + 3,
 				}
-			
+			end
 			
         end
 		TriggerClientEvent('MojiaGarages:client:GarageConfig', -1, AllGarages)
