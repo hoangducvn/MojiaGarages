@@ -315,6 +315,10 @@ local function HasVehicleKey(plate)
 end
 exports('HasVehicleKey', HasVehicleKey)
 ```
+And now you can check your vehicle key by:
+```
+exports["qb-vehiclekeys"]:HasVehicleKey(plate)
+```
 ### Event for F1 menu:
 #### Open Garage:
 - Event:
@@ -334,29 +338,6 @@ canStoreVehicle → check if the garage allows parking → True|False →  don't
 Check if you are in the vehicle or not → you can use:
 ```
 if not IsPedInAnyVehicle(PlayerPedId()) then
-```
-
-- For example(this is an example not the way to use every radial menu):
-```
---Open Garage:
-{
-	id = "opengarage",
-	title = 'Open Garage',
-	icon = '#mj-garage-open',
-	type = 'client',
-	event = 'MojiaGarages:client:openGarage',
-	enableMenu = function()
-		PlayerData = QBCore.Functions.GetPlayerData()
-		local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
-		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and isingarage then 
-			local ped = PlayerPedId()
-			if not IsPedInAnyVehicle(ped, false) then
-				return true
-			end
-		end
-		return false
-	end
-},
 ```
 #### Store Vehicle:
 - Event:
@@ -383,35 +364,6 @@ or
 
 if havekey(plate) then
 ```
-- For example(this is an example not the way to use every radial menu):
-```
---Store Vehicle:
-{
-	id = "storeVehicle",
-	title = 'Store Vehicle',
-	icon = '#mj-parking',
-	type = 'client',
-	event = 'MojiaGarages:client:storeVehicle',
-	enableMenu = function()
-		PlayerData = QBCore.Functions.GetPlayerData()
-		local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
-		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and isingarage and canStoreVehicle then 
-			local ped = PlayerPedId()
-			local pos = GetEntityCoords(ped)
-			local ped = PlayerPedId()
-			local veh = QBCore.Functions.GetClosestVehicle(pos)
-			if IsPedInAnyVehicle(ped) then
-				veh = GetVehiclePedIsIn(ped)
-			end
-			local plate = QBCore.Functions.GetPlate(veh)
-			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
-				return true
-			end
-		end
-		return false
-	end
-},
-```
 #### Open vehicle list for work:
 - Event:
 ```
@@ -434,25 +386,6 @@ Check if you are in the vehicle or not → you can use:
 if not IsPedInAnyVehicle(PlayerPedId()) then
 ```
 - For example(this is an example not the way to use every radial menu):
-```
---Job Veh
-{
-	id = "policevehlist",
-	title = 'Job Veh',
-	icon = '#mj-garage-open',
-	type = 'client',
-	event = 'MojiaGarages:client:openJobVehList',
-	enableMenu = function()
-		PlayerData = QBCore.Functions.GetPlayerData()
-		isInJobGarage, lastJobVehicle = exports["MojiaGarages"]:isInJobStation('police')
-		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and isInJobGarage and lastJobVehicle == nil then  
-			if not IsPedInAnyVehicle(PlayerPedId()) then
-				return true
-			end
-		end
-		return false
-	end
-},
 ```
 #### Hide vehicle for work:
 - Event:
@@ -478,34 +411,6 @@ if havekey(vehicle) then
 or
 
 if havekey(plate) then
-```
-
-- For example(this is an example not the way to use every radial menu):
-```
-{
-	id = "hidepolicejobveh",
-	title = 'Hide Job Veh',
-	icon = '#mj-parking',
-	type = 'client',
-	event = 'MojiaGarages:client:HideJobVeh',
-	enableMenu = function()
-		PlayerData = QBCore.Functions.GetPlayerData()
-		isInJobGarage, lastJobVehicle = exports["MojiaGarages"]:isInJobStation('police')
-		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and isInJobGarage and lastJobVehicle ~= nil then  
-			local ped = PlayerPedId()
-			local pos = GetEntityCoords(ped)
-			local curVeh = QBCore.Functions.GetClosestVehicle(pos)
-			if IsPedInAnyVehicle(ped) then
-				curVeh = GetVehiclePedIsIn(ped)
-			end
-			local plate = QBCore.Functions.GetPlate(curVeh)
-			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) and curVeh == lastJobVehicle then
-				return true
-			end
-		end
-		return false
-	end
-},
 ```
 ### In progress:
 - Parking system for boats
