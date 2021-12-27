@@ -1,5 +1,3 @@
-QBCore = exports['qb-core']:GetCoreObject()
-
 Garages = {
     --Public Garage:
 	['garage1'] = {
