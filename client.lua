@@ -510,7 +510,8 @@ end)
 
 RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
     if inGarageStation and currentgarage ~= nil then
-		if Garages[currentgarage].garastate == 1 then
+		local lastcurrentgarage = currentgarage
+		if Garages[lastcurrentgarage].garastate == 1 then
 			local ped = PlayerPedId()
 			local pos = GetEntityCoords(ped)
 			local curVeh = QBCore.Functions.GetClosestVehicle(pos)
@@ -532,13 +533,13 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 							else
 								QBCore.Functions.DeleteVehicle(curVeh)
 							end
-							TriggerServerEvent('MojiaGarages:server:updateVehicleStatus', totalFuel, engineDamage, bodyDamage, plate, currentgarage)
-							TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, currentgarage)
+							TriggerServerEvent('MojiaGarages:server:updateVehicleStatus', totalFuel, engineDamage, bodyDamage, plate, lastcurrentgarage)
+							TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
 							if plate ~= nil then
 								OutsideVehicles[plate] = veh
 								TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
 							end
-							QBCore.Functions.Notify('Vehicle parked in '..Garages[currentgarage].label, 'success', 4500)
+							QBCore.Functions.Notify('Vehicle parked in '..Garages[lastcurrentgarage].label, 'success', 4500)
 						else
 							QBCore.Functions.Notify('Nobody owns this vehicle', 'error', 3500)
 						end
