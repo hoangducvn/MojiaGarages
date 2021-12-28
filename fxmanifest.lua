@@ -5,7 +5,10 @@ author 'Hoàng Đức'
 version '1.0.0'
 description 'MojiaGarages - Best advanced garages for QB-Core Framework'
 
-shared_script 'config.lua'
+shared_scripts {
+    'config.lua',
+    'lang.lua'
+}
 client_scripts {
     '@PolyZone/client.lua',
 	'client.lua'

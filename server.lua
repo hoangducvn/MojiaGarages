@@ -200,7 +200,7 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payme
                 Player.Functions.RemoveMoney('cash', result[1].depotprice, 'Paying fines for vehicle in the depot')
                 TriggerClientEvent('MojiaGarages:client:doTakeOutVehicle', src, vehicle)
             else
-                TriggerClientEvent('QBCore:Notify', src, 'you dont have enough money', 'error')
+                TriggerClientEvent('QBCore:Notify', src, GetText('you_dont_have_enough_money'), 'error')
             end
         end
     end)
