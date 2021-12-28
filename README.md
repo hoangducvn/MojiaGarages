@@ -9,7 +9,9 @@
 - [qb-vehiclekeys](https://github.com/qbcore-framework/qb-vehiclekeys) -Needed for vehicle owner check
 
 ## Preview & tutorials:
-[Previews and tutorials - Youtube](https://youtu.be/1ECZIyZEmhY)
+[Preview and guide to installing a new garage - Youtube](https://youtu.be/1ECZIyZEmhY)
+
+[Instructions for installing MojiaGarages on the original QB-Core - Youtube](https://youtu.be/C01WwrdL670)
 
 ## Features(All in one):
 - Park and taken out the vehicle as long as it's in the garage area
