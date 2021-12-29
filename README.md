@@ -1,6 +1,7 @@
 # MojiaGarages
 🅿 Best advanced garages for QB-Core Framework 🅿
 
+[Change Log](CHANGELOG.md)
 ## Dependencies:
 - [qb-core](https://github.com/qbcore-framework/qb-core) -Main framework
 - [PolyZone](https://github.com/qbcore-framework/PolyZone) -Needed for garages zone
