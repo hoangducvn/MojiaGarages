@@ -316,14 +316,14 @@ end)
 AddEventHandler('onResourceStart', function(resource) -- Event when resource is reloaded
     if resource == GetCurrentResourceName() then -- Reload player information
         TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
-		Wait(100)
-		PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
-		Wait(100)
-		TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
-		Wait(100)
-		TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
-		Wait(100)
-		CreateBlip() --Reload blips
+	Wait(100)
+	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
+	Wait(100)
+	CreateBlip() --Reload blips
     end
 end)
 
@@ -456,6 +456,13 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 						isMenuHeader = true
 					},
 				}
+				MenuGaraOptions[#MenuGaraOptions + 1] = {
+					header = GetText('close_menu'),
+					txt = '',
+					params = {
+						event = 'MojiaMenu:closeMenu',
+					}
+				}
 				for i, v in pairs(result) do
 					if v.state == Garages[currentgarage].garastate then
 						if v.state == 1 then
@@ -525,15 +532,8 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 							}
 						end
 					end
-				end
-				MenuGaraOptions[#MenuGaraOptions + 1] = {
-					header = GetText('close_menu'),
-					txt = '',
-					params = {
-						event = 'qb-menu:closeMenu',
-					}
-				}
-				exports['qb-menu']:openMenu(MenuGaraOptions)
+				end				
+				exports['MojiaMenu']:openMenu(MenuGaraOptions)
 			else
 				QBCore.Functions.Notify(GetText('there_are_no_vehicles_in_the_garage'), 'error', 5000)
 			end
@@ -572,12 +572,12 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
 					end
 					SetVehicleNumberPlateText(veh, vehicle.plate)
 					SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
-					exports['LegacyFuel']:SetFuel(veh, vehicle.fuel)
+					exports['MojiaFuel']:SetFuel(veh, vehicle.fuel)
 					doCarDamage(veh, vehicle)
 					SetEntityAsMissionEntity(veh, true, true)
 					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
 					QBCore.Functions.Notify(string.format(GetText('take_out_x_out_of_x_garage'), QBCore.Shared.Vehicles[vehicle.vehicle].name, Garages[currentgarage].label), 'success', 4500)
-					TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
+					TriggerEvent('MojiaVehicles:addTempKey', QBCore.Functions.GetPlate(veh))
 				end, vehicle.plate)
 			end, Garages[currentgarage].spawnPoint[lastnearspawnpoint], true)
 		end
@@ -596,13 +596,13 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 			end
 			local plate = QBCore.Functions.GetPlate(curVeh)
 			local vehpos = GetEntityCoords(curVeh)
-			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
+			if exports["MojiaVehicleKey"]:CheckHasKey(curVeh) then
 				if curVeh and #(pos - vehpos) < 7.5 then
 					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
 						if owned then					
 							local bodyDamage = math.ceil(GetVehicleBodyHealth(curVeh))
 							local engineDamage = math.ceil(GetVehicleEngineHealth(curVeh))
-							local totalFuel = exports['LegacyFuel']:GetFuel(curVeh)
+							local totalFuel = exports['MojiaFuel']:GetFuel(curVeh)
 							local passenger = GetVehicleMaxNumberOfPassengers(curVeh)
 							if IsPedInAnyVehicle(ped) then
 								CheckPlayers(curVeh)
@@ -637,6 +637,13 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles
 				isMenuHeader = true
 			}
 		}
+		vehicleMenu[#vehicleMenu + 1] = {
+			header = GetText('close_menu'),
+			txt = '',
+			params = {
+				event = 'MojiaMenu:closeMenu',
+			}
+		}
 		for k, v in pairs(JobVeh[PlayerData.job.name][currentgarage].vehicle[PlayerData.job.grade.level]) do
 			local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
 			vehicleMenu[#vehicleMenu + 1] = {
@@ -653,15 +660,8 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles
 					}
 				}
 			}
-		end
-		vehicleMenu[#vehicleMenu + 1] = {
-			header = GetText('close_menu'),
-			txt = '',
-			params = {
-				event = 'qb-menu:closeMenu',
-			}
-		}
-		exports['qb-menu']:openMenu(vehicleMenu)
+		end		
+		exports['MojiaMenu']:openMenu(vehicleMenu)
 	end
 end)
 
@@ -687,8 +687,8 @@ RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data) -- Take vehic
 		end
 		SetVehicleNumberPlateText(veh, data.plate)
         SetEntityHeading(veh, header)
-        exports['LegacyFuel']:SetFuel(veh, 100.0)
-        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
+        exports['MojiaFuel']:SetFuel(veh, 100.0)
+        TriggerEvent('MojiaVehicles:addTempKey', QBCore.Functions.GetPlate(veh))
 		TriggerServerEvent('inventory:server:addTrunkItems', QBCore.Functions.GetPlate(veh), VehJobItems[PlayerData.job.name])
 		lastjobveh = veh
     end, pos, true)
@@ -702,7 +702,7 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 		curVeh = GetVehiclePedIsIn(ped)
 	end
 	local plate = QBCore.Functions.GetPlate(curVeh)
-	if exports["qb-vehiclekeys"]:HasVehicleKey(plate) and curVeh == lastjobveh then
+	if exports["MojiaVehicleKey"]:CheckHasKey(curVeh) and curVeh == lastjobveh then
 		if IsPedInAnyVehicle(ped) then
 			CheckPlayers(curVeh)
 		else

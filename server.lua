@@ -121,9 +121,9 @@ RegisterNetEvent('MojiaGarages:server:UpdateGaragesZone', function() -- Update G
 			end
 			
         end
-		TriggerClientEvent('MojiaGarages:client:GarageConfig', -1, AllGarages)
+		TriggerClientEvent('MojiaGarages:client:UpdateGaragesZone', -1, AllGarages)
 	else
-		TriggerClientEvent('MojiaGarages:client:GarageConfig', -1, Garages)
+		TriggerClientEvent('MojiaGarages:client:UpdateGaragesZone', -1, Garages)
     end
 end)
 
@@ -228,8 +228,8 @@ CreateThread(function() -- Update houses
                 end
             end)
             housesLoaded = true
+			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')
 			TriggerEvent('MojiaGarages:server:updateHouseKeys')
-			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')			
         end
         Wait(7)
     end
