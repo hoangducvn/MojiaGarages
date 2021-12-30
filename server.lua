@@ -104,7 +104,11 @@ RegisterNetEvent('MojiaGarages:server:updateHouseKeys', function() --Update Hous
 		if AllGarages then
 			for k, v in pairs(AllGarages) do
 				if v.isHouseGarage then
-					HouseKeys[k] = exports['qb-houses']:hasKey(identifier, cid, k)
+					if Player.PlayerData.job.name == 'realestate' then
+						HouseKeys[k] = true
+					else
+						HouseKeys[k] = exports['qb-houses']:hasKey(identifier, cid, k)
+					end
 				else
 					HouseKeys[k] = false
 				end
