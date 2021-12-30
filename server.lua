@@ -228,8 +228,8 @@ CreateThread(function() -- Update houses
                 end
             end)
             housesLoaded = true
-			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')
 			TriggerEvent('MojiaGarages:server:updateHouseKeys')
+			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')
         end
         Wait(7)
     end
