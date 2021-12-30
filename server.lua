@@ -86,7 +86,7 @@ end)
 
 -- Events
 
-RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function() -- Update Garages
+RegisterNetEvent('MojiaGarages:server:UpdateGaragesZone', function() -- Update Garages
     local result = exports.oxmysql:executeSync('SELECT * FROM houselocations', {})
     if result[1] then        
 		AllGarages = Garages
@@ -229,7 +229,7 @@ CreateThread(function() -- Update houses
             end)
             housesLoaded = true
 			TriggerEvent('MojiaGarages:server:updateHouseKeys')
-			TriggerEvent('MojiaGarages:client:UpdateGaragesZone')			
+			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')			
         end
         Wait(7)
     end
