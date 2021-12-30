@@ -86,7 +86,7 @@ end)
 
 -- Events
 
-RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function() -- Update Garages
+RegisterNetEvent('MojiaGarages:server:UpdateGaragesZone', function() -- Update Garages
     local result = exports.oxmysql:executeSync('SELECT * FROM houselocations', {})
     if result[1] then        
 		AllGarages = Garages
