@@ -287,18 +287,19 @@ end
 -- Events
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function() -- Event when player has successfully loaded
-    GarageLocation = {}
+    TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
 	Wait(100)
 	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
 	Wait(100)
-	TriggerServerEvent('MojiaGarages:server:garageConfig') -- Reload garage information
+	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
 	Wait(100)
-	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information
+	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
 	Wait(100)
 	CreateBlip() --Reload blips
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function() -- Event when the player has left --Reset all variables
+	TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
 	GarageLocation = {} 
 	inGarageStation = false
 	currentgarage = nil
@@ -314,46 +315,56 @@ end)
 
 AddEventHandler('onResourceStart', function(resource) -- Event when resource is reloaded
     if resource == GetCurrentResourceName() then -- Reload player information
-        GarageLocation = {}
+        TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
 		Wait(100)
-		PlayerData = QBCore.Functions.GetPlayerData()
+		PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
 		Wait(100)
-		TriggerServerEvent('MojiaGarages:server:garageConfig') --Reload garage information
+		TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
 		Wait(100)
-		TriggerServerEvent('MojiaGarages:server:updateHouseKeys') -- Reload house key information
+		TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
 		Wait(100)
-		CreateBlip() -- Reload blips
+		CreateBlip() --Reload blips
     end
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo) --Events when players change jobs
+	TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
 	Wait(100)
 	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
 	Wait(100)
-	CreateBlip() -- Reload blips
+	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
+	Wait(100)
+	CreateBlip() --Reload blips
 end)
 
 RegisterNetEvent('QBCore:Client:OnGangUpdate', function(GangInfo) -- Reload player information
+	TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
 	Wait(100)
-	PlayerData = QBCore.Functions.GetPlayerData()
+	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
 	Wait(100)
-	CreateBlip() -- Reload blips
+	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
+	Wait(100)
+	CreateBlip() --Reload blips
 end)
 
-RegisterNetEvent('MojiaGarages:client:GarageConfig', function(garageConfig) -- Update Garages and Poly Box
+RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig) -- Update Garages Zone
 	if garageConfig then		
 		Garages = garageConfig
 		for k, v in pairs(Garages) do
-			GarageLocation[k] = PolyZone:Create(v.zones, {
-				name='GarageStation '..k,
-				minZ = 	v.minz,
-				maxZ = v.maxz,
-				debugPoly = false
-			})
-			GarageLocation[k]:onPlayerInOut(function(isPointInside)
-				if isPointInside then
-					if Garages[k].job ~= nil then
-						if PlayerData.job and PlayerData.job.name == Garages[k].job or PlayerData.gang and PlayerData.gang.name == Garages[k].job then
+			if Garages[k].job ~= nil then
+				if PlayerData.job and PlayerData.job.name == Garages[k].job or PlayerData.gang and PlayerData.gang.name == Garages[k].job then
+					GarageLocation[k] = PolyZone:Create(v.zones, {
+						name='GarageStation '..k,
+						minZ = 	v.minz,
+						maxZ = v.maxz,
+						debugPoly = false
+					})
+					GarageLocation[k]:onPlayerInOut(function(isPointInside)
+						if isPointInside then
 							inGarageStation = true
 							currentgarage = k
 							if PlayerData.job and not inJobStation[PlayerData.job.name] and k ~= 'impound' then
@@ -366,9 +377,19 @@ RegisterNetEvent('MojiaGarages:client:GarageConfig', function(garageConfig) -- U
 								inJobStation[PlayerData.job.name] = false
 							end
 						end
-					else
-						if Garages[k].isHouseGarage then
-							if HouseKeys[k] then
+					end)
+				end
+			else
+				if Garages[k].isHouseGarage then
+					if HouseKeys[k] then
+						GarageLocation[k] = PolyZone:Create(v.zones, {
+							name='GarageStation '..k,
+							minZ = 	v.minz,
+							maxZ = v.maxz,
+							debugPoly = true
+						})
+						GarageLocation[k]:onPlayerInOut(function(isPointInside)
+							if isPointInside then
 								inGarageStation = true
 								currentgarage = k
 								if PlayerData.job and inJobStation[PlayerData.job.name] then
@@ -381,22 +402,40 @@ RegisterNetEvent('MojiaGarages:client:GarageConfig', function(garageConfig) -- U
 									inJobStation[PlayerData.job.name] = false
 								end
 							end
-						else
+						end)
+					end
+				else
+					GarageLocation[k] = PolyZone:Create(v.zones, {
+						name='GarageStation '..k,
+						minZ = 	v.minz,
+						maxZ = v.maxz,
+						debugPoly = true
+					})
+					GarageLocation[k]:onPlayerInOut(function(isPointInside)
+						if isPointInside then
 							inGarageStation = true
 							currentgarage = k
 							if PlayerData.job and inJobStation[PlayerData.job.name] then
 								inJobStation[PlayerData.job.name] = false
 							end
+						else
+							inGarageStation = false
+							currentgarage = nil
+							if PlayerData.job and inJobStation[PlayerData.job.name] then
+								inJobStation[PlayerData.job.name] = false
+							end
 						end
-					end
-				else
-					inGarageStation = false
-					currentgarage = nil
-					if PlayerData.job and inJobStation[PlayerData.job.name] then
-						inJobStation[PlayerData.job.name] = false
-					end
+					end)
 				end
-			end)
+			end
+		end
+	end
+end)
+
+RegisterNetEvent('MojiaGarages:client:DestroyingZone', function() -- Destroying all zone
+    if GarageLocation then
+		for k, v in pairs(GarageLocation) do
+			GarageLocation[k]:destroy()
 		end
 	end
 end)
@@ -405,17 +444,6 @@ RegisterNetEvent('MojiaGarages:client:updateHouseKeys', function(keylist) --Upda
 	if keylist then
 		HouseKeys = keylist
 	end
-end)
-
-RegisterNetEvent('MojiaGarages:client:updateGarage', function() -- Update Garages
-	Wait(100)
-	PlayerData = QBCore.Functions.GetPlayerData()
-	Wait(100)
-	TriggerServerEvent('MojiaGarages:server:garageConfig')
-	Wait(100)
-	TriggerServerEvent('MojiaGarages:server:updateHouseKeys')
-	Wait(100)
-	CreateBlip()
 end)
 
 RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
