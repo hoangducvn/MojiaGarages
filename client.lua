@@ -440,6 +440,18 @@ RegisterNetEvent('MojiaGarages:client:DestroyingZone', function() -- Destroying 
 	end
 end)
 
+RegisterNetEvent('MojiaGarages:client:updateGarage', function() -- Update Garages
+	TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
+	Wait(100)
+	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
+	Wait(100)
+	CreateBlip() --Reload blips
+end)
+
 RegisterNetEvent('MojiaGarages:client:updateHouseKeys', function(keylist) --Update House Keys
 	if keylist then
 		HouseKeys = keylist
@@ -596,7 +608,7 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 			end
 			local plate = QBCore.Functions.GetPlate(curVeh)
 			local vehpos = GetEntityCoords(curVeh)
-			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
+			if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
 				if curVeh and #(pos - vehpos) < 7.5 then
 					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
 						if owned then					
@@ -702,7 +714,7 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 		curVeh = GetVehiclePedIsIn(ped)
 	end
 	local plate = QBCore.Functions.GetPlate(curVeh)
-	if exports["qb-vehiclekeys"]:HasVehicleKey(plate) and curVeh == lastjobveh then
+	if exports['qb-vehiclekeys']:HasVehicleKey(plate) and curVeh == lastjobveh then
 		if IsPedInAnyVehicle(ped) then
 			CheckPlayers(curVeh)
 		else
