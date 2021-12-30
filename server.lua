@@ -1,41 +1,8 @@
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 local OutsideVehicles = {}
-local houseowneridentifier = {}
-local houseownercid = {}
-local housekeyholders = {}
 local housesLoaded = false
 local AllGarages = {}
-
--- Functions
-
-local function hasHouseKey(house) -- Check house keys
-    local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-    local hasKey = false
-	if Player then
-		local identifier = Player.PlayerData.license
-        local cid = Player.PlayerData.citizenid
-		if Player.PlayerData.job.name == 'realestate' then
-			hasKey = true
-		else
-			if houseowneridentifier[house] and houseownercid[house] then
-				if houseowneridentifier[house] == identifier and houseownercid[house] == cid then
-					hasKey = true
-				else
-					if housekeyholders[house] then
-						for i = 1, #housekeyholders[house], 1 do
-							if housekeyholders[house][i] == cid then
-								hasKey = true
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-    return hasKey
-end
 
 -- Callbacks
 
@@ -129,15 +96,21 @@ end)
 
 RegisterNetEvent('MojiaGarages:server:updateHouseKeys', function() --Update House Keys
     local HouseKeys = {}
-	if AllGarages then
-		for k, v in pairs(AllGarages) do
-			if v.isHouseGarage then
-				HouseKeys[k] = hasHouseKey(k)
-			else
-				HouseKeys[k] = false
+	local src = source
+	local Player = QBCore.Functions.GetPlayer(src)
+	if Player then
+		local identifier = Player.PlayerData.license
+        local cid = Player.PlayerData.citizenid
+		if AllGarages then
+			for k, v in pairs(AllGarages) do
+				if v.isHouseGarage then
+					HouseKeys[k] = exports['qb-houses']:hasKey(identifier, cid, k)
+				else
+					HouseKeys[k] = false
+				end
 			end
+			TriggerClientEvent('MojiaGarages:client:updateHouseKeys', source, HouseKeys)
 		end
-		TriggerClientEvent('MojiaGarages:client:updateHouseKeys', source, HouseKeys)
 	end
 end)
 
@@ -218,18 +191,9 @@ end)
 CreateThread(function() -- Update houses
     while true do
         if not housesLoaded then
-            exports.oxmysql:execute('SELECT * FROM player_houses', {}, function(houses)
-                if houses then
-                    for _, house in pairs(houses) do
-                        houseowneridentifier[house.house] = house.identifier
-                        houseownercid[house.house] = house.citizenid
-                        housekeyholders[house.house] = json.decode(house.keyholders)
-                    end
-                end
-            end)
             housesLoaded = true
 			TriggerEvent('MojiaGarages:server:updateHouseKeys')
-			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')
+			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')			
         end
         Wait(7)
     end
