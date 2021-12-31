@@ -25,7 +25,7 @@
 - Items are available in the trunk of the vehicle for industries in the vehicle system for work
 - Private parking at the headquarters of each profession
 - Private parking for each apartment
-- Suport multil langue
+- support multiple languages
 - You can translate through your language easily through `lang.lua`
 - Easy configuration via `config.lua`
 
@@ -41,6 +41,15 @@ ensure MojiaGarages
 All garage data of pre-existing homes will not be compatible with this garage, you need to delete those garages and create new ones. When creating a new garage, you need to be on a vehicle.
 ### Edit the resources according to the following instructions:
 
+#### qb-vehiclesales\server\main.lua:
+find:
+```
+QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
+```
+replace with
+```
+QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned, balance)
+```
 #### qb-phone:
 - Edit qb-phone\fxmanifest.lua:
 ```
