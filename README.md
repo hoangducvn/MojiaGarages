@@ -25,7 +25,7 @@
 - Items are available in the trunk of the vehicle for industries in the vehicle system for work
 - Private parking at the headquarters of each profession
 - Private parking for each apartment
-- Suport multil langue
+- support multiple languages
 - You can translate through your language easily through `lang.lua`
 - Easy configuration via `config.lua`
 
