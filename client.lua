@@ -386,7 +386,7 @@ RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig)
 							name='GarageStation '..k,
 							minZ = 	v.minz,
 							maxZ = v.maxz,
-							debugPoly = true
+							debugPoly = false
 						})
 						GarageLocation[k]:onPlayerInOut(function(isPointInside)
 							if isPointInside then
@@ -409,7 +409,7 @@ RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig)
 						name='GarageStation '..k,
 						minZ = 	v.minz,
 						maxZ = v.maxz,
-						debugPoly = true
+						debugPoly = false
 					})
 					GarageLocation[k]:onPlayerInOut(function(isPointInside)
 						if isPointInside then
