@@ -932,7 +932,7 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles
 			local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
 			vehicleMenu[#vehicleMenu + 1] = {
 				header = v.name,
-				txt = string.format(GetText('vehicle_info'), plate, '100%', '100%', '100%'),
+				txt = string.format(GetText('vehicle_info'), plate, '100%', '100%', '100%', '100%', '0%'),
 				params = {
 					event = 'MojiaGarages:client:SpawnJobVeh',
 					args = {
