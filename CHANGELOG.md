@@ -1,5 +1,8 @@
 # Change Log
-
+## Date: 08/01/22
+- Automatically save coordinates, vehicle status
+- Auto spawn car in its last position, if there are players nearby
+- Depot only contains vehicles with fines greater than 0
 ## Date: 31/12/21
 - Show only the necessary zones
 - Delete unnecessary zones every time there is a change (job, gang...)

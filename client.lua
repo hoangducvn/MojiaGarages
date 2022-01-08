@@ -15,6 +15,296 @@ local Blips = {}
 
 -- Functions
 
+local function GetVehicleModifications(vehicle) --Get all vehicle information
+    local color1, color2               = GetVehicleColours(vehicle)
+    local pearlescentColor, wheelColor = GetVehicleExtraColours(vehicle)
+    local extras = {}
+    for i = 0, 20, 1 do
+        if (DoesExtraExist(vehicle, i)) then
+            if (IsVehicleExtraTurnedOn(vehicle, i)) then
+                table.insert(extras, { i, 0 })
+            else
+                table.insert(extras, { i, 1 })
+            end
+        end
+    end
+    local tiresBurst = {}
+    for i = 0, 5, 1 do
+        if (IsVehicleTyreBurst(vehicle, i, true)) then
+            table.insert(tiresBurst, { i, true })
+        elseif (IsVehicleTyreBurst(vehicle, i, false)) then
+            table.insert(tiresBurst, { i, false })
+        end
+    end
+    local windowsBroken = {}
+    for i = 0, 13, 1 do
+        if (not IsVehicleWindowIntact(vehicle, i)) then
+            table.insert(windowsBroken, i)
+        end
+    end
+	local doorsMissing = {}
+	for i = 0, 7, 1 do 
+		if IsVehicleDoorDamaged(vehicle, i) then
+			table.insert(doorsMissing, i)
+		end 
+	end
+    -- custom colors
+    local hasCustomPrimaryColor = GetIsVehiclePrimaryColourCustom(vehicle)
+    local customPrimaryColor = nil
+    if (hasCustomPrimaryColor) then
+        local r, g, b = GetVehicleCustomPrimaryColour(vehicle)
+        customPrimaryColor = { r, g, b }
+    end
+    local hasCustomSecondaryColor = GetIsVehicleSecondaryColourCustom(vehicle)
+    local customSecondaryColor = nil
+    if (hasCustomSecondaryColor) then
+        local r, g, b = GetVehicleCustomSecondaryColour(vehicle)
+        customSecondaryColor = { r, g, b }
+    end
+    return {
+        -- 1 model
+        GetEntityModel(vehicle),
+        -- 2 lockStatus
+        GetVehicleDoorLockStatus(vehicle),
+        -- 3 health
+        math.floor(GetEntityHealth(vehicle) * 10.0) / 10.0,
+        -- 4 bodyHealth
+        math.floor(GetVehicleBodyHealth(vehicle) * 10.0) / 10.0,
+        -- 5 engineHealth
+        math.floor(GetVehicleEngineHealth(vehicle) * 10.0) / 10.0,
+        -- 6 petrolTankHealth
+        math.floor(GetVehiclePetrolTankHealth(vehicle) * 10.0) / 10.0,
+        -- 7 dirtLevel
+        math.floor(GetVehicleDirtLevel(vehicle) * 10.0) / 10.0,
+        -- 8 fuelLevel
+        math.floor(GetVehicleFuelLevel(vehicle) * 10.0) / 10.0,
+        -- 9 plateIndex
+        GetVehicleNumberPlateTextIndex(vehicle),
+        -- 10 primaryColor
+        color1,
+        -- 11 secondaryColor
+        color2,
+        -- 12 pearlescentColor
+        pearlescentColor,
+        -- 13 wheelColor
+        wheelColor,
+        -- 14 wheelType
+        GetVehicleWheelType(vehicle),
+        -- 15 customWheelsFront
+        GetVehicleModVariation(vehicle, 23);
+        -- 16 customWheelsBack
+        GetVehicleModVariation(vehicle, 24);
+        -- 17 windowTint
+        GetVehicleWindowTint(vehicle),
+        -- 18 enabledNeon
+        {
+            IsVehicleNeonLightEnabled(vehicle, 0),
+            IsVehicleNeonLightEnabled(vehicle, 1),
+            IsVehicleNeonLightEnabled(vehicle, 2),
+            IsVehicleNeonLightEnabled(vehicle, 3),
+        },
+        -- 19 neonColor
+        table.pack(GetVehicleNeonLightsColour(vehicle)),
+        -- 20 tireSmokeColor
+        table.pack(GetVehicleTyreSmokeColor(vehicle)),
+        -- 21 extras
+        extras,
+        -- 22-32 mods
+        GetVehicleMod(vehicle, 0),
+        GetVehicleMod(vehicle, 1),
+        GetVehicleMod(vehicle, 2),
+        GetVehicleMod(vehicle, 3),
+        GetVehicleMod(vehicle, 4),
+        GetVehicleMod(vehicle, 5),
+        GetVehicleMod(vehicle, 6),
+        GetVehicleMod(vehicle, 7),
+        GetVehicleMod(vehicle, 8),
+        GetVehicleMod(vehicle, 9),
+        GetVehicleMod(vehicle, 10),
+        -- 33-38 mods
+        GetVehicleMod(vehicle, 11),
+        GetVehicleMod(vehicle, 12),
+        GetVehicleMod(vehicle, 13),
+        GetVehicleMod(vehicle, 14),
+        GetVehicleMod(vehicle, 15),
+        GetVehicleMod(vehicle, 16),
+        -- 39-41 mods
+        IsToggleModOn(vehicle,  18),
+        IsToggleModOn(vehicle,  20),
+        IsToggleModOn(vehicle,  22),
+        -- 42-43 mods
+        GetVehicleMod(vehicle, 23),
+        GetVehicleMod(vehicle, 24),
+        -- 44-66 mods
+        GetVehicleMod(vehicle, 25),
+        GetVehicleMod(vehicle, 26),
+        GetVehicleMod(vehicle, 27),
+        GetVehicleMod(vehicle, 28),
+        GetVehicleMod(vehicle, 29),
+        GetVehicleMod(vehicle, 30),
+        GetVehicleMod(vehicle, 31),
+        GetVehicleMod(vehicle, 32),
+        GetVehicleMod(vehicle, 33),
+        GetVehicleMod(vehicle, 34),
+        GetVehicleMod(vehicle, 35),
+        GetVehicleMod(vehicle, 36),
+        GetVehicleMod(vehicle, 37),
+        GetVehicleMod(vehicle, 38),
+        GetVehicleMod(vehicle, 39),
+        GetVehicleMod(vehicle, 40),
+        GetVehicleMod(vehicle, 41),
+        GetVehicleMod(vehicle, 42),
+        GetVehicleMod(vehicle, 43),
+        GetVehicleMod(vehicle, 44),
+        GetVehicleMod(vehicle, 45),
+        GetVehicleMod(vehicle, 46),
+        GetVehicleMod(vehicle, 48),
+        -- 67 livery
+        GetVehicleLivery(vehicle),
+        -- 68 missingDoors
+        doorsMissing,
+        -- 69 bulletproofTires
+        not GetVehicleTyresCanBurst(vehicle),
+        -- 70 tiresBurst
+        tiresBurst,
+        -- 71 brokenWindows
+        windowsBroken,
+        -- 72 xenon lights
+        GetVehicleXenonLightsColour(vehicle),
+        -- 73 custom primary color
+        customPrimaryColor,
+        -- 74 custom secondary color
+        customSecondaryColor,
+        -- 75 interior color
+        GetVehicleInteriorColor(vehicle),	
+    }
+end
+
+local function SetVehicleModifications(vehicle, plate, modifications)-- Apply all modifications to a vehicle entity
+    SetVehicleModKit(vehicle, 0)
+    -- plate
+    SetVehicleNumberPlateText(vehicle, plate)
+    SetVehicleNumberPlateTextIndex(vehicle, modifications[9])
+    -- lockStatus
+    SetVehicleDoorsLocked(vehicle, modifications[2])
+    -- colours
+    SetVehicleColours(vehicle, modifications[10], modifications[11])
+    if (modifications[73]) then
+        SetVehicleCustomPrimaryColour(vehicle, modifications[73][1], modifications[73][2], modifications[73][3])
+    end
+    if (modifications[74]) then
+        SetVehicleCustomSecondaryColour(vehicle, modifications[74][1], modifications[74][2], modifications[74][3])
+    end
+    if (modifications[75]) then
+        SetVehicleInteriorColor(vehicle, modifications[75])
+    end
+    SetVehicleExtraColours(vehicle, modifications[12], modifications[13])
+    SetVehicleTyreSmokeColor(vehicle, modifications[20][1], modifications[20][2], modifications[20][3])
+    -- wheels
+    SetVehicleWheelType(vehicle, modifications[14])
+    -- windows
+    SetVehicleWindowTint(vehicle, modifications[17])
+    -- neonlight
+    SetVehicleNeonLightEnabled(vehicle, 0, modifications[18][1])
+    SetVehicleNeonLightEnabled(vehicle, 1, modifications[18][2])
+    SetVehicleNeonLightEnabled(vehicle, 2, modifications[18][3])
+    SetVehicleNeonLightEnabled(vehicle, 3, modifications[18][4])
+    SetVehicleNeonLightsColour(vehicle, modifications[19][1], modifications[19][2], modifications[19][3])
+    -- mods
+    SetVehicleMod(vehicle,  0, modifications[22], modifications[15])
+    SetVehicleMod(vehicle,  1, modifications[23], modifications[15])
+    SetVehicleMod(vehicle,  2, modifications[24], modifications[15])
+    SetVehicleMod(vehicle,  3, modifications[25], modifications[15])
+    SetVehicleMod(vehicle,  4, modifications[26], modifications[15])
+    SetVehicleMod(vehicle,  5, modifications[27], modifications[15])
+    SetVehicleMod(vehicle,  6, modifications[28], modifications[15])
+    SetVehicleMod(vehicle,  7, modifications[29], modifications[15])
+    SetVehicleMod(vehicle,  8, modifications[30], modifications[15])
+    SetVehicleMod(vehicle,  9, modifications[31], modifications[15])
+    SetVehicleMod(vehicle, 10, modifications[32], modifications[15])
+    SetVehicleMod(vehicle, 11, modifications[33], modifications[15])
+    SetVehicleMod(vehicle, 12, modifications[34], modifications[15])
+    SetVehicleMod(vehicle, 13, modifications[35], modifications[15])
+    SetVehicleMod(vehicle, 14, modifications[36], modifications[15])
+    SetVehicleMod(vehicle, 15, modifications[37], modifications[15])
+    SetVehicleMod(vehicle, 16, modifications[38], modifications[15])
+    ToggleVehicleMod(vehicle, 18, modifications[39])
+    ToggleVehicleMod(vehicle, 20, modifications[40])
+    ToggleVehicleMod(vehicle, 22, modifications[41])
+    SetVehicleMod(vehicle, 23, modifications[42], modifications[15])
+    SetVehicleMod(vehicle, 24, modifications[43], modifications[16])
+    SetVehicleMod(vehicle, 25, modifications[44], modifications[15])
+    SetVehicleMod(vehicle, 26, modifications[45], modifications[15])
+    SetVehicleMod(vehicle, 27, modifications[46], modifications[15])
+    SetVehicleMod(vehicle, 28, modifications[47], modifications[15])
+    SetVehicleMod(vehicle, 29, modifications[48], modifications[15])
+    SetVehicleMod(vehicle, 30, modifications[49], modifications[15])
+    SetVehicleMod(vehicle, 31, modifications[50], modifications[15])
+    SetVehicleMod(vehicle, 32, modifications[51], modifications[15])
+    SetVehicleMod(vehicle, 33, modifications[52], modifications[15])
+    SetVehicleMod(vehicle, 34, modifications[53], modifications[15])
+    SetVehicleMod(vehicle, 35, modifications[54], modifications[15])
+    SetVehicleMod(vehicle, 36, modifications[55], modifications[15])
+    SetVehicleMod(vehicle, 37, modifications[56], modifications[15])
+    SetVehicleMod(vehicle, 38, modifications[57], modifications[15])
+    SetVehicleMod(vehicle, 39, modifications[58], modifications[15])
+    SetVehicleMod(vehicle, 40, modifications[59], modifications[15])
+    SetVehicleMod(vehicle, 41, modifications[60], modifications[15])
+    SetVehicleMod(vehicle, 42, modifications[61], modifications[15])
+    SetVehicleMod(vehicle, 43, modifications[62], modifications[15])
+    SetVehicleMod(vehicle, 44, modifications[63], modifications[15])
+    SetVehicleMod(vehicle, 45, modifications[64], modifications[15])
+    SetVehicleMod(vehicle, 46, modifications[65], modifications[15])
+    SetVehicleMod(vehicle, 48, modifications[66], modifications[15])
+    SetVehicleLivery(vehicle, modifications[67])
+    -- extras
+    for i = 1, #modifications[21], 1 do
+        SetVehicleExtra(vehicle, modifications[21][i][1], modifications[21][i][2])
+    end
+    -- stats
+    SetEntityHealth(vehicle, modifications[3])
+    SetVehicleBodyHealth(vehicle, modifications[4])
+    SetVehicleEngineHealth(vehicle, modifications[5])
+    SetVehiclePetrolTankHealth(vehicle, modifications[6])
+    if (renderScorched and (modifications[5] < -3999.0 or modifications[6] < -999.0)) then
+        TriggerServerEvent("AdvancedParking:renderScorched", NetworkGetNetworkIdFromEntity(vehicle), true)
+    end
+    SetVehicleDirtLevel(vehicle, modifications[7])
+    SetVehicleFuelLevel(vehicle, modifications[8])
+    -- doors
+    for i = 1, #modifications[68], 1 do
+        SetVehicleDoorBroken(vehicle, modifications[68][i], true)
+    end
+    -- tires
+    SetVehicleTyresCanBurst(vehicle, not modifications[69])
+    if (not modifications[69]) then
+        for i = 1, #modifications[70], 1 do
+            SetVehicleTyreBurst(vehicle, modifications[70][i][1], modifications[70][i][2], 1000.0)
+        end
+    end
+    -- windows
+    for i = 1, #modifications[71], 1 do
+        SmashVehicleWindow(vehicle, modifications[71][i])
+    end
+    -- xenon lights
+	if (modifications[72]) then
+		SetVehicleXenonLightsColour(vehicle, modifications[72])
+	end
+end
+
+local function GetRotationDifference(r1, r2) -- returns the difference in degrees from the axis with the highest difference
+    local x = math.abs(r1.x - r2.x)
+    local y = math.abs(r1.y - r2.y)
+    local z = math.abs(r1.z - r2.z)
+    if (x > y and x > z) then
+        return x
+    elseif (y > z) then
+        return y
+    else
+        return z
+    end
+end
+
 local function CreateBlip() -- Create Garages blip
 	if Garages then
 		for k, v in pairs(Garages) do
@@ -223,68 +513,47 @@ local function CheckPlayers(vehicle) -- Check if there is someone in the car, if
         seat = GetPedInVehicleSeat(vehicle,i)
         if seat ~= 0 then
             TaskLeaveVehicle(seat,vehicle,0)
-            SetVehicleDoorsLocked(vehicle)
+            SetVehicleDoorsLocked(vehicle)			
             Wait(3000)
+			TriggerEvent('MojiaGarages:client:updateVehicle', vehicle)
             QBCore.Functions.DeleteVehicle(vehicle)
         end
    end
 end
 
-local function doCarDamage(currentVehicle, veh) -- Set the damage degree of the vehicle
-	smash = false
-	damageOutside = false
-	damageOutside2 = false
-	local engine = veh.engine + 0.0
-	local body = veh.body + 0.0
-	if engine < 200.0 then
-		engine = 200.0
-    end
-
-    if engine > 1000.0 then
-        engine = 1000.0
-    end
-
-	if body < 150.0 then
-		body = 150.0
-	end
-	if body < 900.0 then
-		smash = true
-	end
-
-	if body < 800.0 then
-		damageOutside = true
-	end
-
-	if body < 500.0 then
-		damageOutside2 = true
-	end
-
-    Wait(100)
-    SetVehicleEngineHealth(currentVehicle, engine)
-	if smash then
-		SmashVehicleWindow(currentVehicle, 0)
-		SmashVehicleWindow(currentVehicle, 1)
-		SmashVehicleWindow(currentVehicle, 2)
-		SmashVehicleWindow(currentVehicle, 3)
-		SmashVehicleWindow(currentVehicle, 4)
-	end
-	if damageOutside then
-		SetVehicleDoorBroken(currentVehicle, 1, true)
-		SetVehicleDoorBroken(currentVehicle, 6, true)
-		SetVehicleDoorBroken(currentVehicle, 4, true)
-	end
-	if damageOutside2 then
-		SetVehicleTyreBurst(currentVehicle, 1, false, 990.0)
-		SetVehicleTyreBurst(currentVehicle, 2, false, 990.0)
-		SetVehicleTyreBurst(currentVehicle, 3, false, 990.0)
-		SetVehicleTyreBurst(currentVehicle, 4, false, 990.0)
-	end
-	if body < 1000 then
-		SetVehicleBodyHealth(currentVehicle, 985.1)
-	end
+function GetAllVehicles() -- Returns all loaded vehicles on client side
+    return QBCore.Functions.GetVehicles()
 end
 
 -- Events
+RegisterNetEvent("MojiaGarages:client:setVehicleMods", function(netId, plate, modifications)
+	local timer = GetGameTimer()
+	while (not NetworkDoesEntityExistWithNetworkId(netId)) do
+		Wait(0)
+		if (GetGameTimer() - 10000 > timer) then
+			TriggerServerEvent("MojiaGarages:server:setVehicleModsFailed", plate)
+			return
+		end
+	end
+	local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if (DoesEntityExist(vehicle) and NetworkHasControlOfEntity(vehicle)) then
+        SetVehicleModifications(vehicle, plate, modifications)
+		TriggerServerEvent("MojiaGarages:server:setVehicleModsSuccess", plate)
+	else
+		TriggerServerEvent("MojiaGarages:server:setVehicleModsFailed", plate)
+    end
+end)
+
+RegisterNetEvent('MojiaGarages:client:updateVehicle', function(vehicle)
+	if (vehicle == nil) then
+		return
+	end
+	if DoesEntityExist(vehicle) and NetworkGetEntityIsNetworked(vehicle) then
+		local networkId = NetworkGetNetworkIdFromEntity(vehicle)
+		local modifications = GetVehicleModifications(vehicle)
+		TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, modifications)
+	end
+end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function() -- Event when player has successfully loaded
     TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
@@ -316,14 +585,14 @@ end)
 AddEventHandler('onResourceStart', function(resource) -- Event when resource is reloaded
     if resource == GetCurrentResourceName() then -- Reload player information
         TriggerEvent('MojiaGarages:client:DestroyingZone') -- Destroying all zone
-	Wait(100)
-	PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
-	Wait(100)
-	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
-	Wait(100)
-	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
-	Wait(100)
-	CreateBlip() --Reload blips
+		Wait(100)
+		PlayerData = QBCore.Functions.GetPlayerData() -- Reload player information
+		Wait(100)
+		TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
+		Wait(100)
+		TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
+		Wait(100)
+		CreateBlip() --Reload blips
     end
 end)
 
@@ -479,17 +748,23 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 					if v.state == Garages[currentgarage].garastate then
 						if v.state == 1 then
 							if v.garage == currentgarage then
+								local modifications = json.decode(v.modifications)
+								bodyPercent = QBCore.Shared.Round(modifications[4] / 10, 0)
+								enginePercent = QBCore.Shared.Round(modifications[5] / 10, 0)								
+								petrolTankPercent = QBCore.Shared.Round(modifications[6] / 10, 0)
+								dirtPercent = QBCore.Shared.Round(modifications[7] / 10, 0)
+								currentFuel = QBCore.Shared.Round(modifications[8], 0)
 								if Garages[currentgarage].fullfix then
-									v.engine = 1000
-									v.body = 1000
-									v.fuel = 100
+									modifications[4] = 1000
+									modifications[5] = 1000
+									modifications[6] = 1000
+									modifications[7] = 0
+									modifications[8] = 100
+									v.modifications = json.encode(modifications)
 								end
-								enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
-								bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-								currentFuel = v.fuel
 								MenuGaraOptions[#MenuGaraOptions + 1] = {
 									header = QBCore.Shared.Vehicles[v.vehicle].name,
-									txt = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%'),
+									txt = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%', petrolTankPercent .. '%', dirtPercent .. '%'),
 									params = {
 										event = 'MojiaGarages:client:TakeOutVehicle',
 										args = v
@@ -497,46 +772,54 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 								}
 							end
 						elseif v.state == 0 then
-							if OutsideVehicles ~= nil and next(OutsideVehicles) ~= nil and OutsideVehicles[v.plate] ~= nil and isVehicleExistInRealLife(v.plate) then
-							
-							else
-								if not isVehicleExistInRealLife(v.plate) then
-									if Garages[currentgarage].fullfix then
-										v.engine = 1000
-										v.body = 1000
-										v.fuel = 100
-									end
-									enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
-									bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-									currentFuel = v.fuel
-									if v.depotprice > 0 then
-										vname = string.format(GetText('vehicle_info_and_price'), v.depotprice, v.plate, currentFuel..'%', enginePercent..'%', bodyPercent..'%')
-									else
-										vname = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%')
-									end
-									MenuGaraOptions[#MenuGaraOptions + 1] = {
-										header = QBCore.Shared.Vehicles[v.vehicle].name,
-										txt = vname,
-										params = {
-											event = 'MojiaGarages:client:TakeOutVehicle',
-											args = v
+							if v.depotprice > 0 then
+								if OutsideVehicles ~= nil and next(OutsideVehicles) ~= nil and OutsideVehicles[v.plate] ~= nil and isVehicleExistInRealLife(v.plate) then
+								
+								else
+									if not isVehicleExistInRealLife(v.plate) then
+										local modifications = json.decode(v.modifications)
+										bodyPercent = QBCore.Shared.Round(modifications[4] / 10, 0)
+										enginePercent = QBCore.Shared.Round(modifications[5] / 10, 0)								
+										petrolTankPercent = QBCore.Shared.Round(modifications[6] / 10, 0)
+										dirtPercent = QBCore.Shared.Round(modifications[7] / 10, 0)
+										currentFuel = QBCore.Shared.Round(modifications[8], 0)
+										if Garages[currentgarage].fullfix then
+											modifications[4] = 1000
+											modifications[5] = 1000
+											modifications[6] = 1000
+											modifications[7] = 0
+											modifications[8] = 100
+											v.modifications = json.encode(modifications)
+										end
+										MenuGaraOptions[#MenuGaraOptions + 1] = {
+											header = QBCore.Shared.Vehicles[v.vehicle].name,
+											txt = string.format(GetText('vehicle_info_and_price'), v.depotprice, v.plate, currentFuel..'%', enginePercent..'%', bodyPercent..'%', petrolTankPercent .. '%', dirtPercent .. '%'),
+											params = {
+												event = 'MojiaGarages:client:TakeOutVehicle',
+												args = v
+											}
 										}
-									}
+									end
 								end
 							end
 						else
+							local modifications = json.decode(v.modifications)
+							bodyPercent = QBCore.Shared.Round(modifications[4] / 10, 0)
+							enginePercent = QBCore.Shared.Round(modifications[5] / 10, 0)								
+							petrolTankPercent = QBCore.Shared.Round(modifications[6] / 10, 0)
+							dirtPercent = QBCore.Shared.Round(modifications[7] / 10, 0)
+							currentFuel = QBCore.Shared.Round(modifications[8], 0)
 							if Garages[currentgarage].fullfix then
-								v.engine = 1000
-								v.body = 1000
-								v.fuel = 100
+								modifications[4] = 1000
+								modifications[5] = 1000
+								modifications[6] = 1000
+								modifications[7] = 0
+								modifications[8] = 100
+								v.modifications = json.encode(modifications)
 							end
-							enginePercent = QBCore.Shared.Round(v.engine / 10, 0)
-							bodyPercent = QBCore.Shared.Round(v.body / 10, 0)
-							currentFuel = v.fuel
-							vname = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%')
 							MenuGaraOptions[#MenuGaraOptions + 1] = {
 								header = QBCore.Shared.Vehicles[v.vehicle].name,
-								txt = vname,
+								txt = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%', petrolTankPercent .. '%', dirtPercent .. '%'),
 								params = {
 									event = 'MojiaGarages:client:TakeOutVehicle',
 									args = v
@@ -574,19 +857,11 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
 			Deleteveh(vehicle.plate)
 			QBCore.Functions.SpawnVehicle(vehicle.vehicle, function(veh)
 				QBCore.Functions.TriggerCallback('MojiaGarages:server:GetVehicleProperties', function(properties)
-					QBCore.Functions.SetVehicleProperties(veh, properties)
-					enginePercent = QBCore.Shared.Round(vehicle.engine / 10, 1)
-					bodyPercent = QBCore.Shared.Round(vehicle.body / 10, 1)
-					currentFuel = vehicle.fuel
+					SetVehicleModifications(veh, vehicle.plate, properties)
 					if vehicle.plate ~= nil then
 						OutsideVehicles[vehicle.plate] = veh
-						TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
 					end
-					SetVehicleNumberPlateText(veh, vehicle.plate)
 					SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
-					exports['LegacyFuel']:SetFuel(veh, vehicle.fuel)
-					doCarDamage(veh, vehicle)
-					SetEntityAsMissionEntity(veh, true, true)
 					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
 					QBCore.Functions.Notify(string.format(GetText('take_out_x_out_of_x_garage'), QBCore.Shared.Vehicles[vehicle.vehicle].name, Garages[currentgarage].label), 'success', 4500)
 					TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
@@ -611,21 +886,18 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 			if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
 				if curVeh and #(pos - vehpos) < 7.5 then
 					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
-						if owned then					
-							local bodyDamage = math.ceil(GetVehicleBodyHealth(curVeh))
-							local engineDamage = math.ceil(GetVehicleEngineHealth(curVeh))
-							local totalFuel = exports['LegacyFuel']:GetFuel(curVeh)
-							local passenger = GetVehicleMaxNumberOfPassengers(curVeh)
+						if owned then
+							
 							if IsPedInAnyVehicle(ped) then
 								CheckPlayers(curVeh)
 							else
+								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh)
 								QBCore.Functions.DeleteVehicle(curVeh)
 							end
-							TriggerServerEvent('MojiaGarages:server:updateVehicleStatus', totalFuel, engineDamage, bodyDamage, plate, lastcurrentgarage)
 							TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
+							TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
 							if plate ~= nil then
-								OutsideVehicles[plate] = veh
-								TriggerServerEvent('MojiaGarages:server:UpdateOutsideVehicles', OutsideVehicles)
+								OutsideVehicles[plate] = nil
 							end
 							QBCore.Functions.Notify(string.format(GetText('vehicle_parked_in_x'), Garages[lastcurrentgarage].label), 'success', 4500)
 						else
@@ -724,12 +996,63 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 	end
 end)
 
+-- Thread
+
 CreateThread(function() -- Get nearest spawn point
 	while true do
 		Wait(1000)
 		if inGarageStation and currentgarage ~= nil then
 			nearspawnpoint = GetNearSpawnPoint()
 		end
+	end
+end)
+
+CreateThread(function() --Save vehicle data on real times
+	while (true) do
+		local ped = PlayerPedId()
+		local pos = GetEntityCoords(ped)
+		local curVeh = QBCore.Functions.GetClosestVehicle(pos)
+		if IsPedInAnyVehicle(ped) then
+			curVeh = GetVehiclePedIsIn(ped)
+		end
+		local plate = QBCore.Functions.GetPlate(curVeh)
+		local vehpos = GetEntityCoords(curVeh)
+		local vehRot = GetEntityRotation(curVeh)
+		local newLockStatus = GetVehicleDoorLockStatus(curVeh)
+		local newBodyHealth  = math.floor(GetVehicleBodyHealth(curVeh) * 10.0) * 0.1
+		local newEngineHealth = math.floor(GetVehicleEngineHealth(curVeh) * 10.0) * 0.1
+		local newTankHealth = math.floor(GetVehiclePetrolTankHealth(curVeh) * 10.0) * 0.1
+		if NetworkGetEntityIsNetworked(curVeh) and DoesEntityExist(curVeh) then
+			QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
+				if hasowned then					
+					QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(VehicleData)
+						if VehicleData then					
+							local modifications = json.decode(VehicleData.modifications)
+							if (#(vector3(VehicleData.posX, VehicleData.posY, VehicleData.posZ) - vehpos) > 1.0 
+								or GetRotationDifference(vector3(VehicleData.rotX, VehicleData.rotY, VehicleData.rotZ), vehRot) > 15.0
+								or newLockStatus ~= modifications[2]
+								or math.abs(newBodyHealth - modifications[4]) > 5.0
+								or math.abs(newEngineHealth - modifications[5]) > 5.0
+								or math.abs(newTankHealth - modifications[6]) > 5.0
+							) then
+								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh)
+							end
+						end
+					end, plate)
+				end
+			end, plate)
+		end
+		Wait(3000)
+	end
+end)
+
+CreateThread(function() -- sync player position
+	while (true) do
+		local playerPed = PlayerPedId()
+		if (DoesEntityExist(playerPed)) then
+			TriggerServerEvent("MojiaGarages:server:syncPlayerPosition", GetEntityCoords(playerPed))
+		end
+		Wait(3000)
 	end
 end)
 

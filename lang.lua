@@ -16,8 +16,8 @@ end
 
 Language = {
     ['vi'] = {
-        ['vehicle_info'] = 'Biển số: %s<br>Xăng: %s<br>Máy: %s<br>Thân xe: %s',
-        ['vehicle_info_and_price'] = 'Tiền chuộc: $%s<br>Biển số: %s<br>Xăng: %s<br>Máy: %s<br>Thân xe: %s',
+        ['vehicle_info'] = 'Biển số: %s<br>Xăng: %s<br>Máy: %s<br>Thân xe: %s<br>Thùng Xăng: %s<br>Bụi Bẩn: %s',
+        ['vehicle_info_and_price'] = 'Tiền chuộc: $%s<br>Biển số: %s<br>Xăng: %s<br>Máy: %s<br>Thân xe: %s<br>Thùng Xăng: %s<br>Bụi Bẩn: %s',
         ['garage_menu_header'] = '🚘| %s',
         ['close_menu'] = '❌| Đóng',
         ['there_are_no_vehicles_in_the_garage'] = 'Không có xe nào trong nhà để xe?!',
@@ -30,8 +30,8 @@ Language = {
         ['you_dont_have_enough_money'] = 'Bạn không có đủ tiền!',
     },
     ['en'] = {
-        ['vehicle_info'] = 'Plate: %s<br>Fuel: %s<br>Engine: %s<br>Body: %s',
-        ['vehicle_info_and_price'] = 'Price: $%s<br>Plate: %s<br>Fuel: %s<br>Engine: %s<br>Body: %s',
+        ['vehicle_info'] = 'Plate: %s<br>Fuel: %s<br>Engine: %s<br>Body: %s<br>Tank: %s<br>Dirt: %s',
+        ['vehicle_info_and_price'] = 'Price: $%s<br>Plate: %s<br>Fuel: %s<br>Engine: %s<br>Body: %s<br>Tank: %s<br>Dirt: %s',
         ['garage_menu_header'] = '🚘| %s',
         ['close_menu'] = '❌| Close',
         ['there_are_no_vehicles_in_the_garage'] = 'There are no vehicles in the garage?!',

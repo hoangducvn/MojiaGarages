@@ -1,3 +1,10 @@
+-- this controls the distance at which vehicles will spawn to the closest player 
+-- (in meters)
+spawnDistance = 200.0
+-- set this to false if you do not want entities render as scorched when they 
+-- are completely broken
+renderScorched = true
+
 Garages = {
     --Public Garage:
 	['garage1'] = {
