@@ -3,6 +3,34 @@
 - Automatically save coordinates, vehicle status
 - Auto spawn car in its last position, if there are players nearby
 - Depot only contains vehicles with fines greater than 0
+- Need Add event to qb-vehiclekeys\server\main.lua:
+```
+RegisterNetEvent('MojiaGarages:server:updateOutSiteVehicleKeys', function(plate, citizenid) --Update vehicle Keys for qb-vehicle key
+    if plate and citizenid then
+        if VehicleList then
+            -- VehicleList exists so check for a plate
+            local val = VehicleList[plate]
+            if val then
+                -- The plate exists
+                VehicleList[plate].owners[citizenid] = true
+            else
+                -- Plate not currently tracked so store a new one with one owner
+                VehicleList[plate] = {
+                    owners = {}
+                }
+                VehicleList[plate].owners[citizenid] = true
+            end
+        else
+            -- Initialize new VehicleList
+            VehicleList = {}
+            VehicleList[plate] = {
+                owners = {}
+            }
+            VehicleList[plate].owners[citizenid] = true
+        end
+    end
+end)
+```
 ## Date: 31/12/21
 - Show only the necessary zones
 - Delete unnecessary zones every time there is a change (job, gang...)
