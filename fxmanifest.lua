@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'Hoàng Đức'
-version '1.0.0'
+version '1.0.1'
 description 'MojiaGarages - Best advanced garages for QB-Core Framework'
 
 shared_scripts {

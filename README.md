@@ -147,7 +147,7 @@ local function SetClosestHouse()
         ClosestHouse = current
         if ClosestHouse ~= nil and tonumber(dist) < 30 then
             QBCore.Functions.TriggerCallback('qb-houses:server:ProximityKO', function(key, owned)
-                HasKey = key
+                HasHouseKey = key
                 isOwned = owned
             end, ClosestHouse)
         end
