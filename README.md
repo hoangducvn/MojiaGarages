@@ -25,6 +25,9 @@
 - Items are available in the trunk of the vehicle for industries in the vehicle system for work
 - Private parking at the headquarters of each profession
 - Private parking for each apartment
+- Automatically save coordinates, vehicle status
+- Auto spawn car in its last position, if there are players nearby
+- Depot only contains vehicles with fines greater than 0
 - support multiple languages
 - You can translate through your language easily through `lang.lua`
 - Easy configuration via `config.lua`
