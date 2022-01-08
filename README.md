@@ -368,6 +368,34 @@ And now you can check your vehicle key by:
 ```
 exports["qb-vehiclekeys"]:HasVehicleKey(plate)
 ```
+- Add event to qb-vehiclekeys\server\main.lua:
+```
+RegisterNetEvent('MojiaGarages:server:updateOutSiteVehicleKeys', function(plate, citizenid) --Update vehicle Keys for qb-vehicle key
+    if plate and citizenid then
+        if VehicleList then
+            -- VehicleList exists so check for a plate
+            local val = VehicleList[plate]
+            if val then
+                -- The plate exists
+                VehicleList[plate].owners[citizenid] = true
+            else
+                -- Plate not currently tracked so store a new one with one owner
+                VehicleList[plate] = {
+                    owners = {}
+                }
+                VehicleList[plate].owners[citizenid] = true
+            end
+        else
+            -- Initialize new VehicleList
+            VehicleList = {}
+            VehicleList[plate] = {
+                owners = {}
+            }
+            VehicleList[plate].owners[citizenid] = true
+        end
+    end
+end)
+```
 ### Event for F1 menu:
 #### Open Garage:
 - Event:

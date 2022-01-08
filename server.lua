@@ -156,6 +156,7 @@ local function TrySpawnVehicles() -- checks if vehicles have to be spawned and s
                                 end
                                 vehicleData.spawningPlayer = GetPlayerIdentifiersSorted(networkOwner)
                                 TriggerClientEvent("MojiaGarages:client:setVehicleMods", networkOwner, NetworkGetNetworkIdFromEntity(vehicleData.handle), plate, vehicleData.modifications)
+                                TriggerClientEvent('MojiaGarages:client:updateVehicleKey', -1, plate) -- Update vehicle key for qb-vehiclekey
                             end)
 						end
 					end
@@ -178,6 +179,19 @@ local function GetActivePlayerCount()
 end
 
 --Call back
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetOwner', function(source, cb, plate) -- Get vehicle owner for check key qb-vehiclekey
+    local owner = nil
+    local result = exports.oxmysql:fetchSync('SELECT citizenid FROM player_vehicles WHERE plate = ?',
+		{
+			plate
+		}
+	)
+    if result[1] ~= nil then
+        owner = result[1].citizenid
+    end
+    cb(owner)
+end)
+
 QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate) -- Get vehicle information
     local src = source
     local properties = {}

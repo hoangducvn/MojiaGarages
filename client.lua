@@ -996,6 +996,14 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 	end
 end)
 
+RegisterNetEvent('MojiaGarages:client:updateVehicleKey', function(plate) -- Update vehicle key for qb-vehiclekey
+	QBCore.Functions.TriggerCallback('MojiaGarages:server:GetOwner', function(owner)
+		if owner ~= nil then
+			TriggerServerEvent("MojiaGarages:server:updateOutSiteVehicleKeys", plate, owner)
+		end
+	end, plate)
+end)
+
 -- Thread
 
 CreateThread(function() -- Get nearest spawn point
