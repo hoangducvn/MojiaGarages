@@ -28,6 +28,7 @@ Language = {
         ['you_need_to_return_the_car_you_received_before_so_you_can_get_a_new_one'] = 'Bạn cần trả lại chiếc xe bạn đã nhận trước đó để có thể nhận một chiếc xe mới',
         ['job_vehicle_menu_header'] = '🚘 | Danh sách xe dành cho %s',
         ['you_dont_have_enough_money'] = 'Bạn không có đủ tiền!',
+        ['your_vehicle_has_been_marked'] = 'Phương tiện của bạn đã được đánh dấu',
     },
     ['en'] = {
         ['vehicle_info'] = 'Plate: %s<br>Fuel: %s<br>Engine: %s<br>Body: %s<br>Tank: %s<br>Dirt: %s',
@@ -42,5 +43,6 @@ Language = {
         ['you_need_to_return_the_car_you_received_before_so_you_can_get_a_new_one'] = 'You need to return the car you received before so you can get a new one',
         ['job_vehicle_menu_header'] = '🚘 | %s\'s Vehicle List',
         ['you_dont_have_enough_money'] = 'You don\'t have enough money',
+        ['your_vehicle_has_been_marked'] = 'Your vehicle has been marked',
     }
 }

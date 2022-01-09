@@ -1,3 +1,6 @@
+-- This controls when a vehicle will be impounded
+-- calling the cleanup function (in hours; so 24 * 7 = one week)
+cleanUpThresholdTime = 24 * 7
 -- this controls the distance at which vehicles will spawn to the closest player 
 -- (in meters)
 spawnDistance = 200.0

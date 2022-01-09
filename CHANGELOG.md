@@ -1,4 +1,34 @@
 # Change Log
+## Date: 10/01/22
+- Update Track Vehicle
+- Add cleanup function
+- Edit qb-phone\client\main.lua:
+```
+RegisterNUICallback('track-vehicle', function(data, cb)
+    local veh = data.veh
+    TriggerEvent('MojiaGarages:client:trackVehicle', veh.plate)
+end)
+```
+- Edit qb-policejob\client\job.lua:
+```
+RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
+    local vehicle = QBCore.Functions.GetClosestVehicle()
+    local bodyDamage = math.ceil(GetVehicleBodyHealth(vehicle))
+    local engineDamage = math.ceil(GetVehicleEngineHealth(vehicle))
+    local totalFuel = exports['LegacyFuel']:GetFuel(vehicle)
+    if vehicle ~= 0 and vehicle then
+        local ped = PlayerPedId()
+        local pos = GetEntityCoords(ped)
+        local vehpos = GetEntityCoords(vehicle)
+        if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
+            local plate = QBCore.Functions.GetPlate(vehicle)
+            TriggerServerEvent("police:server:Impound", plate, fullImpound, price, bodyDamage, engineDamage, totalFuel)			
+            QBCore.Functions.DeleteVehicle(vehicle)
+            TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
+        end
+    end
+end)
+```
 ## Date: 08/01/22
 - Automatically save coordinates, vehicle status
 - Auto spawn car in its last position, if there are players nearby

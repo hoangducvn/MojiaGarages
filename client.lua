@@ -267,7 +267,7 @@ local function SetVehicleModifications(vehicle, plate, modifications)-- Apply al
     SetVehicleEngineHealth(vehicle, modifications[5])
     SetVehiclePetrolTankHealth(vehicle, modifications[6])
     if (renderScorched and (modifications[5] < -3999.0 or modifications[6] < -999.0)) then
-        TriggerServerEvent("AdvancedParking:renderScorched", NetworkGetNetworkIdFromEntity(vehicle), true)
+        TriggerServerEvent('AdvancedParking:renderScorched', NetworkGetNetworkIdFromEntity(vehicle), true)
     end
     SetVehicleDirtLevel(vehicle, modifications[7])
     SetVehicleFuelLevel(vehicle, modifications[8])
@@ -526,21 +526,21 @@ function GetAllVehicles() -- Returns all loaded vehicles on client side
 end
 
 -- Events
-RegisterNetEvent("MojiaGarages:client:setVehicleMods", function(netId, plate, modifications)
+RegisterNetEvent('MojiaGarages:client:setVehicleMods', function(netId, plate, modifications)
 	local timer = GetGameTimer()
 	while (not NetworkDoesEntityExistWithNetworkId(netId)) do
 		Wait(0)
 		if (GetGameTimer() - 10000 > timer) then
-			TriggerServerEvent("MojiaGarages:server:setVehicleModsFailed", plate)
+			TriggerServerEvent('MojiaGarages:server:setVehicleModsFailed', plate)
 			return
 		end
 	end
 	local vehicle = NetworkGetEntityFromNetworkId(netId)
     if (DoesEntityExist(vehicle) and NetworkHasControlOfEntity(vehicle)) then
         SetVehicleModifications(vehicle, plate, modifications)
-		TriggerServerEvent("MojiaGarages:server:setVehicleModsSuccess", plate)
+		TriggerServerEvent('MojiaGarages:server:setVehicleModsSuccess', plate)
 	else
-		TriggerServerEvent("MojiaGarages:server:setVehicleModsFailed", plate)
+		TriggerServerEvent('MojiaGarages:server:setVehicleModsFailed', plate)
     end
 end)
 
@@ -725,6 +725,28 @@ RegisterNetEvent('MojiaGarages:client:updateHouseKeys', function(keylist) --Upda
 	if keylist then
 		HouseKeys = keylist
 	end
+end)
+
+RegisterNetEvent('MojiaGarages:client:trackVehicle', function(plate) -- Track Vehicle
+    QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleLocation', function(location)
+		if location then
+			if location.state == 1 then
+				SetNewWaypoint(Garages[location.garage].blippoint.x, Garages[location.garage].blippoint.y)
+				QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+			elseif location.state == 0 then
+				if location.depotprice == 0 then
+					SetNewWaypoint(location.posX, location.posY)
+					QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+				else
+					SetNewWaypoint(Garages['depot'].blippoint.x, Garages['depot'].blippoint.y)
+					QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+				end
+			else
+				SetNewWaypoint(Garages['impound'].blippoint.x, Garages['impound'].blippoint.y)
+				QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+			end
+		end
+	end, plate)
 end)
 
 RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
@@ -999,7 +1021,7 @@ end)
 RegisterNetEvent('MojiaGarages:client:updateVehicleKey', function(plate) -- Update vehicle key for qb-vehiclekey
 	QBCore.Functions.TriggerCallback('MojiaGarages:server:GetOwner', function(owner)
 		if owner ~= nil then
-			TriggerServerEvent("MojiaGarages:server:updateOutSiteVehicleKeys", plate, owner)
+			TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicleKeys', plate, owner)
 		end
 	end, plate)
 end)
@@ -1058,7 +1080,7 @@ CreateThread(function() -- sync player position
 	while (true) do
 		local playerPed = PlayerPedId()
 		if (DoesEntityExist(playerPed)) then
-			TriggerServerEvent("MojiaGarages:server:syncPlayerPosition", GetEntityCoords(playerPed))
+			TriggerServerEvent('MojiaGarages:server:syncPlayerPosition', GetEntityCoords(playerPed))
 		end
 		Wait(3000)
 	end

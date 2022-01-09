@@ -62,6 +62,13 @@ shared_scripts {
     '@MojiaGarages/config.lua',
 }
 ```
+- Edit qb-phone\client\main.lua:
+```
+RegisterNUICallback('track-vehicle', function(data, cb)
+    local veh = data.veh
+    TriggerEvent('MojiaGarages:client:trackVehicle', veh.plate)
+end)
+```
 - Edit qb-phone\server\main.lua:
 ```
 QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(source, cb)
@@ -342,7 +349,27 @@ RegisterNetEvent('qb-houses:server:buyHouse', function(house)
     end
 end)
 ```
-
+#### qb-policejob:
+- Edit qb-policejob\client\job.lua:
+```
+RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
+    local vehicle = QBCore.Functions.GetClosestVehicle()
+    local bodyDamage = math.ceil(GetVehicleBodyHealth(vehicle))
+    local engineDamage = math.ceil(GetVehicleEngineHealth(vehicle))
+    local totalFuel = exports['LegacyFuel']:GetFuel(vehicle)
+    if vehicle ~= 0 and vehicle then
+        local ped = PlayerPedId()
+        local pos = GetEntityCoords(ped)
+        local vehpos = GetEntityCoords(vehicle)
+        if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
+            local plate = QBCore.Functions.GetPlate(vehicle)
+            TriggerServerEvent("police:server:Impound", plate, fullImpound, price, bodyDamage, engineDamage, totalFuel)			
+            QBCore.Functions.DeleteVehicle(vehicle)
+            TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
+        end
+    end
+end)
+```
 #### qb-vehiclekeys:
 - Edit qb-vehiclekeys\client\main.lua:
 
