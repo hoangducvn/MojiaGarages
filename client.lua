@@ -515,7 +515,8 @@ local function CheckPlayers(vehicle) -- Check if there is someone in the car, if
             TaskLeaveVehicle(seat,vehicle,0)
             SetVehicleDoorsLocked(vehicle)			
             Wait(3000)
-			TriggerEvent('MojiaGarages:client:updateVehicle', vehicle)
+			local modifications = GetVehicleModifications(vehicle)
+			TriggerEvent('MojiaGarages:client:updateVehicle', vehicle, modifications)
             QBCore.Functions.DeleteVehicle(vehicle)
         end
    end
@@ -544,13 +545,12 @@ RegisterNetEvent('MojiaGarages:client:setVehicleMods', function(netId, plate, mo
     end
 end)
 
-RegisterNetEvent('MojiaGarages:client:updateVehicle', function(vehicle)
+RegisterNetEvent('MojiaGarages:client:updateVehicle', function(vehicle, modifications)
 	if (vehicle == nil) then
 		return
 	end
 	if DoesEntityExist(vehicle) and NetworkGetEntityIsNetworked(vehicle) then
 		local networkId = NetworkGetNetworkIdFromEntity(vehicle)
-		local modifications = GetVehicleModifications(vehicle)
 		TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, modifications)
 	end
 end)
@@ -913,7 +913,8 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 							if IsPedInAnyVehicle(ped) then
 								CheckPlayers(curVeh)
 							else
-								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh)
+								local modifications = GetVehicleModifications(curVeh)
+								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh, modifications)
 								QBCore.Functions.DeleteVehicle(curVeh)
 							end
 							TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
@@ -1065,7 +1066,8 @@ CreateThread(function() --Save vehicle data on real times
 								or math.abs(newEngineHealth - modifications[5]) > 5.0
 								or math.abs(newTankHealth - modifications[6]) > 5.0
 							) then
-								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh)
+								local modifications = GetVehicleModifications(curVeh)
+								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh, modifications)
 							end
 						end
 					end, plate)
