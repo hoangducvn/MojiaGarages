@@ -76,29 +76,34 @@ end)
 QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
     local Vehicles = {}
-
     local result = exports.oxmysql:executeSync('SELECT * FROM player_vehicles WHERE citizenid = ?',
-        {Player.PlayerData.citizenid})
+        {
+			Player.PlayerData.citizenid
+		}
+	)
     if result[1] ~= nil then
         for k, v in pairs(result) do
             local VehicleData = QBCore.Shared.Vehicles[v.vehicle]
-
+			local modifications = json.decode(v.modifications)
             local VehicleGarage = "None"
             if v.garage ~= nil then
                 if Garages[v.garage] ~= nil then
                     VehicleGarage = Garages[v.garage]["label"]
                 end
             end
-
             local VehicleState = "In"
             if v.state == 0 then
-                VehicleState = "Out"
+				if v.depotprice == 0 then
+					VehicleState = "Out"
+				else
+					VehicleGarage = "Depot"
+					VehicleState = "In Depot"
+				end
             elseif v.state == 2 then
-                VehicleState = "Impounded"
+                VehicleGarage = "Police Depot"
+				VehicleState = "Impounded"
             end
-
             local vehdata = {}
-
             if VehicleData["brand"] ~= nil then
                 vehdata = {
                     fullname = VehicleData["brand"] .. " " .. VehicleData["name"],
@@ -107,9 +112,9 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(so
                     plate = v.plate,
                     garage = VehicleGarage,
                     state = VehicleState,
-                    fuel = v.fuel,
-                    engine = v.engine,
-                    body = v.body
+                    fuel = modifications[8],
+                    engine = modifications[5],
+                    body = modifications[4]
                 }
             else
                 vehdata = {
@@ -119,9 +124,9 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(so
                     plate = v.plate,
                     garage = VehicleGarage,
                     state = VehicleState,
-                    fuel = v.fuel,
-                    engine = v.engine,
-                    body = v.body
+                    fuel = modifications[8],
+                    engine = modifications[5],
+                    body = modifications[4]
                 }
             end
             Vehicles[#Vehicles+1] = vehdata
