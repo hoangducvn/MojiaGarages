@@ -14,6 +14,8 @@
 
 [Instructions for installing MojiaGarages on the original QB-Core - Youtube](https://youtu.be/C01WwrdL670)
 
+[Real Life Parking Update](https://youtu.be/Llb7EdISVj0)
+
 ## Features(All in one):
 - Park and taken out the vehicle as long as it's in the garage area
 - When the vehicle is taken out, it will appear at the nearest parking line
