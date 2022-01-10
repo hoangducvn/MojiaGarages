@@ -45,7 +45,16 @@ ensure MojiaGarages
 ### Important Note:
 All garage data of pre-existing homes will not be compatible with this garage, you need to delete those garages and create new ones. When creating a new garage, you need to be on a vehicle.
 ### Edit the resources according to the following instructions:
-
+#### qb-core\client\functions.lua:
+-Edit:
+```
+function QBCore.Functions.DeleteVehicle(vehicle)
+    SetEntityAsMissionEntity(vehicle, true, true)
+    local plate = QBCore.Functions.GetPlate(vehicle)
+    TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
+    DeleteVehicle(vehicle)
+end
+```
 #### qb-vehiclesales\server\main.lua:
 find:
 ```
@@ -353,27 +362,6 @@ RegisterNetEvent('qb-houses:server:buyHouse', function(house)
 		TriggerClientEvent("MojiaGarages:client:updateGarage", -1) 	-- Update Garages	
 	else
         TriggerClientEvent('QBCore:Notify', source, "You dont have enough money..", "error")
-    end
-end)
-```
-#### qb-policejob:
-- Edit qb-policejob\client\job.lua:
-```
-RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
-    local vehicle = QBCore.Functions.GetClosestVehicle()
-    local bodyDamage = math.ceil(GetVehicleBodyHealth(vehicle))
-    local engineDamage = math.ceil(GetVehicleEngineHealth(vehicle))
-    local totalFuel = exports['LegacyFuel']:GetFuel(vehicle)
-    if vehicle ~= 0 and vehicle then
-        local ped = PlayerPedId()
-        local pos = GetEntityCoords(ped)
-        local vehpos = GetEntityCoords(vehicle)
-        if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
-            local plate = QBCore.Functions.GetPlate(vehicle)
-            TriggerServerEvent("police:server:Impound", plate, fullImpound, price, bodyDamage, engineDamage, totalFuel)			
-            QBCore.Functions.DeleteVehicle(vehicle)
-            TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-        end
     end
 end)
 ```
