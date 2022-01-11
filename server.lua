@@ -165,6 +165,19 @@ local function CleanUp() -- Default cleaning function. seize vehicles that are o
 end
 
 --Call back
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetOwner', function(source, cb, plate) -- Get vehicle owner for check key qb-vehiclekey
+    local owner = nil
+    local result = exports.oxmysql:fetchSync('SELECT citizenid FROM player_vehicles WHERE plate = ?',
+		{
+			plate
+		}
+	)
+    if result[1] ~= nil then
+        owner = result[1].citizenid
+    end
+    cb(owner)
+end)
+
 QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleLocation', function(source, cb, plate) -- Check Vehicle locaton:
     local properties = {}
     local result = exports.oxmysql:fetchSync('SELECT garage, state, depotprice, posX, posY FROM player_vehicles WHERE plate = ?',
