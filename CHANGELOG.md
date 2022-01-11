@@ -147,16 +147,6 @@ RegisterNUICallback('track-vehicle', function(data, cb)
     TriggerEvent('MojiaGarages:client:trackVehicle', veh.plate)
 end)
 ```
-
-- Edit: qb-core\client\functions.lua:
-```
-function QBCore.Functions.DeleteVehicle(vehicle)
-    SetEntityAsMissionEntity(vehicle, true, true)
-    local plate = QBCore.Functions.GetPlate(vehicle)
-    TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-    DeleteVehicle(vehicle)
-end
-```
 - Edit qb-vehiclesales\server\main.lua:
 ```
 local function SellToDealer(sellVehData, vehicleHash)
