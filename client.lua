@@ -959,21 +959,6 @@ RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig)
 						maxZ = v.maxz,
 						debugPoly = false
 					})
-					GarageLocation[k]:onPlayerInOut(function(isPointInside)
-						if isPointInside then
-							inGarageStation = true
-							currentgarage = k
-							if PlayerData.job and not inJobStation[PlayerData.job.name] and k ~= 'impound' then
-								inJobStation[PlayerData.job.name] = true
-							end
-						else
-							inGarageStation = false
-							currentgarage = nil
-							if PlayerData.job and inJobStation[PlayerData.job.name] then
-								inJobStation[PlayerData.job.name] = false
-							end
-						end
-					end)
 				end
 			else
 				if Garages[k].isHouseGarage then
@@ -984,21 +969,6 @@ RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig)
 							maxZ = v.maxz,
 							debugPoly = false
 						})
-						GarageLocation[k]:onPlayerInOut(function(isPointInside)
-							if isPointInside then
-								inGarageStation = true
-								currentgarage = k
-								if PlayerData.job and inJobStation[PlayerData.job.name] then
-									inJobStation[PlayerData.job.name] = false
-								end
-							else
-								inGarageStation = false
-								currentgarage = nil
-								if PlayerData.job and inJobStation[PlayerData.job.name] then
-									inJobStation[PlayerData.job.name] = false
-								end
-							end
-						end)
 					end
 				else
 					GarageLocation[k] = PolyZone:Create(v.zones, {
@@ -1007,21 +977,6 @@ RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig)
 						maxZ = v.maxz,
 						debugPoly = false
 					})
-					GarageLocation[k]:onPlayerInOut(function(isPointInside)
-						if isPointInside then
-							inGarageStation = true
-							currentgarage = k
-							if PlayerData.job and inJobStation[PlayerData.job.name] then
-								inJobStation[PlayerData.job.name] = false
-							end
-						else
-							inGarageStation = false
-							currentgarage = nil
-							if PlayerData.job and inJobStation[PlayerData.job.name] then
-								inJobStation[PlayerData.job.name] = false
-							end
-						end
-					end)
 				end
 			end
 		end
@@ -1396,6 +1351,36 @@ CreateThread(function() -- sync player position
 			TriggerServerEvent('MojiaGarages:server:syncPlayerPosition', GetEntityCoords(playerPed))
 		end
 		Wait(3000)
+	end
+end)
+
+CreateThread(function() -- Check if the player is in the garage area or not
+	while true do
+		local Ped = PlayerPedId()
+		local coord = GetEntityCoords(Ped)
+		for k, v in pairs(GarageLocation) do
+			if GarageLocation[k]:isPointInside(coord) then
+				inGarageStation = true
+				currentgarage = k
+				if Garages[k].job ~= nil then
+					if PlayerData.job and not inJobStation[PlayerData.job.name] and k ~= 'impound' then
+						inJobStation[PlayerData.job.name] = true
+					end
+				end
+				while inGarageStation do
+					local InZoneCoordS = GetEntityCoords(Ped)
+					if not GarageLocation[k]:isPointInside(InZoneCoordS) then
+						inGarageStation = false
+						currentgarage = nil
+						if PlayerData.job and inJobStation[PlayerData.job.name] then
+							inJobStation[PlayerData.job.name] = false
+						end
+					end
+					Wait(1000)
+				end
+			end
+		end
+		Wait(1000)
 	end
 end)
 
