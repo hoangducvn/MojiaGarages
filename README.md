@@ -90,19 +90,6 @@ end
 ```
 
 - qb-vehiclesales\server\main.lua:
-=======
-#### qb-core\client\functions.lua:
--Edit:
-```
-function QBCore.Functions.DeleteVehicle(vehicle)
-    SetEntityAsMissionEntity(vehicle, true, true)
-    local plate = QBCore.Functions.GetPlate(vehicle)
-    TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-    DeleteVehicle(vehicle)
-end
-```
-#### qb-vehiclesales\server\main.lua:
->>>>>>> 58c894ddb4c67088cc0afbe3d08c36bf595b86bf
 find:
 ```
 QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
