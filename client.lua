@@ -1079,7 +1079,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 								bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
 								enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
 								petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
-								dirtPercent = QBCore.Shared.Round(modifications.dirtLevel / 10, 0)
+								dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
 								currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
 								if Garages[currentgarage].fullfix then
 									modifications.bodyHealth = 1000
@@ -1108,7 +1108,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 										bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
 										enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
 										petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
-										dirtPercent = QBCore.Shared.Round(modifications.dirtLevel / 10, 0)
+										dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
 										currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
 										if Garages[currentgarage].fullfix then
 											modifications.bodyHealth = 1000
@@ -1134,7 +1134,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 							bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
 							enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
 							petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
-							dirtPercent = QBCore.Shared.Round(modifications.dirtLevel / 10, 0)
+							dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
 							currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
 							if Garages[currentgarage].fullfix then
 								modifications.bodyHealth = 1000
