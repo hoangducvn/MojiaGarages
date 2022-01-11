@@ -49,42 +49,6 @@ local function GetRotationDifference(r1, r2) -- returns the difference in degree
     end
 end
 
-local function UpdateVehicle(plate)
-    local newPos = GetEntityCoords(OutsideVehicles[plate].handle)
-    local newRot = GetEntityRotation(OutsideVehicles[plate].handle)
-    newPos = vector3(math.floor(newPos.x * 100.0) * 0.01, math.floor(newPos.y * 100.0) * 0.01, math.floor(newPos.z * 100.0) * 0.01)
-    newRot = vector3(math.floor(newRot.x * 100.0) * 0.01, math.floor(newRot.y * 100.0) * 0.01, math.floor(newRot.z * 100.0) * 0.01)
-    local newLockStatus = GetVehicleDoorLockStatus(OutsideVehicles[plate].handle)
-    local newBodyHealth  = math.floor(GetVehicleBodyHealth(OutsideVehicles[plate].handle) * 10.0) * 0.1
-    local newEngineHealth = math.floor(GetVehicleEngineHealth(OutsideVehicles[plate].handle) * 10.0) * 0.1
-    local newTankHealth = math.floor(GetVehiclePetrolTankHealth(OutsideVehicles[plate].handle) * 10.0) * 0.1
-    if (#(OutsideVehicles[plate].position - newPos) > 1.0 
-        or GetRotationDifference(OutsideVehicles[plate].rotation, newRot) > 15.0
-        or newLockStatus ~= OutsideVehicles[plate].modifications[2]
-        or math.abs(newBodyHealth - OutsideVehicles[plate].modifications[4]) > 5.0
-        or math.abs(newEngineHealth - OutsideVehicles[plate].modifications[5]) > 5.0
-        or math.abs(newTankHealth - OutsideVehicles[plate].modifications[6]) > 5.0
-    ) then
-        OutsideVehicles[plate].modifications[2] = newLockStatus
-        OutsideVehicles[plate].modifications[4] = newBodyHealth
-        OutsideVehicles[plate].modifications[5] = newEngineHealth
-        OutsideVehicles[plate].modifications[6] = newTankHealth
-        OutsideVehicles[plate].position = newPos
-        OutsideVehicles[plate].rotation = newRot
-        exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, modifications = @modifications WHERE plate = @plate',
-        {
-            ['@posX']           = OutsideVehicles[plate].position.x,
-            ['@posY']           = OutsideVehicles[plate].position.y,
-            ['@posZ']           = OutsideVehicles[plate].position.z,
-            ['@rotX']           = OutsideVehicles[plate].rotation.x,
-            ['@rotY']           = OutsideVehicles[plate].rotation.y,
-            ['@rotZ']           = OutsideVehicles[plate].rotation.z,
-            ['@modifications']  = json.encode(OutsideVehicles[plate].modifications),
-            ['@plate']          = plate
-        })
-    end
-end
-
 local function GetPlayerIdentifiersSorted(playerServerId) -- Return an array with all identifiers - e.g. ids['license'] = license:xxxxxxxxxxxxxxxx
 	local ids = {}
 	local identifiers = GetPlayerIdentifiers(playerServerId)
@@ -130,19 +94,19 @@ local function TrySpawnVehicles() -- checks if vehicles have to be spawned and s
 			local closestPlayer, dist = GetClosestPlayerId(vehicleData.position)
 			if (closestPlayer ~= nil and dist < spawnDistance and not ContainsPlate(plate, playerVehiclePlates)) then
 				if (vehicleData.handle ~= nil and DoesEntityExist(vehicleData.handle)) then -- vehicle found on server side
-					UpdateVehicle(plate)
+					TriggerClientEvent('MojiaGarages:client:updateVehicle', vehicleData.handle)
 				else -- vehicle not found on server side. Check, if it is loaded differently
 					local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
 					if (loadedVehicle ~= nil) then -- vehicle found
                         vehicleData.handle = loadedVehicle                    
-                        UpdateVehicle(plate)
+                        TriggerClientEvent('MojiaGarages:client:updateVehicle', vehicleData.handle)
                     else -- vehicle not found. Try and spawn it
 						local playerId, distance = GetClosestPlayerId(vehicleData.position)
 						if (playerId and distance < spawnDistance) then
 							vehicleData.spawning = true
 							CreateThread(function()
                                 local vec4 = vector4(vehicleData.position.x, vehicleData.position.y, vehicleData.position.z, vehicleData.rotation.z)
-                                local vehicle = Citizen.InvokeNative(GetHashKey('CREATE_AUTOMOBILE'), vehicleData.modifications[1], vec4.xyzw)
+                                local vehicle = Citizen.InvokeNative(GetHashKey('CREATE_AUTOMOBILE'), vehicleData.modifications.model, vec4.xyzw)
                                 while (not DoesEntityExist(vehicle)) do
                                     Wait(0)
                                 end
@@ -214,29 +178,16 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleLocation', functi
     cb(properties)
 end)
 
-QBCore.Functions.CreateCallback('MojiaGarages:server:GetOwner', function(source, cb, plate) -- Get vehicle owner for check key qb-vehiclekey
-    local owner = nil
-    local result = exports.oxmysql:fetchSync('SELECT citizenid FROM player_vehicles WHERE plate = ?',
-		{
-			plate
-		}
-	)
-    if result[1] ~= nil then
-        owner = result[1].citizenid
-    end
-    cb(owner)
-end)
-
 QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate) -- Get vehicle information
     local src = source
     local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT modifications FROM player_vehicles WHERE plate = ?',
+    local result = exports.oxmysql:fetchSync('SELECT mods FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}
 	)
     if result[1] ~= nil then
-        properties = json.decode(result[1].modifications)
+        properties = json.decode(result[1].mods)
     end
     cb(properties)
 end)
@@ -256,7 +207,7 @@ end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleData', function(source, cb, plate) -- Get Vehicle Data:
     local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, modifications FROM player_vehicles WHERE plate = ?',
+    local result = exports.oxmysql:fetchSync('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}
@@ -299,6 +250,12 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:GetUserVehicles', function(
 end)
 
 --Events
+RegisterNetEvent('MojiaGarages:server:renderScorched', function(vehicleNetId, scorched) -- render entity scorched (trigger with netid of the vehicle and false when repairing)
+    local vehicleHandle = NetworkGetEntityFromNetworkId(vehicleNetId)
+    if (DoesEntityExist(vehicleHandle)) then
+        TriggerClientEvent('MojiaGarages:client:renderScorched', -1, vehicleNetId, scorched)
+    end
+end)
 
 RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, modifications)
     local vehicle = NetworkGetEntityFromNetworkId(networkId)
@@ -321,7 +278,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, modifi
             OutsideVehicles[plate].rotation = rotation
             OutsideVehicles[plate].modifications = modifications
             OutsideVehicles[plate].lastUpdate = currentTime
-            exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, modifications = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
+            exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
                 ['@plate']          = plate,
                 ['@posX']           = OutsideVehicles[plate].position.x,
                 ['@posY']           = OutsideVehicles[plate].position.y,
@@ -343,7 +300,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, modifi
                 spawning        = false,
 	            spawningPlayer  = nil
             }
-            exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, modifications = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
+            exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
                 ['@plate']          = plate,
                 ['@posX']           = OutsideVehicles[plate].position.x,
                 ['@posY']           = OutsideVehicles[plate].position.y,
@@ -473,29 +430,6 @@ RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate
 	)
 end)
 
-RegisterNetEvent('MojiaGarages:server:updateVehicleStatus', function(fuel, engine, body, plate, garage) -- Vehicle status update
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-
-    if engine > 1000 then
-        engine = engine / 1000
-    end
-
-    if body > 1000 then
-        body = body / 1000
-    end
-
-    exports.oxmysql:execute('UPDATE player_vehicles SET fuel = ?, engine = ?, body = ? WHERE plate = ? AND citizenid = ? AND garage = ?',
-        {
-			fuel,
-			engine,
-			body,
-			plate,
-			Player.PlayerData.citizenid,
-			garage
-		}
-	)
-end)
 
 RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payment of vehicle fines
     local src = source
@@ -547,21 +481,21 @@ CreateThread(function() -- read all vehicles from the database on startup and do
         if not vehiclesLoaded then
             vehiclesLoaded = true
 			-- fetch all database results
-			exports.oxmysql:fetch('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, modifications, lastUpdate FROM player_vehicles', {}, function(results)
+			exports.oxmysql:fetch('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods, lastUpdate FROM player_vehicles', {}, function(results)
 				for i = 1, #results do
 					if results[i].state == 0 and results[i].depotprice == 0 then
 						OutsideVehicles[results[i].plate] = {
 							handle          = nil,
 							position        = vector3(results[i].posX, results[i].posY, results[i].posZ),
 							rotation        = vector3(results[i].rotX, results[i].rotY, results[i].rotZ),
-							modifications   = json.decode(results[i].modifications),
+							modifications   = json.decode(results[i].mods),
 							lastUpdate      = results[i].lastUpdate,
 							spawning        = false,
 							spawningPlayer  = nil
 						}
 					end
 				end
-                CleanUp()
+				CleanUp()
 			end)		
         end
         Wait(1000)
