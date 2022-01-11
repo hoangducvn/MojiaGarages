@@ -812,7 +812,8 @@ local function CheckPlayers(vehicle) -- Check if there is someone in the car, if
             TaskLeaveVehicle(seat,vehicle,0)
             SetVehicleDoorsLocked(vehicle)			
             Wait(3000)
-			TriggerEvent('MojiaGarages:client:updateVehicle', vehicle)
+			local networkId = NetworkGetNetworkIdFromEntity(vehicle)
+			TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
 			Wait(100)
             QBCore.Functions.DeleteVehicle(vehicle)
         end
@@ -849,7 +850,8 @@ RegisterNetEvent('MojiaGarages:client:setVehicleMods', function(netId, plate, mo
     end
 end)
 
-RegisterNetEvent('MojiaGarages:client:updateVehicle', function(vehicle)
+RegisterNetEvent('MojiaGarages:client:updateVehicle', function(netId)
+	local vehicle = NetworkGetEntityFromNetworkId(netId)
 	if (vehicle == nil) then
 		return
 	end
@@ -1238,7 +1240,8 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 							if IsPedInAnyVehicle(ped) then
 								CheckPlayers(curVeh)
 							else
-								TriggerEvent('MojiaGarages:client:updateVehicle', curVeh)
+								local networkId = NetworkGetNetworkIdFromEntity(curVeh)
+								TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
 								Wait(100)
 								QBCore.Functions.DeleteVehicle(curVeh)
 							end
@@ -1366,22 +1369,21 @@ end)
 CreateThread(function() --Save vehicle data on real times
 	while (true) do
 		local ped = PlayerPedId()
-		local pos = GetEntityCoords(ped)
-		local curVeh = QBCore.Functions.GetClosestVehicle(pos)
 		if IsPedInAnyVehicle(ped) then
-			curVeh = GetVehiclePedIsIn(ped)
-		end
-		local plate = QBCore.Functions.GetPlate(curVeh)
-		if NetworkGetEntityIsNetworked(curVeh) and DoesEntityExist(curVeh) then
-			QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
-				if hasowned then					
-					QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(VehicleData)
-						if VehicleData then					
-							TriggerEvent('MojiaGarages:client:updateVehicle', curVeh)
-						end
-					end, plate)
-				end
-			end, plate)
+			local curVeh = GetVehiclePedIsIn(ped)
+			local plate = QBCore.Functions.GetPlate(curVeh)
+			if NetworkGetEntityIsNetworked(curVeh) and DoesEntityExist(curVeh) then
+				QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
+					if hasowned then					
+						QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(VehicleData)
+							if VehicleData then					
+								local networkId = NetworkGetNetworkIdFromEntity(curVeh)
+								TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
+							end
+						end, plate)
+					end
+				end, plate)
+			end
 		end
 		Wait(3000)
 	end

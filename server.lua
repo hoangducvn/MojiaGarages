@@ -94,12 +94,22 @@ local function TrySpawnVehicles() -- checks if vehicles have to be spawned and s
 			local closestPlayer, dist = GetClosestPlayerId(vehicleData.position)
 			if (closestPlayer ~= nil and dist < spawnDistance and not ContainsPlate(plate, playerVehiclePlates)) then
 				if (vehicleData.handle ~= nil and DoesEntityExist(vehicleData.handle)) then -- vehicle found on server side
-					TriggerClientEvent('MojiaGarages:client:updateVehicle', vehicleData.handle)
+					local networkOwner = -1
+					while (networkOwner == -1) do
+						Wait(0)
+						networkOwner = NetworkGetEntityOwner(vehicleData.handle)
+					end
+					TriggerClientEvent('MojiaGarages:client:updateVehicle', networkOwner, NetworkGetNetworkIdFromEntity(vehicleData.handle))
 				else -- vehicle not found on server side. Check, if it is loaded differently
 					local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
 					if (loadedVehicle ~= nil) then -- vehicle found
-                        vehicleData.handle = loadedVehicle                    
-                        TriggerClientEvent('MojiaGarages:client:updateVehicle', vehicleData.handle)
+                        vehicleData.handle = loadedVehicle 
+						local networkOwner = -1
+						while (networkOwner == -1) do
+							Wait(0)
+							networkOwner = NetworkGetEntityOwner(vehicleData.handle)
+						end
+						TriggerClientEvent('MojiaGarages:client:updateVehicle', networkOwner, NetworkGetNetworkIdFromEntity(vehicleData.handle))
                     else -- vehicle not found. Try and spawn it
 						local playerId, distance = GetClosestPlayerId(vehicleData.position)
 						if (playerId and distance < spawnDistance) then
