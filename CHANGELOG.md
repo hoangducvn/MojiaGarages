@@ -8,6 +8,74 @@ RegisterNUICallback('track-vehicle', function(data, cb)
     TriggerEvent('MojiaGarages:client:trackVehicle', veh.plate)
 end)
 ```
+- Edit qb-phone\server\main.lua:
+```
+QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(source, cb)
+    local Player = QBCore.Functions.GetPlayer(source)
+    local Vehicles = {}
+    local result = exports.oxmysql:executeSync('SELECT * FROM player_vehicles WHERE citizenid = ?',
+        {
+			Player.PlayerData.citizenid
+		}
+	)
+    if result[1] ~= nil then
+        for k, v in pairs(result) do
+            local VehicleData = QBCore.Shared.Vehicles[v.vehicle]
+			local modifications = json.decode(v.mods)
+            local VehicleGarage = "None"
+            if v.garage ~= nil then
+                if Garages[v.garage] ~= nil then
+                    VehicleGarage = Garages[v.garage]["label"]
+                end
+            end
+            local VehicleState = "In"
+            if v.state == 0 then
+				if v.depotprice == 0 then
+					VehicleGarage = "None"
+					VehicleState = "Out"
+				else
+					VehicleGarage = "Depot"
+					VehicleState = "In Depot"
+				end
+            elseif v.state == 2 then
+                VehicleGarage = "Police Depot"
+				VehicleState = "Impounded"
+            end
+            local vehdata = {}
+            if VehicleData["brand"] ~= nil then
+                vehdata = {
+                    fullname = VehicleData["brand"] .. " " .. VehicleData["name"],
+                    brand = VehicleData["brand"],
+                    model = VehicleData["name"],
+                    plate = v.plate,
+                    garage = VehicleGarage,
+                    state = VehicleState,
+                    fuel = modifications.fuelLevel,
+                    engine = modifications.engineHealth,
+                    body = modifications.bodyHealth
+                }
+            else
+                vehdata = {
+                    fullname = VehicleData["name"],
+                    brand = VehicleData["name"],
+                    model = VehicleData["name"],
+                    plate = v.plate,
+                    garage = VehicleGarage,
+                    state = VehicleState,
+                    fuel = modifications.fuelLevel,
+                    engine = modifications.engineHealth,
+                    body = modifications.bodyHealth
+                }
+            end
+            Vehicles[#Vehicles+1] = vehdata
+        end
+        cb(Vehicles)
+    else
+        cb(nil)
+    end
+end)
+```
+
 - Edit qb-policejob\client\job.lua:
 ```
 RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
