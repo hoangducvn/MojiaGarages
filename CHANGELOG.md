@@ -96,7 +96,7 @@ RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
     end
 end)
 ```
-- Edit qb-vehiclesales\server\main.lua:
+- Edit qb-vehiclesales\client\main.lua:
 ```
 local function SellToDealer(sellVehData, vehicleHash)
     CreateThread(function()
