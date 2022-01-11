@@ -46,7 +46,7 @@ ensure MojiaGarages
 All garage data of pre-existing homes will not be compatible with this garage, you need to delete those garages and create new ones. When creating a new garage, you need to be on a vehicle.
 ### Edit the resources according to the following instructions:
 #### qb-vehiclesales:
-- Edit qb-vehiclesales\server\main.lua:
+- Edit qb-vehiclesales\client\main.lua:
 ```
 local function SellToDealer(sellVehData, vehicleHash)
     CreateThread(function()
