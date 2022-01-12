@@ -158,7 +158,7 @@ local function CleanUp() -- Default cleaning function. seize vehicles that are o
     local toDelete = {}
     for plate, vehicle in pairs(OutsideVehicles) do
         if vehicle.lastUpdate < os.difftime(currentTime, threshold) then
-            MySQL.Async.fetchAll('UPDATE player_vehicles SET state = 2 WHERE state = @state AND depotprice = @depotprice AND plate = @plate',
+            MySQL.Async.execute('UPDATE player_vehicles SET state = 2 WHERE state = @state AND depotprice = @depotprice AND plate = @plate',
 				{
 					['@state'] = 0,
 					['@depotprice'] = 0,
@@ -175,45 +175,7 @@ local function CleanUp() -- Default cleaning function. seize vehicles that are o
 end
 
 --Call back
-QBCore.Functions.CreateCallback('MojiaGarages:server:GetOwner', function(source, cb, plate) -- Get vehicle owner for check key qb-vehiclekey
-    local owner = nil
-    local result = MySQL.Async.fetchAll('SELECT citizenid FROM player_vehicles WHERE plate = ?',
-		{
-			plate
-		}
-	)
-    if result[1] ~= nil then
-        owner = result[1].citizenid
-    end
-    cb(owner)
-end)
 
-QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleLocation', function(source, cb, plate) -- Check Vehicle locaton:
-    local properties = {}
-    local result = MySQL.Async.fetchAll('SELECT garage, state, depotprice, posX, posY FROM player_vehicles WHERE plate = ?',
-		{
-			plate
-		}
-	)
-    if result[1] ~= nil then
-        properties = result[1]
-    end
-    cb(properties)
-end)
-
-QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate) -- Get vehicle information
-    local src = source
-    local properties = {}
-    local result = MySQL.Async.fetchAll('SELECT mods FROM player_vehicles WHERE plate = ?',
-		{
-			plate
-		}
-	)
-    if result[1] ~= nil then
-        properties = json.decode(result[1].mods)
-    end
-    cb(properties)
-end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:checkHasVehicleOwner', function(source, cb, plate) -- Check Has Vehicle Owner:
     MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ?',
@@ -229,16 +191,16 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:checkHasVehicleOwner', func
 end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleData', function(source, cb, plate) -- Get Vehicle Data:
-    local properties = {}
-    local result = MySQL.Async.fetchAll('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods FROM player_vehicles WHERE plate = ?',
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ?',
 		{
 			plate
-		}
-	)
-    if result[1] ~= nil then
-        properties = result[1]
-    end
-    cb(properties)
+		}, function(result)
+		if result[1] then
+			 cb(result[1])
+		else
+			cb(false)
+		end
+	end)
 end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:checkVehicleOwner', function(source, cb, plate) -- Check Vehicle Owner:
@@ -249,7 +211,7 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:checkVehicleOwner', functio
 			plate,
 			Player.PlayerData.citizenid
 		}, function(result)
-		if result[1] ~= nil then
+		if result[1] then
 			 cb(true, result[1].balance)
 		else
 			cb(false)
@@ -471,7 +433,7 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payme
                 Player.Functions.RemoveMoney('cash', result[1].depotprice, 'Paying fines for vehicle in the depot')
                 TriggerClientEvent('MojiaGarages:client:doTakeOutVehicle', src, vehicle)
             else
-                TriggerClientEvent('QBCore:Notify', src, GetText('you_dont_have_enough_money'), 'error')
+                TriggerClientEvent('QBCore:Notify', src, Lang:t('error.you_dont_have_enough_money'), 'error')
             end
         end
     end)

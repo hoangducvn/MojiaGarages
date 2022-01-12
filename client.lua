@@ -1015,12 +1015,12 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 			if result then
 				local MenuGaraOptions = {
 					{
-						header = string.format(GetText('garage_menu_header'), Garages[currentgarage].label),
+						header = Lang:t('info.garage_menu_header', {header = Garages[currentgarage].label}),
 						isMenuHeader = true
 					},
 				}
 				MenuGaraOptions[#MenuGaraOptions + 1] = {
-					header = GetText('close_menu'),
+					header = Lang:t('info.close_menu'),
 					txt = '',
 					params = {
 						event = 'qb-menu:closeMenu',
@@ -1046,7 +1046,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 								end
 								MenuGaraOptions[#MenuGaraOptions + 1] = {
 									header = QBCore.Shared.Vehicles[v.vehicle].name,
-									txt = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%', petrolTankPercent .. '%', dirtPercent .. '%'),
+									txt = Lang:t('info.vehicle_info', {plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
 									params = {
 										event = 'MojiaGarages:client:TakeOutVehicle',
 										args = v
@@ -1075,7 +1075,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 										end
 										MenuGaraOptions[#MenuGaraOptions + 1] = {
 											header = QBCore.Shared.Vehicles[v.vehicle].name,
-											txt = string.format(GetText('vehicle_info_and_price'), v.depotprice, v.plate, currentFuel..'%', enginePercent..'%', bodyPercent..'%', petrolTankPercent .. '%', dirtPercent .. '%'),
+											txt = Lang:t('info.vehicle_info_and_price', {price = v.depotprice, plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
 											params = {
 												event = 'MojiaGarages:client:TakeOutVehicle',
 												args = v
@@ -1101,7 +1101,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 							end
 							MenuGaraOptions[#MenuGaraOptions + 1] = {
 								header = QBCore.Shared.Vehicles[v.vehicle].name,
-								txt = string.format(GetText('vehicle_info'), v.plate, currentFuel .. '%', enginePercent .. '%', bodyPercent .. '%', petrolTankPercent .. '%', dirtPercent .. '%'),
+								txt = Lang:t('info.vehicle_info', {plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
 								params = {
 									event = 'MojiaGarages:client:TakeOutVehicle',
 									args = v
@@ -1112,7 +1112,7 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 				end				
 				exports['qb-menu']:openMenu(MenuGaraOptions)
 			else
-				QBCore.Functions.Notify(GetText('there_are_no_vehicles_in_the_garage'), 'error', 5000)
+				QBCore.Functions.Notify(Lang:t('error.there_are_no_vehicles_in_the_garage'), 'error', 5000)
 			end
 		end)
 	end
@@ -1133,19 +1133,19 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
     if inGarageStation and currentgarage ~= nil and nearspawnpoint ~= nil then
 		local lastnearspawnpoint = nearspawnpoint		
 		if not IsSpawnPointClear(vector3(Garages[currentgarage].spawnPoint[lastnearspawnpoint].x, Garages[currentgarage].spawnPoint[lastnearspawnpoint].y, Garages[currentgarage].spawnPoint[lastnearspawnpoint].z), 2.5) then
-			QBCore.Functions.Notify(GetText('the_receiving_area_is_obstructed_by_something'), 'error', 2500)
+			QBCore.Functions.Notify(Lang:t('error.the_receiving_area_is_obstructed_by_something'), 'error', 2500)
 			return
 		else
 			Deleteveh(vehicle.plate)
 			QBCore.Functions.SpawnVehicle(vehicle.vehicle, function(veh)
-				QBCore.Functions.TriggerCallback('MojiaGarages:server:GetVehicleProperties', function(properties)
-					SetVehicleModifications(veh, properties)
+				QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(properties)
+					SetVehicleModifications(veh, json.decode(properties.mods))
 					if vehicle.plate ~= nil then
 						OutsideVehicles[vehicle.plate] = veh
 					end
 					SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
 					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
-					QBCore.Functions.Notify(string.format(GetText('take_out_x_out_of_x_garage'), QBCore.Shared.Vehicles[vehicle.vehicle].name, Garages[currentgarage].label), 'success', 4500)
+					QBCore.Functions.Notify(Lang:t('success.take_out_x_out_of_x_garage', {vehicle = QBCore.Shared.Vehicles[vehicle.vehicle].name, garage = Garages[currentgarage].label}), 'success', 4500)
 					TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
 				end, vehicle.plate)
 			end, Garages[currentgarage].spawnPoint[lastnearspawnpoint], true)
@@ -1154,22 +1154,22 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
 end)
 
 RegisterNetEvent('MojiaGarages:client:trackVehicle', function(plate) -- Track Vehicle
-    QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleLocation', function(location)
+    QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(location)
 		if location then
 			if location.state == 1 then
 				SetNewWaypoint(Garages[location.garage].blippoint.x, Garages[location.garage].blippoint.y)
-				QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+				QBCore.Functions.Notify(Lang:t('success.your_vehicle_has_been_marked'), 'success')
 			elseif location.state == 0 then
 				if location.depotprice == 0 then
 					SetNewWaypoint(location.posX, location.posY)
-					QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+					QBCore.Functions.Notify(Lang:t('success.your_vehicle_has_been_marked'), 'success')
 				else
 					SetNewWaypoint(Garages['depot'].blippoint.x, Garages['depot'].blippoint.y)
-					QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+					QBCore.Functions.Notify(Lang:t('success.your_vehicle_has_been_marked'), 'success')
 				end
 			else
 				SetNewWaypoint(Garages['impound'].blippoint.x, Garages['impound'].blippoint.y)
-				QBCore.Functions.Notify(GetText('your_vehicle_has_been_marked'), 'success')
+				QBCore.Functions.Notify(Lang:t('success.your_vehicle_has_been_marked'), 'success')
 			end
 		end
 	end, plate)
@@ -1205,9 +1205,9 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 							if plate ~= nil then
 								OutsideVehicles[plate] = nil
 							end
-							QBCore.Functions.Notify(string.format(GetText('vehicle_parked_in_x'), Garages[lastcurrentgarage].label), 'success', 4500)
+							QBCore.Functions.Notify(Lang:t('success.vehicle_parked_in_x', {garage = Garages[lastcurrentgarage].label}), 'success', 4500)
 						else
-							QBCore.Functions.Notify(GetText('nobody_owns_this_vehicle'), 'error', 3500)
+							QBCore.Functions.Notify(Lang:t('error.nobody_owns_this_vehicle'), 'error', 3500)
 						end
 					end, plate)
 				end
@@ -1219,16 +1219,16 @@ end)
 RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles Menu
 	PlayerData = QBCore.Functions.GetPlayerData()
 	if lastjobveh ~= nil then
-		QBCore.Functions.Notify(GetText('you_need_to_return_the_car_you_received_before_so_you_can_get_a_new_one'), 'error', 3500)
+		QBCore.Functions.Notify(Lang:t('error.you_need_to_return_the_car_you_received_before_so_you_can_get_a_new_one'), 'error', 3500)
 	else
 		local vehicleMenu = {
 			{
-				header = string.format(GetText('job_vehicle_menu_header'), PlayerData.job.grade.name),
+				header = Lang:t('info.job_vehicle_menu_header', {grade = PlayerData.job.grade.name}),
 				isMenuHeader = true
 			}
 		}
 		vehicleMenu[#vehicleMenu + 1] = {
-			header = GetText('close_menu'),
+			header = Lang:t('info.close_menu'),
 			txt = '',
 			params = {
 				event = 'qb-menu:closeMenu',
@@ -1238,7 +1238,7 @@ RegisterNetEvent('MojiaGarages:client:openJobVehList', function() --Job Vehicles
 			local plate = JobVeh[PlayerData.job.name][currentgarage].plate .. tostring(math.random(1000, 9999))
 			vehicleMenu[#vehicleMenu + 1] = {
 				header = v.name,
-				txt = string.format(GetText('vehicle_info'), plate, '100%', '100%', '100%', '100%', '0%'),
+				txt = Lang:t('info.vehicle_info', {plate = plate, fuel = 100, engine = 100, body = 100, tank = 100, dirt = 0}),
 				params = {
 					event = 'MojiaGarages:client:SpawnJobVeh',
 					args = {
@@ -1303,9 +1303,9 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 end)
 
 RegisterNetEvent('MojiaGarages:client:updateVehicleKey', function(plate) -- Update vehicle key for qb-vehiclekey
-	QBCore.Functions.TriggerCallback('MojiaGarages:server:GetOwner', function(owner)
+	QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(owner)
 		if owner ~= nil then
-			TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicleKeys', plate, owner)
+			TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicleKeys', plate, owner.citizenid)
 		end
 	end, plate)
 end)
