@@ -119,7 +119,7 @@ end)
 QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
     local Vehicles = {}
-    local result = exports.oxmysql:executeSync('SELECT * FROM player_vehicles WHERE citizenid = ?',
+    local result = MySQL.Sync.fetchAll('SELECT * FROM player_vehicles WHERE citizenid = ?',
         {
 			Player.PlayerData.citizenid
 		}
@@ -322,7 +322,7 @@ end)
 - Edit qb-houses\server\main.lua:
 ```
 CreateThread(function()
-    local result = exports.oxmysql:executeSync('SELECT * FROM houselocations', {})
+    local result = MySQL.Sync.fetchAll('SELECT * FROM houselocations', {})
     if result[1] then
         for k, v in pairs(result) do
             local owned = false
@@ -369,7 +369,7 @@ RegisterNetEvent('qb-houses:server:addNewHouse', function(street, coords, price,
     local tier = tonumber(tier)
 	local name = street:lower()
     local label = street
-    exports.oxmysql:insert('INSERT INTO houselocations (name, label, coords, owned, price, tier) VALUES (?, ?, ?, ?, ?, ?)',
+    MySQL.Async.insert('INSERT INTO houselocations (name, label, coords, owned, price, tier) VALUES (?, ?, ?, ?, ?, ?)',
         {name, label, json.encode(coords), 0, price, tier})
     Config.Houses[name] = {
         coords = coords,
@@ -390,7 +390,7 @@ end)
 ```
 RegisterNetEvent('qb-houses:server:addGarage', function(house, coords)
     local src = source
-    exports.oxmysql:execute('UPDATE houselocations SET garage = ? WHERE name = ?', {json.encode(coords), house})
+    MySQL.Async.fetchAll('UPDATE houselocations SET garage = ? WHERE name = ?', {json.encode(coords), house})
     TriggerClientEvent("MojiaGarages:client:updateGarage", -1) 	-- Update Garages
     TriggerClientEvent('QBCore:Notify', src, "You have added a garage: " .. Config.Houses[house].adress)
 end)
@@ -410,8 +410,8 @@ RegisterNetEvent('qb-houses:server:buyHouse', function(house)
         housekeyholders[house] = {
             [1] = pData.PlayerData.citizenid
         }
-        exports.oxmysql:insert('INSERT INTO player_houses (house, identifier, citizenid, keyholders) VALUES (?, ?, ?, ?)',{house, pData.PlayerData.license, pData.PlayerData.citizenid, json.encode(housekeyholders[house])})
-        exports.oxmysql:execute('UPDATE houselocations SET owned = ? WHERE name = ?', {1, house})
+        MySQL.Async.insert('INSERT INTO player_houses (house, identifier, citizenid, keyholders) VALUES (?, ?, ?, ?)',{house, pData.PlayerData.license, pData.PlayerData.citizenid, json.encode(housekeyholders[house])})
+        MySQL.Async.fetchAll('UPDATE houselocations SET owned = ? WHERE name = ?', {1, house})
         TriggerClientEvent('qb-houses:client:SetClosestHouse', src)
         pData.Functions.RemoveMoney('bank', HousePrice, "bought-house") -- 21% Extra house costs
         TriggerEvent('qb-bossmenu:server:addAccountMoney', "realestate", (HousePrice / 100) * math.random(18, 25))
