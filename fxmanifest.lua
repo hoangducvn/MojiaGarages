@@ -13,6 +13,9 @@ client_scripts {
     '@PolyZone/client.lua',
 	'client.lua'
 }
-server_script 'server.lua'
+server_script {
+	'@oxmysql/lib/MySQL.lua',
+    'server.lua'
+}
 
 lua54 'yes'

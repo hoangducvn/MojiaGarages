@@ -158,7 +158,7 @@ local function CleanUp() -- Default cleaning function. seize vehicles that are o
     local toDelete = {}
     for plate, vehicle in pairs(OutsideVehicles) do
         if vehicle.lastUpdate < os.difftime(currentTime, threshold) then
-            exports.oxmysql:execute('UPDATE player_vehicles SET state = 2 WHERE state = @state AND depotprice = @depotprice AND plate = @plate',
+            MySQL.Async.fetchAll('UPDATE player_vehicles SET state = 2 WHERE state = @state AND depotprice = @depotprice AND plate = @plate',
 				{
 					['@state'] = 0,
 					['@depotprice'] = 0,
@@ -177,7 +177,7 @@ end
 --Call back
 QBCore.Functions.CreateCallback('MojiaGarages:server:GetOwner', function(source, cb, plate) -- Get vehicle owner for check key qb-vehiclekey
     local owner = nil
-    local result = exports.oxmysql:fetchSync('SELECT citizenid FROM player_vehicles WHERE plate = ?',
+    local result = MySQL.Async.fetchAll('SELECT citizenid FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}
@@ -190,7 +190,7 @@ end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleLocation', function(source, cb, plate) -- Check Vehicle locaton:
     local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT garage, state, depotprice, posX, posY FROM player_vehicles WHERE plate = ?',
+    local result = MySQL.Async.fetchAll('SELECT garage, state, depotprice, posX, posY FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}
@@ -204,7 +204,7 @@ end)
 QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', function(source, cb, plate) -- Get vehicle information
     local src = source
     local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT mods FROM player_vehicles WHERE plate = ?',
+    local result = MySQL.Async.fetchAll('SELECT mods FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}
@@ -216,7 +216,7 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:GetVehicleProperties', func
 end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:checkHasVehicleOwner', function(source, cb, plate) -- Check Has Vehicle Owner:
-    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ?',
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}, function(result)
@@ -230,7 +230,7 @@ end)
 
 QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleData', function(source, cb, plate) -- Get Vehicle Data:
     local properties = {}
-    local result = exports.oxmysql:fetchSync('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods FROM player_vehicles WHERE plate = ?',
+    local result = MySQL.Async.fetchAll('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods FROM player_vehicles WHERE plate = ?',
 		{
 			plate
 		}
@@ -244,7 +244,7 @@ end)
 QBCore.Functions.CreateCallback('MojiaGarages:server:checkVehicleOwner', function(source, cb, plate) -- Check Vehicle Owner:
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',
 		{
 			plate,
 			Player.PlayerData.citizenid
@@ -260,7 +260,7 @@ end)
 QBCore.Functions.CreateCallback('MojiaGarages:server:GetUserVehicles', function(source, cb) -- Get a list of vehicles in the garage
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE citizenid = ?',
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE citizenid = ?',
 		{
 			Player.PlayerData.citizenid
 		}, function(result)
@@ -301,7 +301,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, modifi
             OutsideVehicles[plate].rotation = rotation
             OutsideVehicles[plate].modifications = modifications
             OutsideVehicles[plate].lastUpdate = currentTime
-            exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
+            MySQL.Async.execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
                 ['@plate']          = plate,
                 ['@posX']           = OutsideVehicles[plate].position.x,
                 ['@posY']           = OutsideVehicles[plate].position.y,
@@ -323,7 +323,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, modifi
                 spawning        = false,
 	            spawningPlayer  = nil
             }
-            exports.oxmysql:execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
+            MySQL.Async.execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @modifications, lastUpdate = @lastUpdate WHERE plate = @plate',{
                 ['@plate']          = plate,
                 ['@posX']           = OutsideVehicles[plate].position.x,
                 ['@posY']           = OutsideVehicles[plate].position.y,
@@ -371,7 +371,7 @@ RegisterNetEvent('MojiaGarages:server:removeOutsideVehicles', function(plate) --
 end)
 
 RegisterNetEvent('MojiaGarages:server:UpdateGaragesZone', function() -- Update Garages
-    local result = exports.oxmysql:executeSync('SELECT * FROM houselocations', {})
+    local result = MySQL.Sync.fetchAll('SELECT * FROM houselocations', {})
     if result[1] then        
 		AllGarages = Garages
 		for k, v in pairs(result) do
@@ -443,7 +443,7 @@ RegisterNetEvent('MojiaGarages:server:UpdateOutsideVehicles', function(Vehicles)
 end)
 
 RegisterNetEvent('MojiaGarages:server:updateVehicleState', function(state, plate, garage) -- Vehicle status update
-    exports.oxmysql:execute('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',
+    MySQL.Async.execute('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',
         {
 			state,
 			garage,
@@ -459,7 +459,7 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payme
     local Player = QBCore.Functions.GetPlayer(src)
     local bankBalance = Player.PlayerData.money['bank']
     local cashBalance = Player.PlayerData.money['cash']
-    exports.oxmysql:fetch('SELECT * FROM player_vehicles WHERE plate = ?',
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ?',
 		{
 			vehicle.plate
 		}, function(result)
@@ -481,7 +481,7 @@ AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Wait(100)
         if AutoRespawn then
-            exports.oxmysql:execute('UPDATE player_vehicles SET state = 1 WHERE state = 0 AND depotprice = 0', {})
+            MySQL.Async.execute('UPDATE player_vehicles SET state = 1 WHERE state = 0 AND depotprice = 0', {})
         end
     end
 end)
@@ -504,7 +504,7 @@ CreateThread(function() -- read all vehicles from the database on startup and do
         if not vehiclesLoaded then
             vehiclesLoaded = true
 			-- fetch all database results
-			exports.oxmysql:fetch('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods, lastUpdate FROM player_vehicles', {}, function(results)
+			MySQL.Async.fetchAll('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods, lastUpdate FROM player_vehicles', {}, function(results)
 				for i = 1, #results do
 					if results[i].state == 0 and results[i].depotprice == 0 then
 						OutsideVehicles[results[i].plate] = {
