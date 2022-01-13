@@ -491,6 +491,16 @@ local function CheckHasID(id1, id2)
 	return has
 end
 
+local function CheckHasID1(id1, id2)
+	local has = false
+	for k, v in pairs(Config.JobInteractions[id1]) do
+		if v.id == id2 then
+			has = true
+		end
+	end
+	return has
+end
+
 CreateThread(function()
 	while true do
 		local PlayerData = QBCore.Functions.GetPlayerData()
@@ -542,7 +552,7 @@ CreateThread(function()
 		end
 		local isInJobGarage, lastJobVehicle = exports['MojiaGarages']:isInJobStation('police')
 		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and PlayerData.job.onduty and isInJobGarage and lastJobVehicle == nil and not IsPedInAnyVehicle(ped) then  
-			if not CheckHasID('police', 'openpolicejobveh') then
+			if not CheckHasID1('police', 'openpolicejobveh') then
 				Config.JobInteractions['police'][#Config.JobInteractions['police'] +1 ] = {
 					id = 'openpolicejobveh',
 					title = 'Police Job Vehicle',
@@ -560,7 +570,7 @@ CreateThread(function()
 			end
 		end
 		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and PlayerData.job.onduty and isInJobGarage and lastJobVehicle ~= nil and exports["qb-vehiclekeys"]:HasVehicleKey(plate) and veh == lastJobVehicle then  
-			if not CheckHasID('police', 'storepolicejobveh') then
+			if not CheckHasID1('police', 'storepolicejobveh') then
 				Config.JobInteractions['police'][#Config.JobInteractions['police'] +1 ] = {
 					id = 'storepolicejobveh',
 					title = 'Store Job Vehicle',
