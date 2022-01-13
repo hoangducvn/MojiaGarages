@@ -1407,9 +1407,9 @@ CreateThread(function() -- Check if the player is in the garage area or not
 	while true do
 		local Ped = PlayerPedId()
 		local coord = GetEntityCoords(Ped)
-		if Ped and coord then
+		if Ped and coord and GarageLocation then
 			for k, v in pairs(GarageLocation) do
-				if GarageLocation[k]:isPointInside(coord) then
+				if GarageLocation[k] and GarageLocation[k]:isPointInside(coord) then
 					inGarageStation = true
 					currentgarage = k
 					if Garages[k].job ~= nil then
