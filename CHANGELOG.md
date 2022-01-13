@@ -1,4 +1,171 @@
 # Change Log
+## Date: 14/01/22
+
+- Add MojiaGarages/client.lua:
+```
+CreateThread(function() -- Update for qb-radialmenu
+	while true do		
+		if inGarageStation and currentgarage ~= nil then
+			TriggerEvent('MojiaGarages:client:updateRadialmenu')
+		else
+			TriggerEvent('MojiaGarages:client:updateRadialmenu')
+		end
+		Wait(1000)
+	end
+end)
+
+RegisterNetEvent('MojiaGarages:client:updateRadialmenu', function()
+	local PlayerData = QBCore.Functions.GetPlayerData()
+	local ped = PlayerPedId()
+	local pos = GetEntityCoords(ped)
+	local ped = PlayerPedId()
+	local veh = QBCore.Functions.GetClosestVehicle(pos)
+	if IsPedInAnyVehicle(ped) then
+		veh = GetVehiclePedIsIn(ped)
+	end
+	local plate = QBCore.Functions.GetPlate(veh)		
+	--Open garage
+	if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and not IsPedInAnyVehicle(ped, false) then
+		exports["qb-radialmenu"]:addSubMenu(3, 'opengarage', {
+			id = 'opengarage',
+			title = 'Open Garages',
+			icon = 'car',
+			type = 'client',
+			event = 'MojiaGarages:client:openGarage',
+			shouldClose = true
+		})
+	else
+		exports["qb-radialmenu"]:removeSubMenu(3, 'opengarage')
+	end
+	--Store Vehicle
+	if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and Garages[currentgarage].canStoreVehicle and exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
+		exports["qb-radialmenu"]:addSubMenu(3, 'storevehicle', {
+			id = 'storevehicle',
+			title = 'Store Vehicle',
+			icon = 'car',
+			type = 'client',
+			event = 'MojiaGarages:client:storeVehicle',
+			shouldClose = true
+		})
+	else
+		exports["qb-radialmenu"]:removeSubMenu(3, 'storevehicle')
+	end
+	--Job
+	if PlayerData.job then
+		if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.onduty and inJobStation[PlayerData.job.name] and lastjobveh == nil and not IsPedInAnyVehicle(ped) then
+			exports["qb-radialmenu"]:addJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'opengarage', {
+				id = PlayerData.job.name .. 'opengarage',
+				title = 'Open Garages',
+				icon = 'car',
+				type = 'client',
+				event = 'MojiaGarages:client:openJobVehList',
+				shouldClose = true
+			})
+		else
+			exports["qb-radialmenu"]:removeJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'opengarage')
+		end
+		if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.onduty and inJobStation[PlayerData.job.name] and lastjobveh == veh and exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
+			exports["qb-radialmenu"]:addJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'storevehicle', {
+				id = PlayerData.job.name .. 'storevehicle',
+				title = 'Store Vehicle',
+				icon = 'car',
+				type = 'client',
+				event = 'MojiaGarages:client:HideJobVeh',
+				shouldClose = true
+			})
+		else
+			exports["qb-radialmenu"]:removeJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'storevehicle')
+		end
+	end
+end)
+```
+- Edit qb-radialmenu\client\main.lua:
+```
+-- Sets the metadata when the player spawns
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerData = QBCore.Functions.GetPlayerData()
+	TriggerEvent('MojiaGarages:client:updateRadialmenu')
+end)
+```
+```
+-- Sets the playerdata to an empty table when the player has quit or did /logout
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    PlayerData = {}
+	TriggerEvent('MojiaGarages:client:updateRadialmenu')
+end)
+```
+```
+-- This will update all the PlayerData that doesn't get updated with a specific event other than this like the metadata
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
+    PlayerData = val
+	TriggerEvent('MojiaGarages:client:updateRadialmenu')
+end)
+```
+- Remove all add on date 13/01/22
+- Add to qb-radialmenu\client\main.lua:
+
+```
+local function CheckHasID(id1, id2)
+	local has = false
+	if Config.MenuItems[id1].items then
+		for k, v in pairs(Config.MenuItems[id1].items) do
+			if v.id == id2 then
+				has = true
+			end
+		end
+	end
+	return has
+end
+
+local function CheckHasID2(job, id)
+	local has = false
+	if Config.JobInteractions[job] then
+		for k, v in pairs(Config.JobInteractions[job]) do
+			if v.id == id then
+				has = true
+			end
+		end
+	end
+	return has
+end
+
+local function addSubMenu(id1, id2, menu)
+	if Config.MenuItems[id1].items and not CheckHasID(id1, id2) then
+		Config.MenuItems[id1].items[#Config.MenuItems[id1].items + 1] = menu
+	end
+end
+
+local function addJobSubMenu(job, id, menu)
+	if Config.JobInteractions[job] and not CheckHasID2(job, id) then
+		Config.JobInteractions[job][#Config.JobInteractions[job] +1 ] =  menu
+	end
+end
+
+local function removeSubMenu(id1, id2)
+	if Config.MenuItems[id1].items and CheckHasID(id1, id2) then
+		for k, v in pairs(Config.MenuItems[id1].items) do
+			if v.id == id2 then
+				Config.MenuItems[id1].items[k] = nil
+			end
+		end
+	end
+end
+
+local function removeJobSubMenu(job, id)
+	if Config.JobInteractions[job] and CheckHasID2(job, id) then
+		for k, v in pairs(Config.JobInteractions[job]) do
+			if v.id == id then
+				Config.JobInteractions[job][k] = nil
+			end
+		end
+	end
+end
+
+exports('addSubMenu', addSubMenu)
+exports('addJobSubMenu', addJobSubMenu)
+exports('removeSubMenu', removeSubMenu)
+exports('removeJobSubMenu', removeJobSubMenu)
+```
 ## Date: 13/01/22
 - Fix impound garage and new way to qb-radialmenu
 - Add to qb-radialmenu\client\main.lua:
