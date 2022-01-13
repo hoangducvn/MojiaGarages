@@ -234,6 +234,16 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:GetUserVehicles', function(
 	end)
 end)
 
+QBCore.Functions.CreateCallback('MojiaGarages:server:GetimpoundVehicles', function(source, cb) -- Get a list of impounded vehicles
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE state = 2',{}, function(result)
+		if result[1] ~= nil then
+			cb(result)
+		else
+			cb(nil)
+		end
+	end)
+end)
+
 --Events
 RegisterNetEvent('MojiaGarages:server:renderScorched', function(vehicleNetId, scorched) -- render entity scorched (trigger with netid of the vehicle and false when repairing)
     local vehicleHandle = NetworkGetEntityFromNetworkId(vehicleNetId)

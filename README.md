@@ -476,7 +476,113 @@ RegisterNetEvent('MojiaGarages:server:updateOutSiteVehicleKeys', function(plate,
 end)
 ```
 ### Event for F1 menu:
-#### Open Garage:
+#### qb-radialmenu:
+
+- Add to qb-radialmenu\client\main.lua:
+
+```
+local function CheckHasID(id1, id2)
+	local has = false
+	for k, v in pairs(Config.MenuItems[id1].items) do
+		if v.id == id2 then
+			has = true
+		end
+	end
+	return has
+end
+
+CreateThread(function()
+	while true do
+		local PlayerData = QBCore.Functions.GetPlayerData()
+		local ped = PlayerPedId()
+		local pos = GetEntityCoords(ped)
+		local ped = PlayerPedId()
+		local veh = QBCore.Functions.GetClosestVehicle(pos)
+		if IsPedInAnyVehicle(ped) then
+			veh = GetVehiclePedIsIn(ped)
+		end
+		local plate = QBCore.Functions.GetPlate(veh)
+		local isingarage, canStoreVehicle = exports['MojiaGarages']:IsInGarage()
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and isingarage and not IsPedInAnyVehicle(ped, false) then 
+			if not CheckHasID(3, 'opengarage') then
+				Config.MenuItems[3].items[#Config.MenuItems[3].items + 1] = {
+					id = 'opengarage',
+					title = 'Open Garages',
+					icon = 'car',
+					type = 'client',
+					event = 'MojiaGarages:client:openGarage',
+					shouldClose = true
+				}
+			end
+			
+		else
+			for k, v in pairs(Config.MenuItems[3].items) do
+				if v.id == 'opengarage' then
+					Config.MenuItems[3].items[k] = nil
+				end
+			end
+		end
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and isingarage and canStoreVehicle and exports["qb-vehiclekeys"]:HasVehicleKey(plate) then 
+			if not CheckHasID(3, 'storeVehicle') then
+				Config.MenuItems[3].items[#Config.MenuItems[3].items + 1] = {
+					id = 'storeVehicle',
+					title = 'Store Vehicle',
+					icon = 'car',
+					type = 'client',
+					event = 'MojiaGarages:client:storeVehicle',
+					shouldClose = true
+				}
+			end
+		else
+			for k, v in pairs(Config.MenuItems[3].items) do
+				if v.id == 'storeVehicle' then
+					Config.MenuItems[3].items[k] = nil
+				end
+			end
+		end
+		local isInJobGarage, lastJobVehicle = exports['MojiaGarages']:isInJobStation('police')
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and PlayerData.job.onduty and isInJobGarage and lastJobVehicle == nil and not IsPedInAnyVehicle(ped) then  
+			if not CheckHasID('police', 'openpolicejobveh') then
+				Config.JobInteractions['police'][#Config.JobInteractions['police'] +1 ] = {
+					id = 'openpolicejobveh',
+					title = 'Police Job Vehicle',
+					icon = 'car',
+					type = 'client',
+					event = 'MojiaGarages:client:openJobVehList',
+					shouldClose = true
+				}
+			end
+		else
+			for k, v in pairs(Config.JobInteractions['police']) do
+				if v.id == 'openpolicejobveh' then
+					Config.JobInteractions['police'][k] = nil
+				end
+			end
+		end
+		if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.name == 'police' and PlayerData.job.onduty and isInJobGarage and lastJobVehicle ~= nil and exports["qb-vehiclekeys"]:HasVehicleKey(plate) and veh == lastJobVehicle then  
+			if not CheckHasID('police', 'storepolicejobveh') then
+				Config.JobInteractions['police'][#Config.JobInteractions['police'] +1 ] = {
+					id = 'storepolicejobveh',
+					title = 'Store Job Vehicle',
+					icon = 'car',
+					type = 'client',
+					event = 'MojiaGarages:client:HideJobVeh',
+					shouldClose = true
+				}
+			end
+		else
+			for k, v in pairs(Config.JobInteractions['police']) do
+				if v.id == 'storepolicejobveh' then
+					Config.JobInteractions['police'][k] = nil
+				end
+			end
+		end
+		Wait(1000)
+	end
+end)
+```
+#### Other Menu:
+##### Open Garage:
 - Event:
 ```
 'MojiaGarages:client:openGarage'
@@ -495,7 +601,7 @@ Check if you are in the vehicle or not → you can use:
 ```
 if not IsPedInAnyVehicle(PlayerPedId()) then
 ```
-#### Store Vehicle:
+##### Store Vehicle:
 - Event:
 ```
 'MojiaGarages:client:storeVehicle'
@@ -516,7 +622,7 @@ You should have more vehicle key check function here:
 ```
 if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
 ```
-#### Open vehicle list for work:
+##### Open vehicle list for work:
 - Event:
 ```
 'MojiaGarages:client:openJobVehList'
@@ -538,7 +644,7 @@ Check if you are in the vehicle or not → you can use:
 if not IsPedInAnyVehicle(PlayerPedId()) then
 ```
 
-#### Hide vehicle for work:
+##### Hide vehicle for work:
 - Event:
 ```
 'MojiaGarages:client:HideJobVeh'

@@ -1011,80 +1011,24 @@ end)
 
 RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
     if inGarageStation and currentgarage ~= nil then
-		QBCore.Functions.TriggerCallback('MojiaGarages:server:GetUserVehicles', function(result)
-			if result then
-				local MenuGaraOptions = {
-					{
-						header = Lang:t('info.garage_menu_header', {header = Garages[currentgarage].label}),
-						isMenuHeader = true
-					},
-				}
-				MenuGaraOptions[#MenuGaraOptions + 1] = {
-					header = Lang:t('info.close_menu'),
-					txt = '',
-					params = {
-						event = 'qb-menu:closeMenu',
+		if currentgarage == 'impound' and PlayerData.job.name == 'police' then
+			QBCore.Functions.TriggerCallback('MojiaGarages:server:GetimpoundVehicles', function(result)
+				if result then
+					local MenuGaraOptions = {
+						{
+							header = Lang:t('info.garage_menu_header', {header = Garages[currentgarage].label}),
+							isMenuHeader = true
+						},
 					}
-				}
-				for i, v in pairs(result) do
-					if v.state == Garages[currentgarage].garastate then
-						if v.state == 1 then
-							if v.garage == currentgarage then
-								local modifications = json.decode(v.mods)
-								bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
-								enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
-								petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
-								dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
-								currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
-								if Garages[currentgarage].fullfix then
-									modifications.bodyHealth = 1000
-									modifications.engineHealth = 1000
-									modifications.tankHealth = 1000
-									modifications.dirtLevel = 0
-									modifications.fuelLevel = 100
-									v.mods = json.encode(modifications)
-								end
-								MenuGaraOptions[#MenuGaraOptions + 1] = {
-									header = QBCore.Shared.Vehicles[v.vehicle].name,
-									txt = Lang:t('info.vehicle_info', {plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
-									params = {
-										event = 'MojiaGarages:client:TakeOutVehicle',
-										args = v
-									}
-								}
-							end
-						elseif v.state == 0 then
-							if v.depotprice > 0 then
-								if OutsideVehicles ~= nil and next(OutsideVehicles) ~= nil and OutsideVehicles[v.plate] ~= nil and isVehicleExistInRealLife(v.plate) then
-								
-								else
-									if not isVehicleExistInRealLife(v.plate) then
-										local modifications = json.decode(v.mods)
-										bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
-										enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
-										petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
-										dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
-										currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
-										if Garages[currentgarage].fullfix then
-											modifications.bodyHealth = 1000
-											modifications.engineHealth = 1000
-											modifications.tankHealth = 1000
-											modifications.dirtLevel = 0
-											modifications.fuelLevel = 100
-											v.mods = json.encode(modifications)
-										end
-										MenuGaraOptions[#MenuGaraOptions + 1] = {
-											header = QBCore.Shared.Vehicles[v.vehicle].name,
-											txt = Lang:t('info.vehicle_info_and_price', {price = v.depotprice, plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
-											params = {
-												event = 'MojiaGarages:client:TakeOutVehicle',
-												args = v
-											}
-										}
-									end
-								end
-							end
-						else
+					MenuGaraOptions[#MenuGaraOptions + 1] = {
+						header = Lang:t('info.close_menu'),
+						txt = '',
+						params = {
+							event = 'qb-menu:closeMenu',
+						}
+					}
+					for i, v in pairs(result) do
+						if v.state == 2 then
 							local modifications = json.decode(v.mods)
 							bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
 							enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
@@ -1109,12 +1053,117 @@ RegisterNetEvent('MojiaGarages:client:openGarage', function() -- Garages Menu
 							}
 						end
 					end
-				end				
-				exports['qb-menu']:openMenu(MenuGaraOptions)
-			else
-				QBCore.Functions.Notify(Lang:t('error.there_are_no_vehicles_in_the_garage'), 'error', 5000)
-			end
-		end)
+					exports['qb-menu']:openMenu(MenuGaraOptions)
+				else
+					QBCore.Functions.Notify(Lang:t('error.there_are_no_vehicles_in_the_garage'), 'error', 5000)
+				end
+			end)
+		else
+			QBCore.Functions.TriggerCallback('MojiaGarages:server:GetUserVehicles', function(result)
+				if result then
+					local MenuGaraOptions = {
+						{
+							header = Lang:t('info.garage_menu_header', {header = Garages[currentgarage].label}),
+							isMenuHeader = true
+						},
+					}
+					MenuGaraOptions[#MenuGaraOptions + 1] = {
+						header = Lang:t('info.close_menu'),
+						txt = '',
+						params = {
+							event = 'qb-menu:closeMenu',
+						}
+					}
+					for i, v in pairs(result) do
+						if v.state == Garages[currentgarage].garastate then
+							if v.state == 1 then
+								if v.garage == currentgarage then
+									local modifications = json.decode(v.mods)
+									bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
+									enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
+									petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
+									dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
+									currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
+									if Garages[currentgarage].fullfix then
+										modifications.bodyHealth = 1000
+										modifications.engineHealth = 1000
+										modifications.tankHealth = 1000
+										modifications.dirtLevel = 0
+										modifications.fuelLevel = 100
+										v.mods = json.encode(modifications)
+									end
+									MenuGaraOptions[#MenuGaraOptions + 1] = {
+										header = QBCore.Shared.Vehicles[v.vehicle].name,
+										txt = Lang:t('info.vehicle_info', {plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
+										params = {
+											event = 'MojiaGarages:client:TakeOutVehicle',
+											args = v
+										}
+									}
+								end
+							elseif v.state == 0 then
+								if v.depotprice > 0 then
+									if OutsideVehicles ~= nil and next(OutsideVehicles) ~= nil and OutsideVehicles[v.plate] ~= nil and isVehicleExistInRealLife(v.plate) then
+									
+									else
+										if not isVehicleExistInRealLife(v.plate) then
+											local modifications = json.decode(v.mods)
+											bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
+											enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
+											petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
+											dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
+											currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
+											if Garages[currentgarage].fullfix then
+												modifications.bodyHealth = 1000
+												modifications.engineHealth = 1000
+												modifications.tankHealth = 1000
+												modifications.dirtLevel = 0
+												modifications.fuelLevel = 100
+												v.mods = json.encode(modifications)
+											end
+											MenuGaraOptions[#MenuGaraOptions + 1] = {
+												header = QBCore.Shared.Vehicles[v.vehicle].name,
+												txt = Lang:t('info.vehicle_info_and_price', {price = v.depotprice, plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
+												params = {
+													event = 'MojiaGarages:client:TakeOutVehicle',
+													args = v
+												}
+											}
+										end
+									end
+								end
+							else
+								local modifications = json.decode(v.mods)
+								bodyPercent = QBCore.Shared.Round(modifications.bodyHealth / 10, 0)
+								enginePercent = QBCore.Shared.Round(modifications.engineHealth / 10, 0)								
+								petrolTankPercent = QBCore.Shared.Round(modifications.tankHealth / 10, 0)
+								dirtPercent = QBCore.Shared.Round((modifications.dirtLevel/15)*100, 0)
+								currentFuel = QBCore.Shared.Round(modifications.fuelLevel, 0)
+								if Garages[currentgarage].fullfix then
+									modifications.bodyHealth = 1000
+									modifications.engineHealth = 1000
+									modifications.tankHealth = 1000
+									modifications.dirtLevel = 0
+									modifications.fuelLevel = 100
+									v.mods = json.encode(modifications)
+								end
+								MenuGaraOptions[#MenuGaraOptions + 1] = {
+									header = QBCore.Shared.Vehicles[v.vehicle].name,
+									txt = Lang:t('info.vehicle_info', {plate = v.plate, fuel = currentFuel, engine = enginePercent, body = bodyPercent, tank = petrolTankPercent, dirt = dirtPercent}),
+									params = {
+										event = 'MojiaGarages:client:TakeOutVehicle',
+										args = v
+									}
+								}
+							end
+						end
+					end				
+					exports['qb-menu']:openMenu(MenuGaraOptions)
+				else
+					QBCore.Functions.Notify(Lang:t('error.there_are_no_vehicles_in_the_garage'), 'error', 5000)
+				end
+			end)
+		end
 	end
 end)
 
