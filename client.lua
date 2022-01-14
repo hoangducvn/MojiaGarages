@@ -1185,18 +1185,18 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
 			QBCore.Functions.Notify(Lang:t('error.the_receiving_area_is_obstructed_by_something'), 'error', 2500)
 			return
 		else
+			local properties = json.decode(vehicle.mods)
 			Deleteveh(vehicle.plate)
 			QBCore.Functions.SpawnVehicle(vehicle.vehicle, function(veh)
-				QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(properties)
-					SetVehicleModifications(veh, json.decode(properties.mods))
-					if vehicle.plate ~= nil then
-						OutsideVehicles[vehicle.plate] = veh
-					end
-					SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
-					TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
-					QBCore.Functions.Notify(Lang:t('success.take_out_x_out_of_x_garage', {vehicle = QBCore.Shared.Vehicles[vehicle.vehicle].name, garage = Garages[currentgarage].label}), 'success', 4500)
-					TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
-				end, vehicle.plate)
+				SetVehicleModifications(veh, properties)
+				if vehicle.plate ~= nil then
+					OutsideVehicles[vehicle.plate] = veh
+				end
+				SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
+				exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
+				TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
+				QBCore.Functions.Notify(Lang:t('success.take_out_x_out_of_x_garage', {vehicle = QBCore.Shared.Vehicles[vehicle.vehicle].name, garage = Garages[currentgarage].label}), 'success', 4500)
+				TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
 			end, Garages[currentgarage].spawnPoint[lastnearspawnpoint], true)
 		end
 	end
