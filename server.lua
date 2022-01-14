@@ -376,9 +376,11 @@ RegisterNetEvent('MojiaGarages:server:UpdateGaragesZone', function() -- Update G
 			end
 			
         end
-		TriggerClientEvent('MojiaGarages:client:UpdateGaragesZone', -1, AllGarages)
+        TriggerClientEvent('MojiaGarages:client:DestroyingZone', -1) -- Destroying all zone
+		TriggerClientEvent('MojiaGarages:client:UpdateGaragesZone', -1, AllGarages) -- Reload garage information
 	else
-		TriggerClientEvent('MojiaGarages:client:UpdateGaragesZone', -1, Garages)
+        TriggerClientEvent('MojiaGarages:client:DestroyingZone', -1) -- Destroying all zone
+		TriggerClientEvent('MojiaGarages:client:UpdateGaragesZone', -1, Garages) -- Reload garage information
     end
 end)
 

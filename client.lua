@@ -984,11 +984,13 @@ RegisterNetEvent('MojiaGarages:client:UpdateGaragesZone', function(garageConfig)
 end)
 
 RegisterNetEvent('MojiaGarages:client:DestroyingZone', function() -- Destroying all zone
-    if GarageLocation then
+	if GarageLocation then
 		for k, v in pairs(GarageLocation) do
 			GarageLocation[k]:destroy()
 		end
 	end
+	inJobStation = {}
+	GarageLocation = {}
 end)
 
 RegisterNetEvent('MojiaGarages:client:updateGarage', function() -- Update Garages
@@ -1407,26 +1409,28 @@ CreateThread(function() -- Check if the player is in the garage area or not
 	while true do
 		local Ped = PlayerPedId()
 		local coord = GetEntityCoords(Ped)
-		if Ped and coord and GarageLocation then
+		if Ped and coord and GarageLocation and next(GarageLocation) ~= nil then
 			for k, v in pairs(GarageLocation) do
-				if GarageLocation[k] and GarageLocation[k]:isPointInside(coord) then
-					inGarageStation = true
-					currentgarage = k
-					if Garages[k].job ~= nil then
-						if PlayerData.job and not inJobStation[PlayerData.job.name] and k ~= 'impound' then
-							inJobStation[PlayerData.job.name] = true
-						end
-					end				
-					while inGarageStation do
-						local InZoneCoordS = GetEntityCoords(Ped)
-						if not GarageLocation[k]:isPointInside(InZoneCoordS) then
-							inGarageStation = false
-							currentgarage = nil
-							if PlayerData.job and inJobStation[PlayerData.job.name] then
-								inJobStation[PlayerData.job.name] = false
+				if GarageLocation[k] then
+					if GarageLocation[k]:isPointInside(coord) then
+						inGarageStation = true
+						currentgarage = k
+						if Garages[k].job ~= nil then
+							if PlayerData.job and not inJobStation[PlayerData.job.name] and k ~= 'impound' then
+								inJobStation[PlayerData.job.name] = true
 							end
+						end				
+						while inGarageStation do
+							local InZoneCoordS = GetEntityCoords(Ped)
+							if not GarageLocation[k]:isPointInside(InZoneCoordS) then
+								inGarageStation = false
+								currentgarage = nil
+								if PlayerData.job and inJobStation[PlayerData.job.name] then
+									inJobStation[PlayerData.job.name] = false
+								end
+							end
+							Wait(1000)
 						end
-						Wait(1000)
 					end
 				end
 			end
