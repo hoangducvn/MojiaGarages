@@ -252,11 +252,10 @@ RegisterNetEvent('MojiaGarages:server:renderScorched', function(vehicleNetId, sc
     end
 end)
 
-RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, modifications)
+RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, plate, modifications)
     local vehicle = NetworkGetEntityFromNetworkId(networkId)
     if (DoesEntityExist(vehicle)) then
         local currentTime = os.time()
-        local plate = GetVehicleNumberPlateText(vehicle)
         local position = GetEntityCoords(vehicle)
         position = vector3(math.floor(position.x * 100.0) / 100.0, math.floor(position.y * 100.0) / 100.0, math.floor(position.z * 100.0) / 100.0)
         local rotation = GetEntityRotation(vehicle)

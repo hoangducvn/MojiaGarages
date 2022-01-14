@@ -873,7 +873,7 @@ RegisterNetEvent('MojiaGarages:client:updateVehicle', function(netId)
 							or math.abs(modifications.tankHealth - oldmodifications.tankHealth) > 5.0
 						) then
 							local networkId = NetworkGetNetworkIdFromEntity(vehicle)
-							TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, modifications)
+							TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, plate, modifications)
 						end
 					end
 				end, plate)
