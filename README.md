@@ -356,7 +356,7 @@ QBCore.Commands.Add("createhouse", "Create House (Real Estate Only)", {{name = "
     if Player.PlayerData.job.name == "realestate" then
         TriggerClientEvent("qb-houses:client:createHouses", src, apartmentnumber, price, tier)
     else
-        TriggerClientEvent('QBCore:Notify', src, "Only realestate can use this command", "error")
+        TriggerClientEvent('QBCore:Notify', src, Lang:t("error.realestate_only"), "error")
     end
 end)
 ```
@@ -390,7 +390,7 @@ end)
 ```
 RegisterNetEvent('qb-houses:server:addGarage', function(house, coords)
     local src = source
-    MySQL.Async.fetchAll('UPDATE houselocations SET garage = ? WHERE name = ?', {json.encode(coords), house})
+    MySQL.Async.execute('UPDATE houselocations SET garage = ? WHERE name = ?', {json.encode(coords), house})
     TriggerClientEvent("MojiaGarages:client:updateGarage", -1) 	-- Update Garages
     TriggerClientEvent('QBCore:Notify', src, "You have added a garage: " .. Config.Houses[house].adress)
 end)
@@ -411,7 +411,7 @@ RegisterNetEvent('qb-houses:server:buyHouse', function(house)
             [1] = pData.PlayerData.citizenid
         }
         MySQL.Async.insert('INSERT INTO player_houses (house, identifier, citizenid, keyholders) VALUES (?, ?, ?, ?)',{house, pData.PlayerData.license, pData.PlayerData.citizenid, json.encode(housekeyholders[house])})
-        MySQL.Async.fetchAll('UPDATE houselocations SET owned = ? WHERE name = ?', {1, house})
+        MySQL.Async.execute('UPDATE houselocations SET owned = ? WHERE name = ?', {1, house})
         TriggerClientEvent('qb-houses:client:SetClosestHouse', src)
         pData.Functions.RemoveMoney('bank', HousePrice, "bought-house") -- 21% Extra house costs
         TriggerEvent('qb-bossmenu:server:addAccountMoney', "realestate", (HousePrice / 100) * math.random(18, 25))
