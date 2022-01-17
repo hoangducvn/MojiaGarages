@@ -1,4 +1,3 @@
-ALTER TABLE `player_vehicles` ADD COLUMN `modifications` text NOT NULL;
 ALTER TABLE `player_vehicles` ADD COLUMN `posX` float NOT NULL;
 ALTER TABLE `player_vehicles` ADD COLUMN `posY` float NOT NULL;
 ALTER TABLE `player_vehicles` ADD COLUMN `posZ` float NOT NULL;
