@@ -87,9 +87,6 @@ local function sellVehicleWait(price)
     PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 end
 ```
-
-- qb-vehiclesales\server\main.lua:
-
 find:
 ```
 QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
