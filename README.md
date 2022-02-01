@@ -413,7 +413,7 @@ RegisterNetEvent('qb-houses:server:buyHouse', function(house)
         pData.Functions.RemoveMoney('bank', HousePrice, "bought-house") -- 21% Extra house costs
         TriggerEvent('qb-bossmenu:server:addAccountMoney', "realestate", (HousePrice / 100) * math.random(18, 25))
         TriggerEvent('qb-log:server:CreateLog', 'house', 'House Purchased:', 'green', '**Address**:\n'..house:upper()..'\n\n**Purchase Price**:\n$'..HousePrice..'\n\n**Purchaser**:\n'..pData.PlayerData.charinfo.firstname..' '..pData.PlayerData.charinfo.lastname)
-		TriggerClientEvent("MojiaGarages:client:updateGarage", -1) 	-- Update Garages	
+		TriggerClientEvent("MojiaGarages:client:updateGarage", -1) 	-- Update Garages
 	else
         TriggerClientEvent('QBCore:Notify', source, "You dont have enough money..", "error")
     end
@@ -617,7 +617,12 @@ local function removeSubMenu(id1, id2)
 	if Config.MenuItems[id1].items and CheckHasID(id1, id2) then
 		for k, v in pairs(Config.MenuItems[id1].items) do
 			if v.id == id2 then
-				Config.MenuItems[id1].items[k] = nil
+        if k == #Config.MenuItems[id1].items then
+				  Config.MenuItems[id1].items[k] = nil
+        else
+          Config.MenuItems[id1].items[k] = Config.MenuItems[id1].items[#Config.MenuItems[id1].items]
+          Config.MenuItems[id1].items[#Config.MenuItems[id1].items] = nil
+        end
 			end
 		end
 	end
@@ -627,7 +632,12 @@ local function removeJobSubMenu(job, id)
 	if Config.JobInteractions[job] and CheckHasID2(job, id) then
 		for k, v in pairs(Config.JobInteractions[job]) do
 			if v.id == id then
-				Config.JobInteractions[job][k] = nil
+        if k == #Config.JobInteractions[job] then
+				  Config.JobInteractions[job][k] = nil
+        else
+          Config.JobInteractions[job][k] = Config.JobInteractions[job][#Config.JobInteractions[job]]
+          Config.JobInteractions[job][#Config.JobInteractions[job]] = nil
+        end
 			end
 		end
 	end
