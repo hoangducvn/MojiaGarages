@@ -1238,29 +1238,57 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 			end
 			local plate = QBCore.Functions.GetPlate(curVeh)
 			local vehpos = GetEntityCoords(curVeh)
-			if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
-				if curVeh and #(pos - vehpos) < 7.5 then
-					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
-						if owned then
-							
-							if IsPedInAnyVehicle(ped) then
-								CheckPlayers(curVeh)
+			if useMojiaVehicleKeys then
+				if exports['MojiaVehicleKeys']:CheckHasKey(plate) then
+					if curVeh and #(pos - vehpos) < 7.5 then
+						QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
+							if owned then
+								
+								if IsPedInAnyVehicle(ped) then
+									CheckPlayers(curVeh)
+								else
+									local networkId = NetworkGetNetworkIdFromEntity(curVeh)
+									TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
+									Wait(100)
+									QBCore.Functions.DeleteVehicle(curVeh)
+								end
+								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
+								TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
+								if plate ~= nil then
+									OutsideVehicles[plate] = nil
+								end
+								QBCore.Functions.Notify(Lang:t('success.vehicle_parked_in_x', {garage = Garages[lastcurrentgarage].label}), 'success', 4500)
 							else
-								local networkId = NetworkGetNetworkIdFromEntity(curVeh)
-								TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
-								Wait(100)
-								QBCore.Functions.DeleteVehicle(curVeh)
+								QBCore.Functions.Notify(Lang:t('error.nobody_owns_this_vehicle'), 'error', 3500)
 							end
-							TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
-							TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-							if plate ~= nil then
-								OutsideVehicles[plate] = nil
+						end, plate)
+					end
+				end
+			else
+				if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
+					if curVeh and #(pos - vehpos) < 7.5 then
+						QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
+							if owned then
+								
+								if IsPedInAnyVehicle(ped) then
+									CheckPlayers(curVeh)
+								else
+									local networkId = NetworkGetNetworkIdFromEntity(curVeh)
+									TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
+									Wait(100)
+									QBCore.Functions.DeleteVehicle(curVeh)
+								end
+								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
+								TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
+								if plate ~= nil then
+									OutsideVehicles[plate] = nil
+								end
+								QBCore.Functions.Notify(Lang:t('success.vehicle_parked_in_x', {garage = Garages[lastcurrentgarage].label}), 'success', 4500)
+							else
+								QBCore.Functions.Notify(Lang:t('error.nobody_owns_this_vehicle'), 'error', 3500)
 							end
-							QBCore.Functions.Notify(Lang:t('success.vehicle_parked_in_x', {garage = Garages[lastcurrentgarage].label}), 'success', 4500)
-						else
-							QBCore.Functions.Notify(Lang:t('error.nobody_owns_this_vehicle'), 'error', 3500)
-						end
-					end, plate)
+						end, plate)
+					end
 				end
 			end
 		end
@@ -1343,13 +1371,24 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 		curVeh = GetVehiclePedIsIn(ped)
 	end
 	local plate = QBCore.Functions.GetPlate(curVeh)
-	if exports['qb-vehiclekeys']:HasVehicleKey(plate) and curVeh == lastjobveh then
-		if IsPedInAnyVehicle(ped) then
-			CheckPlayers(curVeh)
-		else
-			QBCore.Functions.DeleteVehicle(curVeh)
+	if useMojiaVehicleKeys then
+		if exports['MojiaVehicleKeys']:CheckHasKey(plate) and curVeh == lastjobveh then
+			if IsPedInAnyVehicle(ped) then
+				CheckPlayers(curVeh)
+			else
+				QBCore.Functions.DeleteVehicle(curVeh)
+			end
+			lastjobveh = nil
 		end
-		lastjobveh = nil
+	else
+		if exports['qb-vehiclekeys']:HasVehicleKey(plate) and curVeh == lastjobveh then
+			if IsPedInAnyVehicle(ped) then
+				CheckPlayers(curVeh)
+			else
+				QBCore.Functions.DeleteVehicle(curVeh)
+			end
+			lastjobveh = nil
+		end
 	end
 end)
 
