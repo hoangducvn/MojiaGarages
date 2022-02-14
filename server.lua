@@ -1,5 +1,5 @@
 -- Variables
-local QBCore = exports['MojiaCity']:GetCoreObject()
+local QBCore = exports['qb-core']:GetCoreObject()
 local housesLoaded = false
 local AllGarages = {}
 local vehiclesLoaded = false
