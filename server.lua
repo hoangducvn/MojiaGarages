@@ -254,7 +254,7 @@ CreateThread(function() -- Update houses
 end)
 
 
-CreateThread(function() -- read all vehicles from the database on startup and do a cleanup check
+CreateThread(function() -- Read all vehicles from the database on startup and do a cleanup check
     while true do
         if not vehiclesLoaded then
             vehiclesLoaded = true

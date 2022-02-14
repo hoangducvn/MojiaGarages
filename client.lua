@@ -785,7 +785,6 @@ local function Deleteveh(plate) -- Delete the vehicle if it is somewhere outside
         local vehicle = gameVehicles[i]
         if DoesEntityExist(vehicle) then
             if QBCore.Functions.GetPlate(vehicle) == plate then
-				TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
 				QBCore.Functions.DeleteVehicle(vehicle)
             end
         end
@@ -1232,7 +1231,6 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 									QBCore.Functions.DeleteVehicle(curVeh)
 								end
 								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
-								TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
 								if plate ~= nil then
 									OutsideVehicles[plate] = nil
 								end
@@ -1258,7 +1256,6 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 									QBCore.Functions.DeleteVehicle(curVeh)
 								end
 								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
-								TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
 								if plate ~= nil then
 									OutsideVehicles[plate] = nil
 								end
