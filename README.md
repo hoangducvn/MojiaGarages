@@ -49,46 +49,7 @@ All garage data of pre-existing homes will not be compatible with this garage, y
 ### Edit the resources according to the following instructions:
 #### qb-vehiclesales:
 - Edit qb-vehiclesales\client\main.lua:
-```
-local function SellToDealer(sellVehData, vehicleHash)
-    CreateThread(function()
-        local keepGoing = true
-        while keepGoing do
-            local coords = GetEntityCoords(vehicleHash)
-            DrawText3Ds(coords.x, coords.y, coords.z + 1.6, '~g~7~w~ - Confirm / ~r~8~w~ - Cancel ~g~')
-            if IsDisabledControlJustPressed(0, 161) then
-                TriggerServerEvent('qb-occasions:server:sellVehicleBack', sellVehData)
-                local plate = QBCore.Functions.GetPlate(vehicleHash)
-                TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-                QBCore.Functions.DeleteVehicle(vehicleHash)
-                keepGoing = false
-            end
-            if IsDisabledControlJustPressed(0, 162) then
-                keepGoing = false
-            end
-            if #(Config.SellVehicleBack - coords) > 3 then
-                keepGoing = false
-            end
-            Wait(0)
-        end
-    end)
-end
-```
 
-```
-local function sellVehicleWait(price)
-    DoScreenFadeOut(250)
-    Wait(250)
-    local vehicle = GetVehiclePedIsIn(PlayerPedId())
-    local plate = QBCore.Functions.GetPlate(vehicle)
-    TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-    QBCore.Functions.DeleteVehicle(vehicle)
-    Wait(1500)
-    DoScreenFadeIn(250)
-    QBCore.Functions.Notify('Your car has been put up for sale! Price - $'..price, 'success')
-    PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
-end
-```
 find:
 ```
 QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
@@ -177,27 +138,6 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetGarageVehicles', function(so
         cb(Vehicles)
     else
         cb(nil)
-    end
-end)
-```
-#### qb-policejob:
-- Edit qb-policejob\client\job.lua:
-```
-RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
-    local vehicle = QBCore.Functions.GetClosestVehicle()
-    local bodyDamage = math.ceil(GetVehicleBodyHealth(vehicle))
-    local engineDamage = math.ceil(GetVehicleEngineHealth(vehicle))
-    local totalFuel = exports['LegacyFuel']:GetFuel(vehicle)
-    if vehicle ~= 0 and vehicle then
-        local ped = PlayerPedId()
-        local pos = GetEntityCoords(ped)
-        local vehpos = GetEntityCoords(vehicle)
-        if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
-            local plate = QBCore.Functions.GetPlate(vehicle)
-            TriggerServerEvent("police:server:Impound", plate, fullImpound, price, bodyDamage, engineDamage, totalFuel)			
-            QBCore.Functions.DeleteVehicle(vehicle)
-            TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
-        end
     end
 end)
 ```
