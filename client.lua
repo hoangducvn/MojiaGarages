@@ -785,6 +785,7 @@ local function Deleteveh(plate) -- Delete the vehicle if it is somewhere outside
         local vehicle = gameVehicles[i]
         if DoesEntityExist(vehicle) then
             if QBCore.Functions.GetPlate(vehicle) == plate then
+				TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
 				QBCore.Functions.DeleteVehicle(vehicle)
             end
         end
@@ -820,34 +821,12 @@ local function CheckPlayers(vehicle) -- Check if there is someone in the car, if
    end
 end
 
-function GetAllVehicles() -- Returns all loaded vehicles on client side
-    return QBCore.Functions.GetVehicles()
-end
-
 -- Events
 RegisterNetEvent('MojiaGarages:client:renderScorched', function(vehicleNetId, scorched)
 	local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
 	if (DoesEntityExist(vehicle)) then
 		SetEntityRenderScorched(vehicle, scorched)
 	end
-end)
-
-RegisterNetEvent('MojiaGarages:client:setVehicleMods', function(netId, plate, modifications)
-	local timer = GetGameTimer()
-	while (not NetworkDoesEntityExistWithNetworkId(netId)) do
-		Wait(0)
-		if (GetGameTimer() - 10000 > timer) then
-			TriggerServerEvent('MojiaGarages:server:setVehicleModsFailed', plate)
-			return
-		end
-	end
-	local vehicle = NetworkGetEntityFromNetworkId(netId)
-    if (DoesEntityExist(vehicle) and NetworkHasControlOfEntity(vehicle)) then
-        SetVehicleModifications(vehicle, modifications)
-		TriggerServerEvent('MojiaGarages:server:setVehicleModsSuccess', plate)
-	else
-		TriggerServerEvent('MojiaGarages:server:setVehicleModsFailed', plate)
-    end
 end)
 
 RegisterNetEvent('MojiaGarages:client:updateVehicle', function(netId)
@@ -1238,7 +1217,7 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 			end
 			local plate = QBCore.Functions.GetPlate(curVeh)
 			local vehpos = GetEntityCoords(curVeh)
-			if useMojiaVehicleKeys then
+			if UsingMojiaVehiclekeys then 
 				if exports['MojiaVehicleKeys']:CheckHasKey(plate) then
 					if curVeh and #(pos - vehpos) < 7.5 then
 						QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
@@ -1371,8 +1350,8 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 		curVeh = GetVehiclePedIsIn(ped)
 	end
 	local plate = QBCore.Functions.GetPlate(curVeh)
-	if useMojiaVehicleKeys then
-		if exports['MojiaVehicleKeys']:CheckHasKey(plate) and curVeh == lastjobveh then
+	if UsingMojiaVehiclekeys then 
+		if exports['MojiaVehicleKeys']:CheckHasKey(plate) then
 			if IsPedInAnyVehicle(ped) then
 				CheckPlayers(curVeh)
 			else
@@ -1381,7 +1360,7 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 			lastjobveh = nil
 		end
 	else
-		if exports['qb-vehiclekeys']:HasVehicleKey(plate) and curVeh == lastjobveh then
+		if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
 			if IsPedInAnyVehicle(ped) then
 				CheckPlayers(curVeh)
 			else
@@ -1434,13 +1413,30 @@ CreateThread(function() --Save vehicle data on real times
 	end
 end)
 
-CreateThread(function() -- sync player position
+CreateThread(function() -- loop to spawn vehicles near players
 	while (true) do
-		local playerPed = PlayerPedId()
-		if (DoesEntityExist(playerPed)) then
-			TriggerServerEvent('MojiaGarages:server:syncPlayerPosition', GetEntityCoords(playerPed))
+		local Ped = PlayerPedId()		
+		if DoesEntityExist(Ped) then
+			local gameVehicles = QBCore.Functions.GetVehicles()
+			local PedCoord = GetEntityCoords(Ped)
+			QBCore.Functions.TriggerCallback('MojiaGarages:server:getOutsiteVehicle', function(outsidevehicles)
+				if outsidevehicles then					
+					for k, v in pairs(outsidevehicles) do
+						if not isVehicleExistInRealLife(v.plate) then
+							if #(PedCoord - vector3(v.posX, v.posY, v.posZ)) < spawnDistance then
+								local properties = json.decode(v.mods)
+								QBCore.Functions.SpawnVehicle(v.vehicle, function(veh)
+									SetVehicleModifications(veh, properties)
+									SetEntityRotation(veh, vector3(v.rotX, v.rotY, v.rotZ))
+									exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
+								end, vector3(v.posX, v.posY, v.posZ), true)
+							end
+						end
+					end
+				end
+			end)
 		end
-		Wait(3000)
+		Wait(1000)
 	end
 end)
 
@@ -1461,7 +1457,7 @@ CreateThread(function() -- Check if the player is in the garage area or not
 						end				
 						while inGarageStation do
 							local InZoneCoordS = GetEntityCoords(Ped)
-							if not GarageLocation[k]:isPointInside(InZoneCoordS) then
+							if GarageLocation[k] and not GarageLocation[k]:isPointInside(InZoneCoordS) then
 								inGarageStation = false
 								currentgarage = nil
 								if PlayerData.job and inJobStation[PlayerData.job.name] then

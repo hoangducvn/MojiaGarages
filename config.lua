@@ -6,7 +6,7 @@ cleanUpThresholdTime = 24 * 7
 spawnDistance = 200.0
 -- set this to false if you do not want entities render as scorched when they 
 -- are completely broken
-useMojiaVehicleKeys = true
+UsingMojiaVehiclekeys = true
 renderScorched = true
 CustomFont = nil --[nil]: use system default font - or ['name of your custom font']: You need your_custum_font.gfx EX: CustomFont = 'Oswald'
 Garages = {
