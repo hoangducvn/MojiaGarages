@@ -18,14 +18,10 @@ end
 
 --Call back
 
-QBCore.Functions.CreateCallback('MojiaGarages:server:getOutsiteVehicle', function(source, cb) -- Get All Outside Vehicles:
-    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE state = ? AND depotprice = ?',
-		{
-			0,
-			0
-		}, function(result)
+QBCore.Functions.CreateCallback('MojiaGarages:server:getAllVehicle', function(source, cb) -- Get All Vehicles:
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles',{}, function(result)
 		if result then
-			 cb(result)
+			cb(result)
 		else
 			cb(false)
 		end
@@ -254,7 +250,7 @@ CreateThread(function() -- Update houses
 end)
 
 
-CreateThread(function() -- Read all vehicles from the database on startup and do a cleanup check
+CreateThread(function() -- read all vehicles from the database on startup and do a cleanup check
     while true do
         if not vehiclesLoaded then
             vehiclesLoaded = true

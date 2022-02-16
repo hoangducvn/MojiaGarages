@@ -1416,24 +1416,30 @@ CreateThread(function() -- loop to spawn vehicles near players
 		if DoesEntityExist(Ped) then
 			local gameVehicles = QBCore.Functions.GetVehicles()
 			local PedCoord = GetEntityCoords(Ped)
-			QBCore.Functions.TriggerCallback('MojiaGarages:server:getOutsiteVehicle', function(outsidevehicles)
-				if outsidevehicles then					
-					for k, v in pairs(outsidevehicles) do
+			QBCore.Functions.TriggerCallback('MojiaGarages:server:getAllVehicle', function(allvehicles)
+				if allvehicles then					
+					for k, v in pairs(allvehicles) do
 						if not isVehicleExistInRealLife(v.plate) then
-							if #(PedCoord - vector3(v.posX, v.posY, v.posZ)) < spawnDistance then
-								local properties = json.decode(v.mods)
-								QBCore.Functions.SpawnVehicle(v.vehicle, function(veh)
-									SetVehicleModifications(veh, properties)
-									SetEntityRotation(veh, vector3(v.rotX, v.rotY, v.rotZ))
-									exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
-								end, vector3(v.posX, v.posY, v.posZ), true)
+							if v.state == 0 and v.depotprice == 0 then
+								if #(PedCoord - vector3(v.posX, v.posY, v.posZ)) < spawnDistance then
+									local properties = json.decode(v.mods)
+									QBCore.Functions.SpawnVehicle(v.vehicle, function(veh)
+										SetVehicleModifications(veh, properties)
+										SetEntityRotation(veh, vector3(v.rotX, v.rotY, v.rotZ))
+										exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
+									end, vector3(v.posX, v.posY, v.posZ), true)
+								end
+							end							
+						else
+							if v.state ~= 0 or v.depotprice ~= 0 then
+								Deleteveh(v.plate)
 							end
 						end
 					end
 				end
 			end)
 		end
-		Wait(1000)
+		Wait(3000)
 	end
 end)
 
