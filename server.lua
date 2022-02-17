@@ -227,6 +227,14 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payme
     end)
 end)
 
+RegisterNetEvent('MojiaGarages:server:updateOutSiteVehicles', function()
+    TriggerClientEvent('MojiaGarages:client:updateOutSiteVehicles', -1)
+end)
+
+RegisterNetEvent('MojiaGarages:server:removeOutsideVehicles', function(plate) -- Update car is outside
+	TriggerClientEvent('MojiaGarages:client:removeOutsideVehicles', -1, plate)
+end)
+
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Wait(100)
