@@ -854,6 +854,7 @@ RegisterNetEvent('MojiaGarages:client:updateVehicle', function(netId)
 							) then
 								local networkId = NetworkGetNetworkIdFromEntity(vehicle)
 								TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, plate, modifications)
+								TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicles')
 							end
 						end
 					end
@@ -1187,6 +1188,7 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
 				SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
 				exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
 				TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
+				TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicles')
 				QBCore.Functions.Notify(Lang:t('success.take_out_x_out_of_x_garage', {vehicle = QBCore.Shared.Vehicles[vehicle.vehicle].name, garage = Garages[currentgarage].label}), 'success', 4500)
 				TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
 			end, Garages[currentgarage].spawnPoint[lastnearspawnpoint], true)
@@ -1243,6 +1245,7 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 									QBCore.Functions.DeleteVehicle(curVeh)
 								end
 								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
+								TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicles')
 								if plate ~= nil then
 									OutsideVehicles[plate] = nil
 								end
@@ -1268,6 +1271,7 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 									QBCore.Functions.DeleteVehicle(curVeh)
 								end
 								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
+								TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicles')
 								if plate ~= nil then
 									OutsideVehicles[plate] = nil
 								end
@@ -1475,7 +1479,7 @@ local function SpawnOutSiteVehicle()
 						if IsSpawnPointClear(vehicleData.position, 2.5) then
 							QBCore.Functions.SpawnVehicle(vehicleData.vehicle, function(veh)
 								SetVehicleModifications(veh, vehicleData.modifications)
-								SetEntityRotation(veh, rotation)
+								SetEntityRotation(veh, vehicleData.rotation)
 								exports['LegacyFuel']:SetFuel(veh, vehicleData.modifications.fuelLevel)
 							end, vehicleData.position, true)
 						else
@@ -1499,52 +1503,6 @@ CreateThread(function()
 		Wait(3000)
 	end
 end)
-
-
---[[
-CreateThread(function() -- loop to spawn vehicles near players
-	while (true) do
-		local Ped = PlayerPedId()		
-		if DoesEntityExist(Ped) then
-			local gameVehicles = QBCore.Functions.GetVehicles()
-			local PedCoord = GetEntityCoords(Ped)
-			QBCore.Functions.TriggerCallback('MojiaGarages:server:getAllVehicle', function(allvehicles)
-				if allvehicles then					
-					for k, v in pairs(allvehicles) do
-						if not isVehicleExistInRealLife(v.plate) then
-							if v.state == 0 and v.depotprice == 0 then
-								if #(PedCoord - vector3(v.posX, v.posY, v.posZ)) < spawnDistance then
-									local properties = json.decode(v.mods)
-									if IsSpawnPointClear(vector3(v.posX, v.posY, v.posZ), 2.5) then
-										QBCore.Functions.SpawnVehicle(v.vehicle, function(veh)
-											SetVehicleModifications(veh, properties)
-											SetEntityRotation(veh, vector3(v.rotX, v.rotY, v.rotZ))
-											exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
-										end, vector3(v.posX, v.posY, v.posZ), true)
-									else
-										local veh = QBCore.Functions.GetClosestVehicle(vector3(v.posX, v.posY, v.posZ))
-										local plate = QBCore.Functions.GetPlate(veh)
-										QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
-											if not hasowned then					
-												QBCore.Functions.DeleteVehicle(veh)
-											end
-										end, plate)
-									end
-								end
-							end							
-						else
-							if v.state ~= 0 or v.depotprice ~= 0 then
-								Deleteveh(v.plate)
-							end
-						end
-					end
-				end
-			end)
-		end
-		Wait(3000)
-	end
-end)
-]]--
 
 CreateThread(function() -- Check if the player is in the garage area or not
 	while true do
