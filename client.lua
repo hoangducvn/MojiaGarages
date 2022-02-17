@@ -844,14 +844,20 @@ RegisterNetEvent('MojiaGarages:client:updateVehicle', function(netId)
 						local oldmodifications = json.decode(VehicleData.mods)
 						local vehpos = GetEntityCoords(vehicle)
 						local vehRot = GetEntityRotation(vehicle)
-						if modifications and oldmodifications then
-							if (#(vector3(VehicleData.posX, VehicleData.posY, VehicleData.posZ) - vehpos) > 1.0 
-								or GetRotationDifference(vector3(VehicleData.rotX, VehicleData.rotY, VehicleData.rotZ), vehRot) > 15.0
-								or modifications.lockstatus ~= oldmodifications.lockstatus
-								or math.abs(modifications.bodyHealth - oldmodifications.bodyHealth) > 5.0
-								or math.abs(modifications.engineHealth - oldmodifications.engineHealth) > 5.0
-								or math.abs(modifications.tankHealth - oldmodifications.tankHealth) > 5.0
-							) then
+						if modifications then
+							if oldmodifications then
+								if (#(vector3(VehicleData.posX, VehicleData.posY, VehicleData.posZ) - vehpos) > 1.0 
+									or GetRotationDifference(vector3(VehicleData.rotX, VehicleData.rotY, VehicleData.rotZ), vehRot) > 15.0
+									or modifications.lockstatus ~= oldmodifications.lockstatus
+									or math.abs(modifications.bodyHealth - oldmodifications.bodyHealth) > 5.0
+									or math.abs(modifications.engineHealth - oldmodifications.engineHealth) > 5.0
+									or math.abs(modifications.tankHealth - oldmodifications.tankHealth) > 5.0
+								) then
+									local networkId = NetworkGetNetworkIdFromEntity(vehicle)
+									TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, plate, modifications)
+									TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicles')
+								end
+							else
 								local networkId = NetworkGetNetworkIdFromEntity(vehicle)
 								TriggerServerEvent('MojiaGarages:server:updateVehicle', networkId, plate, modifications)
 								TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicles')
