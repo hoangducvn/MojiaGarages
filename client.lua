@@ -1353,21 +1353,26 @@ RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data) -- Take vehic
 		pos = Garages[currentgarage].spawnPoint[lastnearspawnpoint]
 		header = Garages[currentgarage].spawnPoint[lastnearspawnpoint].w
 	end
-	QBCore.Functions.SpawnVehicle(data.model, function(veh)
-        SetJobVehItems(PlayerData.job.name)
-		if data.livery ~= nil then
-			SetVehicleLivery(veh, data.livery)
-		end
-		if data.modType ~= nil and data.modIndex ~= nil then
-			SetVehicleMod(veh, data.modType, data.modIndex)
-		end
-		SetVehicleNumberPlateText(veh, data.plate)
-        SetEntityHeading(veh, header)
-        exports['LegacyFuel']:SetFuel(veh, 100.0)
-        TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
-		TriggerServerEvent('inventory:server:addTrunkItems', QBCore.Functions.GetPlate(veh), VehJobItems[PlayerData.job.name])
-		lastjobveh = veh
-    end, pos, true)
+	if not IsSpawnPointClear(vector3(pos.x, pos.y, pos.z), 2.5) then
+		QBCore.Functions.Notify(Lang:t('error.the_receiving_area_is_obstructed_by_something'), 'error', 2500)
+		return
+	else
+		QBCore.Functions.SpawnVehicle(data.model, function(veh)
+			SetJobVehItems(PlayerData.job.name)
+			if data.livery ~= nil then
+				SetVehicleLivery(veh, data.livery)
+			end
+			if data.modType ~= nil and data.modIndex ~= nil then
+				SetVehicleMod(veh, data.modType, data.modIndex)
+			end
+			SetVehicleNumberPlateText(veh, data.plate)
+			SetEntityHeading(veh, header)
+			exports['LegacyFuel']:SetFuel(veh, 100.0)
+			TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
+			TriggerServerEvent('inventory:server:addTrunkItems', QBCore.Functions.GetPlate(veh), VehJobItems[PlayerData.job.name])
+			lastjobveh = veh
+		end, pos, true)
+	end
 end)
 
 RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle for job
