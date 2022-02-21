@@ -2,9 +2,8 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local OutsideVehicles = {}
 local activePlayerPositions = {}
-local housesLoaded = false
+local dataLoaded = false
 local AllGarages = {}
-local vehiclesLoaded = false
 
 -- Functions
 local function GetClosestPlayerId(position) -- return the ID of the closest player
@@ -124,33 +123,27 @@ local function TrySpawnVehicles() -- checks if vehicles have to be spawned and s
 							local playerId, distance = GetClosestPlayerId(vehicleData.position)
 							if playerId and distance < spawnDistance then
 								if vehicleData.modifications then
+									TriggerClientEvent('MojiaGarages:client:spawnOutsiteVehicle', playerId, vehicleData)
+									TriggerClientEvent('MojiaGarages:client:updateVehicleKey', -1, plate) -- Update vehicle key for qb-vehiclekey
 									vehicleData.spawning = true
-									CreateThread(function()
-										local vec4 = vector4(vehicleData.position.x, vehicleData.position.y, vehicleData.position.z, vehicleData.rotation.z)
-										local vehicle = Citizen.InvokeNative(GetHashKey('CREATE_AUTOMOBILE'), vehicleData.modifications.model, vec4.xyzw)
-										while (not DoesEntityExist(vehicle)) do
-											Wait(0)
-										end
-										SetEntityCoords(vehicle, vehicleData.position.x, vehicleData.position.y, vehicleData.position.z)
-										SetEntityRotation(vehicle, vehicleData.rotation.x, vehicleData.rotation.y, vehicleData.rotation.z)
-										vehicleData.handle = vehicle
-										local networkOwner = -1
-										while (networkOwner == -1) do
-											Wait(0)
-											networkOwner = NetworkGetEntityOwner(vehicleData.handle)
-										end
-										vehicleData.spawningPlayer = GetPlayerIdentifiersSorted(networkOwner)
-										TriggerClientEvent('MojiaGarages:client:setVehicleMods', networkOwner, NetworkGetNetworkIdFromEntity(vehicleData.handle), plate, vehicleData.modifications)
-										TriggerClientEvent('MojiaGarages:client:updateVehicleKey', -1, plate) -- Update vehicle key for qb-vehiclekey
-									end)
 								end
 							end
 						end
 					end
 				end
-			elseif vehicleData.spawningPlayer then
-				if not IsPlayerWithLicenseActive(vehicleData.spawningPlayer) then -- if vehicle is currently spawning check if responsible player is still connected
-					TriggerEvent('MojiaGarages:server:setVehicleModsFailed', plate)
+			else
+				if vehicleData.handle ~= nil and DoesEntityExist(vehicleData.handle) then -- vehicle found on server side
+				else -- vehicle not found on server side. Check, if it is loaded differently
+					local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
+					if loadedVehicle ~= nil then -- vehicle found
+					else
+						vehicleData.spawning = false
+					end
+				end
+				if vehicleData.spawningPlayer then
+					if not IsPlayerWithLicenseActive(vehicleData.spawningPlayer) then -- if vehicle is currently spawning check if responsible player is still connected
+						TriggerEvent('MojiaGarages:server:setVehicleModsFailed', plate)
+					end
 				end
 			end
 		end
@@ -278,6 +271,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, plate,
 					DeleteEntity(OutsideVehicles[plate].handle)
 				end
 				OutsideVehicles[plate].handle = vehicle
+				OutsideVehicles[plate].model = vehicle
 			end
 			OutsideVehicles[plate].position = position
 			OutsideVehicles[plate].rotation = rotation
@@ -298,6 +292,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, plate,
 			-- insert in db
 			OutsideVehicles[plate] = {
 				handle          = vehicle,
+				model = vehicle,
 				position        = position,
 				rotation        = rotation,
 				modifications   = modifications,
@@ -331,7 +326,7 @@ RegisterNetEvent('MojiaGarages:server:setVehicleModsFailed', function(plate)
 	if (OutsideVehicles[plate] and OutsideVehicles[plate].handle and DoesEntityExist(OutsideVehicles[plate].handle)) then
 		local networkOwner = -1
 		while (networkOwner == -1) do
-			Citizen.Wait(0)
+			Wait(0)
 			networkOwner = NetworkGetEntityOwner(OutsideVehicles[plate].handle)
 		end
 		OutsideVehicles[plate].spawningPlayer = GetPlayerIdentifiersSorted(networkOwner)
@@ -350,6 +345,28 @@ end)
 
 RegisterNetEvent('MojiaGarages:server:removeOutsideVehicles', function(plate) -- Update car is outside
 	OutsideVehicles[plate] = nil
+end)
+
+RegisterNetEvent('MojiaGarages:server:updateOusiteVehicles', function()
+	MySQL.Async.fetchAll('SELECT vehicle, state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods, lastUpdate FROM player_vehicles', {}, function(results)
+		if results then
+			for k, v in pairs(results) do
+				if v.state == 0 and v.depotprice == 0 then
+					OutsideVehicles[v.plate] = {
+						handle          = nil,
+						model = v.vehicle,
+						position        = vector3(v.posX, v.posY, v.posZ),
+						rotation        = vector3(v.rotX, v.rotY, v.rotZ),
+						modifications   = json.decode(v.mods),
+						lastUpdate      = v.lastUpdate,
+						spawning        = false,
+						spawningPlayer  = nil
+					}
+				end
+			end
+		end
+		CleanUp()
+	end)
 end)
 
 RegisterNetEvent('MojiaGarages:server:UpdateGaragesZone', function() -- Update Garages
@@ -468,50 +485,23 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 --Thread
-CreateThread(function() -- Update houses
+CreateThread(function() -- Update data
 	while true do
-		if not housesLoaded then
-			housesLoaded = true
+		if not dataLoaded then
+			dataLoaded = true
 			TriggerEvent('MojiaGarages:server:updateHouseKeys')
 			TriggerEvent('MojiaGarages:server:UpdateGaragesZone')
+			TriggerEvent('MojiaGarages:server:updateOusiteVehicles')
 		end
 		Wait(1000)
 	end
 end)
 
-CreateThread(function() -- read all vehicles from the database on startup and do a cleanup check
-	while true do
-		if not vehiclesLoaded then
-			vehiclesLoaded = true
-			-- fetch all database results
-			MySQL.Async.fetchAll('SELECT state, depotprice, plate, posX, posY, posZ, rotX, rotY, rotZ, mods, lastUpdate FROM player_vehicles', {}, function(results)
-				if results then
-					for k, v in pairs(results) do
-						if v.state == 0 and v.depotprice == 0 then
-							OutsideVehicles[v.plate] = {
-								handle          = nil,
-								position        = vector3(v.posX, v.posY, v.posZ),
-								rotation        = vector3(v.rotX, v.rotY, v.rotZ),
-								modifications   = json.decode(v.mods),
-								lastUpdate      = v.lastUpdate,
-								spawning        = false,
-								spawningPlayer  = nil
-							}
-						end
-					end
-				end
-				CleanUp()
-			end)
-		end
-		Wait(1000)
-	end
-end)
-
-Citizen.CreateThread(function() -- loop to spawn vehicles near players
-	while (true) do
-		Citizen.Wait(3000)
+CreateThread(function() -- loop to spawn vehicles near players
+	while (true) do		
 		if (GetActivePlayerCount() > 0) then
 			TrySpawnVehicles()
 		end
+		Wait(1000)
 	end
 end)

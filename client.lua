@@ -825,6 +825,31 @@ function GetAllVehicles() -- Returns all loaded vehicles on client side
 end
 
 -- Events
+RegisterNetEvent('MojiaGarages:client:spawnOutsiteVehicle', function(properties)
+	if properties then
+		if properties.modifications then
+			if IsSpawnPointClear(properties.position, 2.5) then
+				QBCore.Functions.SpawnVehicle(properties.model, function(veh)
+					SetVehicleModifications(veh, properties.modifications)
+					SetEntityRotation(veh, properties.rotation)
+					exports['LegacyFuel']:SetFuel(veh, properties.modifications.fuelLevel)
+				end, properties.position, true)
+			else
+				local vehcheck = QBCore.Functions.GetClosestVehicle(properties.position)
+				local platecheck = QBCore.Functions.GetPlate(vehcheck)
+				if vehcheck ~= nil and NetworkGetEntityIsNetworked(vehcheck) and DoesEntityExist(vehcheck) then
+					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
+						if hasowned then					
+						else
+							QBCore.Functions.DeleteVehicle(vehcheck)
+						end
+					end, platecheck)
+				end
+			end
+		end
+	end
+end)
+
 RegisterNetEvent('MojiaGarages:client:renderScorched', function(vehicleNetId, scorched)
 	local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
 	if (DoesEntityExist(vehicle)) then
@@ -898,6 +923,8 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function() -- Event when player
 	Wait(100)
 	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
 	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:updateOusiteVehicles') -- Reload vehicles information
+	Wait(100)
 	CreateBlip() --Reload blips
 end)
 
@@ -926,6 +953,8 @@ AddEventHandler('onResourceStart', function(resource) -- Event when resource is 
 		Wait(100)
 		TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
 		Wait(100)
+		TriggerServerEvent('MojiaGarages:server:updateOusiteVehicles') -- Reload vehicles information
+		Wait(100)
 		CreateBlip() --Reload blips
     end
 end)
@@ -939,6 +968,8 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo) --Events when pl
 	Wait(100)
 	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
 	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:updateOusiteVehicles') -- Reload vehicles information
+	Wait(100)
 	CreateBlip() --Reload blips
 end)
 
@@ -950,6 +981,8 @@ RegisterNetEvent('QBCore:Client:OnGangUpdate', function(GangInfo) -- Reload play
 	TriggerServerEvent('MojiaGarages:server:updateHouseKeys') 	-- Reload house key information	
 	Wait(100)
 	TriggerServerEvent('MojiaGarages:server:UpdateGaragesZone') -- Reload garage information
+	Wait(100)
+	TriggerServerEvent('MojiaGarages:server:updateOusiteVehicles') -- Reload vehicles information
 	Wait(100)
 	CreateBlip() --Reload blips
 end)
@@ -1446,28 +1479,6 @@ CreateThread(function() --Save vehicle data on real times
 				end
 			end, plate)
 		end
-		
-		
-		
-		--[[
-		local ped = PlayerPedId()
-		if IsPedInAnyVehicle(ped) then
-			local curVeh = GetVehiclePedIsIn(ped)
-			local plate = QBCore.Functions.GetPlate(curVeh)
-			if NetworkGetEntityIsNetworked(curVeh) and DoesEntityExist(curVeh) then
-				QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
-					if hasowned then					
-						QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(VehicleData)
-							if VehicleData then					
-								local networkId = NetworkGetNetworkIdFromEntity(curVeh)
-								TriggerEvent('MojiaGarages:client:updateVehicle', networkId)
-							end
-						end, plate)
-					end
-				end, plate)
-			end
-		end
-		]]--
 		Wait(3000)
 	end
 end)
