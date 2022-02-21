@@ -88,7 +88,7 @@ local function TryGetLoadedVehicle(plate, loadedVehicles) -- returns a loaded ve
 end
 
 local function TrySpawnVehicles() -- checks if vehicles have to be spawned and spawns them if necessary
-	local loadedVehicles = GetAllVehicles()
+	
 	local playerVehiclePlates = {}
 	for id, position in pairs(activePlayerPositions) do
 		local ped = GetPlayerPed(id)
@@ -110,6 +110,7 @@ local function TrySpawnVehicles() -- checks if vehicles have to be spawned and s
 						end
 						TriggerClientEvent('MojiaGarages:client:updateVehicle', networkOwner, NetworkGetNetworkIdFromEntity(vehicleData.handle))
 					else -- vehicle not found on server side. Check, if it is loaded differently
+						local loadedVehicles = GetAllVehicles()
 						local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
 						if loadedVehicle ~= nil then -- vehicle found
 							vehicleData.handle = loadedVehicle
@@ -132,13 +133,12 @@ local function TrySpawnVehicles() -- checks if vehicles have to be spawned and s
 					end
 				end
 			else
-				if vehicleData.handle ~= nil and DoesEntityExist(vehicleData.handle) then -- vehicle found on server side
-				else -- vehicle not found on server side. Check, if it is loaded differently
-					local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
-					if loadedVehicle ~= nil then -- vehicle found
-					else
-						vehicleData.spawning = false
-					end
+				local loadedVehicles1 = GetAllVehicles()
+				local loadedVehicle1 = TryGetLoadedVehicle(plate, loadedVehicles1)
+				if loadedVehicle1 ~= nil then -- vehicle found
+				else
+					TriggerEvent('MojiaGarages:server:updateOusiteVehicles')
+					vehicleData.spawning = false
 				end
 				if vehicleData.spawningPlayer then
 					if not IsPlayerWithLicenseActive(vehicleData.spawningPlayer) then -- if vehicle is currently spawning check if responsible player is still connected
