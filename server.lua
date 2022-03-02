@@ -475,6 +475,29 @@ RegisterNetEvent('MojiaGarages:server:PayDepotPrice', function(vehicle) -- Payme
 	end)
 end)
 
+RegisterNetEvent('MojiaGarages:server:DeleteVehicleKey', function(plate)
+	local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player then
+		local items = Player.Functions.GetItemsByName('vehiclekey')
+		if items then
+			for _, v in pairs(items) do
+				MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ?',
+					{
+						plate
+					}, function(result)
+					if result then
+						for k, v1 in pairs(result) do
+							Player.Functions.RemoveItem(v.name, 1, v.slot)
+							TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[v.name], 'remove')
+						end
+					end
+				end)
+			end
+		end
+    end
+end)
+
 AddEventHandler('onResourceStart', function(resource)
 	if resource == GetCurrentResourceName() then
 		Wait(100)

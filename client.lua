@@ -828,22 +828,25 @@ end
 RegisterNetEvent('MojiaGarages:client:spawnOutsiteVehicle', function(properties)
 	if properties then
 		if properties.modifications then
-			if IsSpawnPointClear(properties.position, 2.5) then
-				QBCore.Functions.SpawnVehicle(properties.model, function(veh)
-					SetVehicleModifications(veh, properties.modifications)
-					SetEntityRotation(veh, properties.rotation)
-					exports['LegacyFuel']:SetFuel(veh, properties.modifications.fuelLevel)
-				end, properties.position, true)
+			if isVehicleExistInRealLife(properties.modifications.plate) then
 			else
-				local vehcheck = QBCore.Functions.GetClosestVehicle(properties.position)
-				local platecheck = QBCore.Functions.GetPlate(vehcheck)
-				if vehcheck ~= nil and NetworkGetEntityIsNetworked(vehcheck) and DoesEntityExist(vehcheck) then
-					QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
-						if hasowned then					
-						else
-							QBCore.Functions.DeleteVehicle(vehcheck)
-						end
-					end, platecheck)
+				if IsSpawnPointClear(properties.position, 2.5) then
+					QBCore.Functions.SpawnVehicle(properties.model, function(veh)
+						SetVehicleModifications(veh, properties.modifications)
+						SetEntityRotation(veh, properties.rotation)
+						exports['LegacyFuel']:SetFuel(veh, properties.modifications.fuelLevel)
+					end, properties.position, true)
+				else
+					local vehcheck = QBCore.Functions.GetClosestVehicle(properties.position)
+					local platecheck = QBCore.Functions.GetPlate(vehcheck)
+					if vehcheck ~= nil and NetworkGetEntityIsNetworked(vehcheck) and DoesEntityExist(vehcheck) then
+						QBCore.Functions.TriggerCallback('MojiaGarages:server:checkHasVehicleOwner', function(hasowned)
+							if hasowned then					
+							else
+								QBCore.Functions.DeleteVehicle(vehcheck)
+							end
+						end, platecheck)
+					end
 				end
 			end
 		end
@@ -1237,8 +1240,12 @@ RegisterNetEvent('MojiaGarages:client:doTakeOutVehicle', function(vehicle) -- Ta
 				SetEntityHeading(veh, Garages[currentgarage].spawnPoint[lastnearspawnpoint].w)
 				exports['LegacyFuel']:SetFuel(veh, properties.fuelLevel)
 				TriggerServerEvent('MojiaGarages:server:updateVehicleState', 0, vehicle.plate, vehicle.garage)
+				if UsingMojiaVehiclekeys then
+					TriggerServerEvent('MojiaVehicleKeys:server:CreateVehiclekey', {model = vehicle.vehicle, plate = vehicle.plate, price = 0})
+				else
+					TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
+				end				
 				QBCore.Functions.Notify(Lang:t('success.take_out_x_out_of_x_garage', {vehicle = QBCore.Shared.Vehicles[vehicle.vehicle].name, garage = Garages[currentgarage].label}), 'success', 4500)
-				TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
 			end, Garages[currentgarage].spawnPoint[lastnearspawnpoint], true)
 		end
 	end
@@ -1294,6 +1301,7 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 								end
 								TriggerServerEvent('MojiaGarages:server:updateVehicleState', 1, plate, lastcurrentgarage)
 								TriggerServerEvent('MojiaGarages:server:removeOutsideVehicles', plate)
+								TriggerServerEvent('MojiaGarages:server:DeleteVehicleKey', plate)
 								if plate ~= nil then
 									OutsideVehicles[plate] = nil
 								end
@@ -1401,7 +1409,11 @@ RegisterNetEvent('MojiaGarages:client:SpawnJobVeh', function(data) -- Take vehic
 			SetVehicleNumberPlateText(veh, data.plate)
 			SetEntityHeading(veh, header)
 			exports['LegacyFuel']:SetFuel(veh, 100.0)
-			TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
+			if UsingMojiaVehiclekeys then
+				TriggerServerEvent('MojiaVehicleKeys:server:CreateVehiclekey', {model = data.model, plate = data.plate, price = 0})
+			else
+				TriggerEvent('vehiclekeys:client:SetOwner', QBCore.Functions.GetPlate(veh))
+			end			
 			TriggerServerEvent('inventory:server:addTrunkItems', QBCore.Functions.GetPlate(veh), VehJobItems[PlayerData.job.name])
 			lastjobveh = veh
 		end, pos, true)
@@ -1423,6 +1435,7 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 			else
 				QBCore.Functions.DeleteVehicle(curVeh)
 			end
+			TriggerServerEvent('MojiaGarages:server:DeleteVehicleKey', plate)
 			lastjobveh = nil
 		end
 	else
