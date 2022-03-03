@@ -295,9 +295,9 @@ QBCore.Functions.CreateCallback('qb-garage:server:GetPlayerVehicles', function(s
                     plate = v.plate,
                     garage = VehicleGarage,
                     state = v.state,
-                    fuel = v.fuel,
-                    engine = v.engine,
-                    body = v.body
+                    fuel = modifications.fuelLevel,
+                    engine = modifications.engineHealth,
+                    body = modifications.bodyHealth
                 }
             end
             cb(Vehicles)
