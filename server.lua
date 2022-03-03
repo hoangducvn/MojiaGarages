@@ -248,6 +248,77 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:GetimpoundVehicles', functi
 	end)
 end)
 
+QBCore.Functions.CreateCallback('qb-garage:server:GetPlayerVehicles', function(source, cb) --Call from qb-phone
+    local Player = QBCore.Functions.GetPlayer(source)
+    local Vehicles = {}
+
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE citizenid = ?',
+		{
+			Player.PlayerData.citizenid
+		}, function(result)
+        if result[1] then
+            for k, v in pairs(result) do
+                local VehicleData = QBCore.Shared.Vehicles[v.vehicle]
+				local modifications = json.decode(v.mods)
+                local VehicleGarage = 'None'
+                if v.garage ~= nil then
+					if Garages[v.garage] ~= nil then
+						VehicleGarage = Garages[v.garage]['label']
+					end
+				end
+
+                if v.state == 0 then
+                    if v.depotprice == 0 then
+						VehicleGarage = 'None'
+						v.state = 'Out'
+					else
+						VehicleGarage = 'Depot'
+						v.state = 'In Depot'
+					end
+                elseif v.state == 1 then
+                    v.state = 'In'
+                elseif v.state == 2 then
+					VehicleGarage = 'Police Depot'
+					v.state = 'Impounded'
+                end
+                
+                local fullname 
+                if VehicleData['brand'] ~= nil then
+                    fullname = VehicleData['brand'] .. ' ' .. VehicleData['name']
+                else
+                    fullname = VehicleData['name']
+                end    
+                Vehicles[#Vehicles+1] = {
+                    fullname = fullname,
+                    brand = VehicleData['brand'],
+                    model = VehicleData['name'],
+                    plate = v.plate,
+                    garage = VehicleGarage,
+                    state = v.state,
+                    fuel = v.fuel,
+                    engine = v.engine,
+                    body = v.body
+                }
+            end
+            cb(Vehicles)
+        else
+            cb(nil)
+        end
+    end)
+end)
+
+QBCore.Functions.CreateCallback("qb-garage:server:checkVehicleOwner", function(source, cb, plate)--Call from qb-vehiclesales
+    local src = source
+    local pData = QBCore.Functions.GetPlayer(src)
+    MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?',{plate, pData.PlayerData.citizenid}, function(result)
+        if result[1] then
+            cb(true, result[1].balance)
+        else
+            cb(false)
+        end
+    end)
+end)
+
 -- Events
 RegisterNetEvent('MojiaGarages:server:renderScorched', function(vehicleNetId, scorched) -- render entity scorched (trigger with netid of the vehicle and false when repairing)
 	local vehicleHandle = NetworkGetEntityFromNetworkId(vehicleNetId)
