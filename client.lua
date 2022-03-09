@@ -1453,7 +1453,7 @@ end)
 RegisterNetEvent('MojiaGarages:client:updateVehicleKey', function(plate) -- Update vehicle key for qb-vehiclekey
 	QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(owner)
 		if owner ~= nil then
-			TriggerServerEvent('MojiaGarages:server:updateOutSiteVehicleKeys', plate, owner.citizenid)
+			TriggerServerEvent('MojiaGarages:server:updateOutsiteVehicleKeys', plate, owner.citizenid)
 		end
 	end, plate)
 end)
