@@ -372,7 +372,7 @@ exports["qb-vehiclekeys"]:HasVehicleKey(plate)
 ```
 - Add event to qb-vehiclekeys\server\main.lua:
 ```
-RegisterNetEvent('MojiaGarages:server:updateOutSiteVehicleKeys', function(plate, citizenid) --Update vehicle Keys for qb-vehicle key
+RegisterNetEvent('MojiaGarages:server:updateOutsiteVehicleKeys', function(plate, citizenid) --Update vehicle Keys for qb-vehicle key
     if plate and citizenid then
         if VehicleList then
             -- VehicleList exists so check for a plate
