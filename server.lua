@@ -568,7 +568,9 @@ AddEventHandler('onResourceStart', function(resource)
 		if Realparking then
 			print("Respawning cars")
 		else
-			MySQL.Async.execute('UPDATE player_vehicles SET state = 1 WHERE state = 0 AND depotprice = 0', {})
+			local price = Realdepot
+			MySQL.Async.execute('UPDATE player_vehicles SET state = ?, depotprice = ? WHERE state = 0 AND depotprice = 0', 
+			{0, price})
 		end
 	end
 end)

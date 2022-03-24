@@ -7,6 +7,8 @@ spawnDistance = 200.0
 
 Realparking = true -- Controle Realparking True or false if false it return cars to garage on server restart
 
+Realdepot = 2500 -- price depot when realparking is false has to be higher then 0
+
 UsingMojiaVehiclekeys = true
 
 -- set this to false if you do not want entities render as scorched when they 
