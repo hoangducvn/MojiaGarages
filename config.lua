@@ -4,11 +4,17 @@ cleanUpThresholdTime = 24 * 7
 -- this controls the distance at which vehicles will spawn to the closest player 
 -- (in meters)
 spawnDistance = 200.0
+
+Realparking = true -- Controle Realparking True or false if false it return cars to garage on server restart
+
+UsingMojiaVehiclekeys = true
+
 -- set this to false if you do not want entities render as scorched when they 
 -- are completely broken
-UsingMojiaVehiclekeys = true
 renderScorched = true
+
 CustomFont = nil --[nil]: use system default font - or ['name of your custom font']: You need your_custum_font.gfx EX: CustomFont = 'Oswald'
+
 Garages = {
     --Public Garage:
 	['garage1'] = {
