@@ -400,210 +400,72 @@ end)
 ```
 ### Event for F1 menu:
 #### qb-radialmenu:
-- Add MojiaGarages/client.lua:
-```
-CreateThread(function() -- Update for qb-radialmenu
-	while true do		
-		if inGarageStation and currentgarage ~= nil then
-			TriggerEvent('MojiaGarages:client:updateRadialmenu')
-		else
-			TriggerEvent('MojiaGarages:client:updateRadialmenu')
-		end
-		Wait(1000)
-	end
-end)
 
-RegisterNetEvent('MojiaGarages:client:updateRadialmenu', function()
-	local PlayerData = QBCore.Functions.GetPlayerData()
-	local ped = PlayerPedId()
-	local pos = GetEntityCoords(ped)
-	local ped = PlayerPedId()
-	local veh = QBCore.Functions.GetClosestVehicle(pos)
-	if IsPedInAnyVehicle(ped) then
-		veh = GetVehiclePedIsIn(ped)
-	end
-	local plate = QBCore.Functions.GetPlate(veh)		
-	--Open garage
-	if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and not IsPedInAnyVehicle(ped, false) then
-		exports["qb-radialmenu"]:addSubMenu(3, 'opengarage', {
+- Add to qb-radialmenu/client/main.lua:
+```
+local garaIndex = nil
+local function SetupGaragesMenu()
+    local isingarage, canStoreVehicle = exports["MojiaGarages"]:IsInGarage()
+	local GaragesMenu = {
+        id = 'garages',
+        title = 'Garages',
+        icon = 'warehouse',
+        items = {}
+    }
+	if isingarage then
+		GaragesMenu.items[#GaragesMenu.items+1] = {
 			id = 'opengarage',
-			title = 'Open Garages',
-			icon = 'car',
+			title = 'Open Garage',
+			icon = 'warehouse',
 			type = 'client',
 			event = 'MojiaGarages:client:openGarage',
-			shouldClose = true
-		})
-	else
-		exports["qb-radialmenu"]:removeSubMenu(3, 'opengarage')
-	end
-	--Store Vehicle
-	if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and Garages[currentgarage].canStoreVehicle then
-		if UsingMojiaVehiclekeys then
-            if exports['MojiaVehicleKeys']:CheckHasKey(plate) then
-                exports["qb-radialmenu"]:addSubMenu(3, 'storevehicle', {
-                    id = 'storevehicle',
-                    title = 'Store Vehicle',
-                    icon = 'car',
-                    type = 'client',
-                    event = 'MojiaGarages:client:storeVehicle',
-                    shouldClose = true
-                })
-            end
-        else
-            if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
-                exports["qb-radialmenu"]:addSubMenu(3, 'storevehicle', {
-                    id = 'storevehicle',
-                    title = 'Store Vehicle',
-                    icon = 'car',
-                    type = 'client',
-                    event = 'MojiaGarages:client:storeVehicle',
-                    shouldClose = true
-                })
-            end
-        end        
-	else
-		exports["qb-radialmenu"]:removeSubMenu(3, 'storevehicle')
-	end
-	--Job
-	if PlayerData.job then
-		if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.onduty and inJobStation[PlayerData.job.name] and lastjobveh == nil and not IsPedInAnyVehicle(ped) then
-			exports["qb-radialmenu"]:addJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'opengarage', {
-				id = PlayerData.job.name .. 'opengarage',
-				title = 'Open Garages',
-				icon = 'car',
-				type = 'client',
-				event = 'MojiaGarages:client:openJobVehList',
-				shouldClose = true
-			})
+			shouldClose = false,
+		}
+		local veh = nil
+		local ped = PlayerPedId()
+		local pos = GetEntityCoords(ped)
+		local vehout, distance = QBCore.Functions.GetClosestVehicle(pos)
+		local vehin = IsPedInAnyVehicle(ped, true)
+		if vehin then
+			veh = GetVehiclePedIsIn(ped)
 		else
-			exports["qb-radialmenu"]:removeJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'opengarage')
+			if NetworkGetEntityIsLocal(vehout) and distance <= 5 then
+				veh = vehout
+			end
 		end
-		if inGarageStation and currentgarage ~= nil and not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() and PlayerData.job.onduty and inJobStation[PlayerData.job.name] and lastjobveh == veh then
-			if UsingMojiaVehiclekeys then
-                if exports['MojiaVehicleKeys']:CheckHasKey(plate) and curVeh == lastjobveh then
-                    exports["qb-radialmenu"]:addJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'storevehicle', {
-                        id = PlayerData.job.name .. 'storevehicle',
-                        title = 'Store Vehicle',
-                        icon = 'car',
-                        type = 'client',
-                        event = 'MojiaGarages:client:HideJobVeh',
-                        shouldClose = true
-                    })
-                end
-            else
-                if exports['qb-vehiclekeys']:HasVehicleKey(plate) and curVeh == lastjobveh then
-                    exports["qb-radialmenu"]:addJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'storevehicle', {
-                        id = PlayerData.job.name .. 'storevehicle',
-                        title = 'Store Vehicle',
-                        icon = 'car',
-                        type = 'client',
-                        event = 'MojiaGarages:client:HideJobVeh',
-                        shouldClose = true
-                    })
-                end
-            end
-           
-		else
-			exports["qb-radialmenu"]:removeJobSubMenu(PlayerData.job.name, PlayerData.job.name .. 'storevehicle')
-		end
-	end
-end)
-```
-- Edit qb-radialmenu\client\main.lua:
-```
--- Sets the metadata when the player spawns
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerData = QBCore.Functions.GetPlayerData()
-	TriggerEvent('MojiaGarages:client:updateRadialmenu')
-end)
-```
-```
--- Sets the playerdata to an empty table when the player has quit or did /logout
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    PlayerData = {}
-	TriggerEvent('MojiaGarages:client:updateRadialmenu')
-end)
-```
-```
--- This will update all the PlayerData that doesn't get updated with a specific event other than this like the metadata
-RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
-    PlayerData = val
-	TriggerEvent('MojiaGarages:client:updateRadialmenu')
-end)
-```
-- Add to qb-radialmenu\client\main.lua:
-
-```
-local function CheckHasID(id1, id2)
-	local has = false
-	if Config.MenuItems[id1].items then
-		for k, v in pairs(Config.MenuItems[id1].items) do
-			if v.id == id2 then
-				has = true
+		if veh ~= nil then
+			local plate = QBCore.Functions.GetPlate(veh)
+			if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
+				if canStoreVehicle then
+					GaragesMenu.items[#GaragesMenu.items+1] = {
+						id = 'storeVehicle',
+						title = 'Store Vehicle',
+						icon = 'parking',
+						type = 'client',
+						event = 'MojiaGarages:client:storeVehicle',
+						shouldClose = false,
+					}
+				end
 			end
 		end
 	end
-	return has
+    if #GaragesMenu.items == 0 then
+        if garaIndex then
+            RemoveOption(garaIndex)
+            garaIndex = nil
+        end
+    else
+        garaIndex = AddOption(GaragesMenu, garaIndex)
+    end
 end
-
-local function CheckHasID2(job, id)
-	local has = false
-	if Config.JobInteractions[job] then
-		for k, v in pairs(Config.JobInteractions[job]) do
-			if v.id == id then
-				has = true
-			end
-		end
-	end
-	return has
+```
+- Edit qb-radialmenu/client/main.lua:
+```
+local function SetupSubItems()
+    SetupJobMenu()
+    SetupVehicleMenu()
+	SetupGaragesMenu()
 end
-
-local function addSubMenu(id1, id2, menu)
-	if Config.MenuItems[id1].items and not CheckHasID(id1, id2) then
-		Config.MenuItems[id1].items[#Config.MenuItems[id1].items + 1] = menu
-	end
-end
-
-local function addJobSubMenu(job, id, menu)
-	if Config.JobInteractions[job] and not CheckHasID2(job, id) then
-		Config.JobInteractions[job][#Config.JobInteractions[job] +1 ] =  menu
-	end
-end
-
-local function removeSubMenu(id1, id2)
-	if Config.MenuItems[id1].items and CheckHasID(id1, id2) then
-		for k, v in pairs(Config.MenuItems[id1].items) do
-			if v.id == id2 then
-        			if k == #Config.MenuItems[id1].items then
-					Config.MenuItems[id1].items[k] = nil
-        			else
-          				Config.MenuItems[id1].items[k] = Config.MenuItems[id1].items[#Config.MenuItems[id1].items]
-          				Config.MenuItems[id1].items[#Config.MenuItems[id1].items] = nil
-        			end
-			end
-		end
-	end
-end
-
-local function removeJobSubMenu(job, id)
-	if Config.JobInteractions[job] and CheckHasID2(job, id) then
-		for k, v in pairs(Config.JobInteractions[job]) do
-			if v.id == id then
-        			if k == #Config.JobInteractions[job] then
-					Config.JobInteractions[job][k] = nil
-        			else
-          				Config.JobInteractions[job][k] = Config.JobInteractions[job][#Config.JobInteractions[job]]
-          				Config.JobInteractions[job][#Config.JobInteractions[job]] = nil
-        			end
-			end
-		end
-	end
-end
-
-exports('addSubMenu', addSubMenu)
-exports('addJobSubMenu', addJobSubMenu)
-exports('removeSubMenu', removeSubMenu)
-exports('removeJobSubMenu', removeJobSubMenu)
 ```
 #### Other Menu:
 ##### Open Garage:
