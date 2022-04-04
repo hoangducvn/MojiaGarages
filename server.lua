@@ -4,7 +4,7 @@ local OutsideVehicles = {}
 local activePlayerPositions = {}
 local dataLoaded = false
 local AllGarages = {}
-
+OutsideVehiclesData = {}
 -- Functions
 local function GetClosestPlayerId(position) -- return the ID of the closest player
 	local closestDistance = 1000000.0
@@ -85,6 +85,17 @@ local function TryGetLoadedVehicle(plate, loadedVehicles) -- returns a loaded ve
 		end
 	end
 	return nil
+end
+
+local function isVehicleExistInRealLife(plate) -- returns a loaded vehicled with a given number plate
+	local loadedVehicles = GetAllVehicles()
+	local check = false
+	for k, v in pairs(loadedVehicles) do
+		if plate == GetPlate(v) and DoesEntityExist(v) then
+			check = true
+		end
+	end
+	return check
 end
 
 local function TrySpawnVehicles() -- checks if vehicles have to be spawned and spawns them if necessary
@@ -327,6 +338,38 @@ RegisterNetEvent('MojiaGarages:server:renderScorched', function(vehicleNetId, sc
 	end
 end)
 
+local VehicleData = {}
+
+RegisterNetEvent('MojiaVehicles:server:UpdateVehicleData', function(data, plate)
+    local currentTime = os.time()
+	VehicleData[plate] = data
+	if isVehicleExistInRealLife(plate) then
+		VehicleData[plate].spawned = true
+	else
+		VehicleData[plate].spawned = false
+	end
+    TriggerClientEvent('MojiaVehicles:client:UpdateVehicleData', -1, VehicleData[plate], plate)
+	MySQL.Async.fetchAll('SELECT plate FROM player_vehicles WHERE plate = @plate',
+		{
+			['@plate'] = plate,
+		}, function(results)
+		if results then
+			MySQL.Async.execute('UPDATE player_vehicles SET posX = @posX, posY = @posY, posZ = @posZ, rotX = @rotX, rotY = @rotY, rotZ = @rotZ, mods = @mods, lastUpdate = @lastUpdate WHERE plate = @plate',
+			{
+				['@plate']          	= plate,
+				['@posX']           	= data.position.x,
+				['@posY']           	= data.position.y,
+				['@posZ']           	= data.position.z,
+				['@rotX']           	= data.rotation.x,
+				['@rotY']           	= data.rotation.y,
+				['@rotZ']           	= data.rotation.z,
+				['@mods']  				= json.encode(data.mods),
+				['@lastUpdate']     	= currentTime
+			})
+		end
+	end)
+end)
+
 RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, plate, modifications)
 	local vehicle = NetworkGetEntityFromNetworkId(networkId)
 	if (DoesEntityExist(vehicle)) then
@@ -359,6 +402,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, plate,
 				['@modifications']  = json.encode(OutsideVehicles[plate].modifications),
 				['@lastUpdate']     = OutsideVehicles[plate].lastUpdate
 			})
+			RefreshVehicles()
 		else
 			-- insert in db
 			OutsideVehicles[plate] = {
@@ -382,6 +426,7 @@ RegisterNetEvent('MojiaGarages:server:updateVehicle', function(networkId, plate,
 				['@modifications']  = json.encode(OutsideVehicles[plate].modifications),
 				['@lastUpdate']     = OutsideVehicles[plate].lastUpdate
 			})
+			RefreshVehicles()
 		end
 	end
 end)
@@ -588,6 +633,7 @@ CreateThread(function() -- Update data
 	end
 end)
 
+--[[
 CreateThread(function() -- loop to spawn vehicles near players
 	while (true) do		
 		if (GetActivePlayerCount() > 0) then
@@ -596,3 +642,60 @@ CreateThread(function() -- loop to spawn vehicles near players
 		Wait(1000)
 	end
 end)
+]]--
+
+QBCore.Functions.CreateCallback('MojiaGarages:server:getOusiteVehicle', function(source, cb)
+	MySQL.Async.fetchAll('SELECT * FROM player_vehicles WHERE state = ? AND depotprice = ?',
+		{
+			0,
+			0
+		}, function(result)
+		if result then
+			 cb(result)
+		else
+			cb(false)
+		end
+	end)
+end)
+
+QBCore.Functions.CreateCallback("MojiaGarages:server:getPlayerIdentifier", function(source, cb)
+	local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player then
+		local playerId = Player.PlayerData.citizenid
+		if type(playerId) ~= 'nil' then
+			cb(playerId)
+		end
+    end
+end)
+
+function RefreshVehicles()
+	local vehicles = {}
+	local result = MySQL.Sync.fetchAll('SELECT * FROM player_vehicles WHERE state = ? AND depotprice = ?', {0, 0})
+	if result then
+		for k, v in pairs(result) do
+			local vehspawned = true
+			local loadedVehicles = GetAllVehicles()
+			local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
+			if loadedVehicle ~= nil then -- vehicle found
+				vehspawned = true
+			else
+				vehspawned = false
+			end
+			vehicles[v.plate] = {
+				model = v.vehicle,
+				position = vector3(v.posX, v.posY, v.posZ),
+				rotation = vector3(v.rotX, v.rotY, v.rotZ),
+				mods = json.decode(v.mods),
+				spawned = vehspawned
+			}
+		end
+		TriggerClientEvent("MojiaGarages:client:refreshVehicles", -1, vehicles)		
+	end
+end
+
+RegisterNetEvent('MojiaGarages:server:refreshVehicles', function()
+	RefreshVehicles()
+end)
+
+
