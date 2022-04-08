@@ -676,7 +676,7 @@ function RefreshVehicles()
 		for k, v in pairs(result) do
 			local vehspawned = true
 			local loadedVehicles = GetAllVehicles()
-			local loadedVehicle = TryGetLoadedVehicle(plate, loadedVehicles)
+			local loadedVehicle = TryGetLoadedVehicle(v.plate, loadedVehicles)
 			if loadedVehicle ~= nil then -- vehicle found
 				vehspawned = true
 			else
