@@ -210,8 +210,8 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleData', function(s
 		{
 			plate
 		}, function(result)
-		if result[1] then
-			 cb(result[1])
+		if result then
+			 cb(result)
 		else
 			cb(false)
 		end
