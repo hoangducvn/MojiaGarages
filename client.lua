@@ -1631,7 +1631,10 @@ function SpawnVehicles(vehdata)
 			QBCore.Functions.SpawnVehicle(vehdata.model, function(veh)
 				SetVehicleModifications(veh, vehdata.mods)
 				SetEntityRotation(veh, vehdata.rotation)
-				exports['LegacyFuel']:SetFuel(veh, vehdata.mods.fuelLevel)			
+				exports['LegacyFuel']:SetFuel(veh, vehdata.mods.fuelLevel)
+				if not UsingMojiaVehiclekeys then
+					TriggerServerEvent('MojiaGarages:server:updateVehicleKey')
+				end
 			end, vehdata.position, true)
 		end		
 	end)
