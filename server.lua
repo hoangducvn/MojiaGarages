@@ -210,8 +210,8 @@ QBCore.Functions.CreateCallback('MojiaGarages:server:getVehicleData', function(s
 		{
 			plate
 		}, function(result)
-		if result then
-			 cb(result)
+		if result[1] then
+			cb(result[1])
 		else
 			cb(false)
 		end
@@ -698,6 +698,6 @@ RegisterNetEvent('MojiaGarages:server:refreshVehicles', function()
 	RefreshVehicles()
 end)
 
-RegisterNetEvent('MojiaGarages:server:updateVehicleKey', function()
+RegisterNetEvent('MojiaGarages:server:updateVehicleKey', function(plate)
 	TriggerClientEvent('MojiaGarages:client:updateVehicleKey', -1, plate) -- Update vehicle key for qb-vehiclekey
 end)
