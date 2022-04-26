@@ -698,6 +698,6 @@ RegisterNetEvent('MojiaGarages:server:refreshVehicles', function()
 	RefreshVehicles()
 end)
 
-RegisterNetEvent('MojiaGarages:server:updateVehicleKey', function(plate)
-	TriggerClientEvent('MojiaGarages:client:updateVehicleKey', -1, plate) -- Update vehicle key for qb-vehiclekey
+RegisterNetEvent('MojiaGarages:server:updateVehicleKey', function()
+	TriggerClientEvent('MojiaGarages:client:updateVehicleKey', -1) -- Update vehicle key for qb-vehiclekey
 end)

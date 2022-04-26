@@ -1351,7 +1351,7 @@ RegisterNetEvent('MojiaGarages:client:storeVehicle', function() -- Store Vehicle
 					end
 				end
 			else
-				if exports['qb-vehiclekeys']:HasVehicleKey(plate) then
+				if exports['qb-vehiclekeys']:HasKeys(plate) then
 					if curVeh and #(pos - vehpos) < 7.5 then
 						QBCore.Functions.TriggerCallback('MojiaGarages:server:checkVehicleOwner', function(owned)
 							if owned then
@@ -1477,7 +1477,7 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 			lastjobveh = nil
 		end
 	else
-		if exports['qb-vehiclekeys']:HasVehicleKey(plate) and curVeh == lastjobveh then
+		if exports['qb-vehiclekeys']:HasKeys(plate) and curVeh == lastjobveh then
 			if IsPedInAnyVehicle(ped) then
 				CheckPlayers(curVeh)
 			else
@@ -1486,14 +1486,6 @@ RegisterNetEvent('MojiaGarages:client:HideJobVeh', function() -- Hide vehicle fo
 			lastjobveh = nil
 		end
 	end
-end)
-
-RegisterNetEvent('MojiaGarages:client:updateVehicleKey', function(plate) -- Update vehicle key for qb-vehiclekey
-	QBCore.Functions.TriggerCallback('MojiaGarages:server:getVehicleData', function(owner)
-		if owner then
-			TriggerServerEvent('MojiaGarages:server:updateOutsiteVehicleKeys', plate, owner.citizenid)
-		end
-	end, plate)
 end)
 
 -- Thread
@@ -1629,7 +1621,7 @@ function SpawnVehicles(vehdata)
 				exports['LegacyFuel']:SetFuel(veh, vehdata.mods.fuelLevel)
 				local plate = QBCore.Functions.GetPlate(veh)
 				if not UsingMojiaVehiclekeys then
-					TriggerServerEvent('MojiaGarages:server:updateVehicleKey', plate)
+					TriggerServerEvent('MojiaGarages:server:updateVehicleKey')
 				end
 			end, vehdata.position, true)
 		end		
