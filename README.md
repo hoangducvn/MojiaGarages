@@ -601,6 +601,8 @@ if exports["qb-vehiclekeys"]:HasVehicleKey(plate) then
 
 ## Note:
 - This script is completely free for community, it is strictly forbidden to use this script for commercial purposes.
-- If you want to offer me a cup of coffee, you can donate to me through: [https://www.buymeacoffee.com/hoangducdt](https://www.buymeacoffee.com/hoangducdt)
+- If you want to offer me a cup of coffee, you can donate to me through:
+    [https://www.buymeacoffee.com/hoangducdt](https://www.buymeacoffee.com/hoangducdt)
+    [paypal.me/hoangducdt](paypal.me/hoangducdt)
 - Follow me on [My Github](https://github.com/hoangducdt) or subscribe to [My Youtube Channel](https://www.youtube.com/channel/UCFIsOgj9zvEWAwFTPRT5mbQ) for latest updates
 - My Discord: ✯✯✯✯✯#8386
