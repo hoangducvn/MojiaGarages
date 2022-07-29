@@ -1,3 +1,4 @@
+# Updates to qb-core versions after April 26 will not be supported, any modifications to be compatible with qb-core versions after that time will be made by everyone themselves.
 # MojiaGarages
 🅿 Best advanced garages for QB-Core Framework 🅿
 
